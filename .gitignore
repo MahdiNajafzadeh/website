@@ -48,3 +48,11 @@ node_modules/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# custom
+*.db
+*.sqlite
+.opencode
+.claude
+.agents
+openspec

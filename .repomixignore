@@ -1,0 +1,16 @@
+# Add patterns to ignore here, one per line
+# Example:
+# *.log
+# tmp/
+*.xml
+openspec
+.agents
+.opencode
+.claude
+repomix-output.*
+*.db
+*.sqlite
+src/app/(payload)
+src/payload-types.ts
+src/components/ui
+
