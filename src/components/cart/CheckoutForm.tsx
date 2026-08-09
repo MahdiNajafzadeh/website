@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { AlertCircle, CheckCircle2 } from 'lucide-react'
 
+import { useTranslation } from '@/components/i18n/TranslationProvider'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -13,7 +14,10 @@ import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
 import { formatPriceToman } from '@/lib/format'
 import { clearCart } from '@/lib/cart'
+import type { Locale } from '@/lib/locale'
+import { localeHref } from '@/lib/locale'
 import { useCart } from '@/lib/use-cart'
+import { useBeforeUnload } from '@/lib/use-before-unload'
 
 type AddressShape = {
     fullName?: string
@@ -26,19 +30,23 @@ type AddressShape = {
 type Props = {
     user: { id: number | string; email: string; name?: string | null; phone?: string | null }
     defaultAddress?: AddressShape
+    locale: Locale
 }
 
-export const CheckoutForm = ({ user, defaultAddress }: Props) => {
+export const CheckoutForm = ({ user, defaultAddress, locale }: Props) => {
     const router = useRouter()
+    const { t } = useTranslation()
     const { items, total } = useCart()
     const [submitting, setSubmitting] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [success, setSuccess] = useState(false)
+    const [dirty, setDirty] = useState(false)
+    useBeforeUnload(dirty && !submitting && !success)
 
     const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault()
         if (items.length === 0) {
-            setError('سبد خرید شما خالی است.')
+            setError(t('cart.checkout.empty'))
             return
         }
         setSubmitting(true)
@@ -76,14 +84,14 @@ export const CheckoutForm = ({ user, defaultAddress }: Props) => {
             if (!res.ok) {
                 const data = await res.json().catch(() => ({}))
                 throw new Error(
-                    data?.errors?.[0]?.message ?? data?.message ?? 'خطا در ثبت سفارش',
+                    data?.errors?.[0]?.message ?? data?.message ?? t('cart.checkout.errorFallback'),
                 )
             }
             clearCart()
             setSuccess(true)
-            window.setTimeout(() => router.push('/orders'), 1500)
+            window.setTimeout(() => router.push(localeHref(locale, '/orders')), 1500)
         } catch (e) {
-            setError(e instanceof Error ? e.message : 'خطای ناشناخته')
+            setError(e instanceof Error ? e.message : t('common.unknownError'))
         } finally {
             setSubmitting(false)
         }
@@ -91,83 +99,87 @@ export const CheckoutForm = ({ user, defaultAddress }: Props) => {
 
     if (success) {
         return (
-            <Alert>
-                <CheckCircle2 className="size-4" />
-                <AlertTitle>سفارش ثبت شد</AlertTitle>
-                <AlertDescription>
-                    در حال انتقال به صفحه سفارش‌های شما...
-                </AlertDescription>
+            <Alert role="status" aria-live="polite">
+                <CheckCircle2 className="size-4" aria-hidden="true" />
+                <AlertTitle>{t('cart.checkout.successTitle')}</AlertTitle>
+                <AlertDescription>{t('cart.checkout.successBody')}</AlertDescription>
             </Alert>
         )
     }
 
     return (
-        <form onSubmit={onSubmit} className="grid gap-6 md:grid-cols-[1fr_320px]">
+        <form onSubmit={onSubmit} className="grid gap-6 md:grid-cols-[1fr_320px]" onChange={() => setDirty(true)}>
             <Card>
                 <CardHeader>
-                    <CardTitle>اطلاعات ارسال</CardTitle>
+                    <CardTitle>{t('cart.checkout.shipping')}</CardTitle>
                 </CardHeader>
                 <CardContent className="grid gap-4">
                     <div className="grid gap-2 sm:grid-cols-2">
                         <div className="grid gap-1.5">
-                            <Label htmlFor="fullName">نام و نام خانوادگی</Label>
+                            <Label htmlFor="fullName">{t('cart.checkout.fullName')}</Label>
                             <Input
                                 id="fullName"
                                 name="fullName"
                                 required
+                                autoComplete="name"
                                 defaultValue={defaultAddress?.fullName ?? user.name ?? ''}
                             />
                         </div>
                         <div className="grid gap-1.5">
-                            <Label htmlFor="phone">شماره تماس</Label>
+                            <Label htmlFor="phone">{t('cart.checkout.phone')}</Label>
                             <Input
                                 id="phone"
                                 name="phone"
                                 required
                                 type="tel"
+                                inputMode="tel"
+                                autoComplete="tel"
                                 defaultValue={defaultAddress?.phone ?? user.phone ?? ''}
                             />
                         </div>
                     </div>
                     <div className="grid gap-1.5">
-                        <Label htmlFor="address">آدرس کامل</Label>
+                        <Label htmlFor="address">{t('cart.checkout.address')}</Label>
                         <Textarea
                             id="address"
                             name="address"
                             required
                             rows={3}
+                            autoComplete="street-address"
                             defaultValue={defaultAddress?.address ?? ''}
                         />
                     </div>
                     <div className="grid gap-2 sm:grid-cols-2">
                         <div className="grid gap-1.5">
-                            <Label htmlFor="city">شهر</Label>
+                            <Label htmlFor="city">{t('cart.checkout.city')}</Label>
                             <Input
                                 id="city"
                                 name="city"
                                 required
+                                autoComplete="address-level2"
                                 defaultValue={defaultAddress?.city ?? ''}
                             />
                         </div>
                         <div className="grid gap-1.5">
-                            <Label htmlFor="province">استان</Label>
+                            <Label htmlFor="province">{t('cart.checkout.province')}</Label>
                             <Input
                                 id="province"
                                 name="province"
                                 required
+                                autoComplete="address-level1"
                                 defaultValue={defaultAddress?.province ?? ''}
                             />
                         </div>
                     </div>
                     <div className="grid gap-1.5">
-                        <Label htmlFor="notes">یادداشت (اختیاری)</Label>
+                        <Label htmlFor="notes">{t('cart.checkout.notes')}</Label>
                         <Textarea id="notes" name="notes" rows={2} />
                     </div>
 
                     {error ? (
-                        <Alert variant="destructive">
-                            <AlertCircle className="size-4" />
-                            <AlertTitle>خطا</AlertTitle>
+                        <Alert role="alert" aria-live="assertive" variant="destructive">
+                            <AlertCircle className="size-4" aria-hidden="true" />
+                            <AlertTitle>{t('common.error')}</AlertTitle>
                             <AlertDescription>{error}</AlertDescription>
                         </Alert>
                     ) : null}
@@ -176,7 +188,7 @@ export const CheckoutForm = ({ user, defaultAddress }: Props) => {
 
             <Card className="h-fit">
                 <CardHeader>
-                    <CardTitle>خلاصه سفارش</CardTitle>
+                    <CardTitle>{t('cart.checkout.summary')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <ul className="space-y-1.5 text-sm">
@@ -188,17 +200,17 @@ export const CheckoutForm = ({ user, defaultAddress }: Props) => {
                                 <span className="line-clamp-1">
                                     {item.name} × {item.quantity}
                                 </span>
-                                <span>{formatPriceToman(item.price * item.quantity)}</span>
+                                <span>{formatPriceToman(item.price * item.quantity, locale)}</span>
                             </li>
                         ))}
                     </ul>
                     <Separator className="my-3" />
                     <div className="flex items-center justify-between">
-                        <span className="font-medium">جمع کل:</span>
-                        <span className="text-lg font-bold">{formatPriceToman(total)}</span>
+                        <span className="font-medium">{t('cart.checkout.total')}</span>
+                        <span className="text-lg font-bold">{formatPriceToman(total, locale)}</span>
                     </div>
                     <Button type="submit" disabled={submitting || items.length === 0} className="mt-4 w-full">
-                        {submitting ? 'در حال ثبت...' : 'ثبت سفارش'}
+                        {submitting ? t('cart.checkout.submitting') : t('cart.checkout.submit')}
                     </Button>
                 </CardContent>
             </Card>

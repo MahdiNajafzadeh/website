@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
+import { useTranslation } from '@/components/i18n/TranslationProvider'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -21,28 +22,32 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table'
-import { formatPriceToman } from '@/lib/format'
+import { formatDate, formatOrderStatus, formatPriceToman } from '@/lib/format'
+import type { Locale } from '@/lib/locale'
+import { localeHref } from '@/lib/locale'
 import type { Order } from '@/payload-types'
 
-const STATUS_OPTIONS = [
-    { value: 'pending', label: 'در انتظار پرداخت' },
-    { value: 'processing', label: 'در حال پردازش' },
-    { value: 'shipped', label: 'ارسال شد' },
-    { value: 'delivered', label: 'تحویل شد' },
-    { value: 'cancelled', label: 'لغو شد' },
+const STATUS_VALUES = [
+    'pending',
+    'processing',
+    'shipped',
+    'delivered',
+    'cancelled',
 ] as const
 
-const STATUS_LABELS: Record<string, string> = Object.fromEntries(
-    STATUS_OPTIONS.map((s) => [s.value, s.label]),
-)
+type StatusValue = (typeof STATUS_VALUES)[number]
+
+const statusKey = (value: StatusValue): string => `employee.orders.status.${value}`
 
 type Props = {
     orders: Order[]
     currentStatus?: string
+    locale: Locale
 }
 
-export const EmployeeOrdersTable = ({ orders, currentStatus }: Props) => {
+export const EmployeeOrdersTable = ({ orders, currentStatus, locale }: Props) => {
     const router = useRouter()
+    const { t } = useTranslation()
     const [updating, setUpdating] = useState<string | null>(null)
 
     const updateStatus = async (id: number | string, status: string) => {
@@ -63,36 +68,44 @@ export const EmployeeOrdersTable = ({ orders, currentStatus }: Props) => {
     return (
         <div className="space-y-4">
             <div className="flex flex-wrap gap-2">
-                <Button variant={!currentStatus ? 'default' : 'outline'} size="sm" render={<Link href="/employee/orders" />}>
-                    همه
+                <Button
+                    variant={!currentStatus ? 'default' : 'outline'}
+                    size="sm"
+                    render={<Link href={localeHref(locale, '/employee/orders')} />}
+                >
+                    {t('employee.orders.filter.all')}
                 </Button>
-                {STATUS_OPTIONS.map((s) => (
+                {STATUS_VALUES.map((value) => (
                     <Button
-                        key={s.value}
-                        variant={currentStatus === s.value ? 'default' : 'outline'}
+                        key={value}
+                        variant={currentStatus === value ? 'default' : 'outline'}
                         size="sm"
-                        render={<Link href={`/employee/orders?status=${s.value}`} />}
+                        render={
+                            <Link
+                                href={`${localeHref(locale, '/employee/orders')}?status=${value}`}
+                            />
+                        }
                     >
-                        {s.label}
+                        {t(statusKey(value))}
                     </Button>
                 ))}
             </div>
 
             {orders.length === 0 ? (
                 <div className="rounded-md border p-10 text-center text-sm text-muted-foreground">
-                    سفارشی یافت نشد.
+                    {t('employee.orders.empty')}
                 </div>
             ) : (
                 <div className="overflow-x-auto rounded-md border">
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead>شماره</TableHead>
-                                <TableHead>مشتری</TableHead>
-                                <TableHead>مبلغ</TableHead>
-                                <TableHead>وضعیت</TableHead>
-                                <TableHead>تاریخ</TableHead>
-                                <TableHead>تغییر وضعیت</TableHead>
+                                <TableHead>{t('employee.orders.table.id')}</TableHead>
+                                <TableHead>{t('employee.orders.table.customer')}</TableHead>
+                                <TableHead>{t('employee.orders.table.total')}</TableHead>
+                                <TableHead>{t('employee.orders.table.status')}</TableHead>
+                                <TableHead>{t('employee.orders.table.date')}</TableHead>
+                                <TableHead>{t('employee.orders.table.changeStatus')}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -109,37 +122,37 @@ export const EmployeeOrdersTable = ({ orders, currentStatus }: Props) => {
                                                 ? `${customer.name} (${customer.email})`
                                                 : `#${order.user}`}
                                         </TableCell>
-                                        <TableCell>{formatPriceToman(order.total)}</TableCell>
+                                        <TableCell>{formatPriceToman(order.total, locale)}</TableCell>
                                         <TableCell>
                                             <Badge>
-                                                {STATUS_LABELS[order.status ?? ''] ?? order.status}
+                                                {formatOrderStatus(order.status, locale)}
                                             </Badge>
                                         </TableCell>
                                         <TableCell className="text-xs text-muted-foreground">
-                                            {order.createdAt}
+                                            {formatDate(order.createdAt, locale)}
                                         </TableCell>
                                         <TableCell>
                                             <Select
                                                 value={order.status ?? undefined}
-                                                onValueChange={(v) => updateStatus(order.id, v)}
+                                                onValueChange={(v) => updateStatus(order.id, String(v))}
                                             >
                                                 <SelectTrigger className="w-44">
                                                     <SelectValue />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    {STATUS_OPTIONS.map((s) => (
+                                                    {STATUS_VALUES.map((value) => (
                                                         <SelectItem
-                                                            key={s.value}
-                                                            value={s.value}
+                                                            key={value}
+                                                            value={value}
                                                         >
-                                                            {s.label}
+                                                            {t(statusKey(value))}
                                                         </SelectItem>
                                                     ))}
                                                 </SelectContent>
                                             </Select>
                                             {updating === String(order.id) ? (
                                                 <span className="ms-2 text-xs text-muted-foreground">
-                                                    ذخیره...
+                                                    {t('employee.orders.table.saving')}
                                                 </span>
                                             ) : null}
                                         </TableCell>

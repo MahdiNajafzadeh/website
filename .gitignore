@@ -56,3 +56,4 @@ node_modules/
 .claude
 .agents
 openspec
+graphify-out

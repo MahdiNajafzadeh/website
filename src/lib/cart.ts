@@ -61,6 +61,13 @@ export const removeFromCart = (productId: CartItem['productId']): CartItem[] => 
     return next
 }
 
+export const restoreCartItem = (item: CartItem): CartItem[] => {
+    const items = readCart()
+    if (items.some((i) => i.productId === item.productId)) return items
+    writeCart([...items, item])
+    return readCart()
+}
+
 export const clearCart = (): void => {
     writeCart([])
 }

@@ -16,6 +16,7 @@ export const SiteSettings: GlobalConfig = {
             name: 'siteName',
             type: 'text',
             defaultValue: 'آبفارین',
+            localized: true,
         },
         {
             name: 'logo',
@@ -122,6 +123,7 @@ export const SiteSettings: GlobalConfig = {
         {
             name: 'footerText',
             type: 'richText',
+            localized: true,
         },
         {
             name: 'brandLogos',

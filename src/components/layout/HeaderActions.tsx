@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 import { CartSheet } from '@/components/cart/CartSheet'
+import { LocaleSwitcher } from '@/components/locale-switcher'
+import { useTranslation } from '@/components/i18n/TranslationProvider'
 import { Button } from '@/components/ui/button'
 import {
     DropdownMenu,
@@ -13,20 +15,24 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useCart } from '@/lib/use-cart'
 import type { SafeUser } from '@/lib/auth-server'
+import type { Locale } from '@/lib/locale'
+import { localeHref } from '@/lib/locale'
+import { useCart } from '@/lib/use-cart'
 
 type Props = {
     user: SafeUser | null
+    locale: Locale
 }
 
-const roleLabel = (role: SafeUser['role']): string => {
-    if (role === 'admin') return 'مدیر'
-    if (role === 'employee') return 'کارمند'
-    return 'مشتری'
+const roleKey = (role: SafeUser['role']): 'admin' | 'employee' | 'customer' => {
+    if (role === 'admin') return 'admin'
+    if (role === 'employee') return 'employee'
+    return 'customer'
 }
 
-export const HeaderActions = ({ user }: Props) => {
+export const HeaderActions = ({ user, locale }: Props) => {
+    const { t } = useTranslation()
     const { count } = useCart()
     const router = useRouter()
     const [open, setOpen] = useState(false)
@@ -46,21 +52,22 @@ export const HeaderActions = ({ user }: Props) => {
         }
         setLoggingOut(false)
         router.refresh()
-        router.push('/')
+        router.push(localeHref(locale, '/'))
     }
 
     const go = (path: string) => () => {
         setOpen(false)
-        router.push(path)
+        router.push(localeHref(locale, path))
     }
 
     return (
         <div className="flex items-center gap-2">
-            <CartSheet open={cartOpen} onOpenChange={setCartOpen} />
+            <LocaleSwitcher locale={locale} />
+            <CartSheet open={cartOpen} onOpenChange={setCartOpen} locale={locale} />
             <Button
                 variant="ghost"
                 size="icon"
-                aria-label="سبد خرید"
+                aria-label={t('layout.header.cart')}
                 className="relative"
                 onClick={() => setCartOpen(true)}
             >
@@ -76,7 +83,11 @@ export const HeaderActions = ({ user }: Props) => {
                 <DropdownMenu open={open} onOpenChange={setOpen}>
                     <DropdownMenuTrigger
                         render={
-                            <Button variant="ghost" size="icon" aria-label="حساب کاربری">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                aria-label={t('layout.header.account')}
+                            >
                                 <User className="size-5" />
                             </Button>
                         }
@@ -84,27 +95,35 @@ export const HeaderActions = ({ user }: Props) => {
                     <DropdownMenuContent align="end" className="w-48">
                         <div className="px-2 py-1.5 text-sm">
                             <p className="font-medium">{user.name ?? user.email}</p>
-                            <p className="text-xs text-muted-foreground">{roleLabel(user.role)}</p>
+                            <p className="text-xs text-muted-foreground">
+                                {t(`layout.role.${roleKey(user.role)}`)}
+                            </p>
                         </div>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={go('/account')}>حساب کاربری</DropdownMenuItem>
-                        <DropdownMenuItem onClick={go('/orders')}>سفارش‌ها</DropdownMenuItem>
+                        <DropdownMenuItem onClick={go('/account')}>
+                            {t('layout.nav.account')}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={go('/orders')}>
+                            {t('layout.nav.orders')}
+                        </DropdownMenuItem>
                         {user.role !== 'customer' ? (
                             <DropdownMenuItem onClick={go('/employee/dashboard')}>
-                                پنل کارمندی
+                                {t('layout.nav.employee')}
                             </DropdownMenuItem>
                         ) : null}
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={handleLogout} disabled={loggingOut}>
                             <LogOut className="size-4" />
-                            {loggingOut ? 'در حال خروج...' : 'خروج'}
+                            {loggingOut
+                                ? t('layout.header.loggingOut')
+                                : t('layout.header.logout')}
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             ) : (
                 <Button variant="ghost" size="sm" onClick={go('/login')}>
                     <LogIn className="size-4" />
-                    ورود
+                    {t('layout.nav.login')}
                 </Button>
             )}
         </div>

@@ -26,6 +26,14 @@ export default buildConfig({
     collections: [Users, Media, Brands, Categories, Products, Orders],
     globals: [SiteSettings],
     editor: lexicalEditor(),
+    localization: {
+        locales: [
+            { code: 'en', label: 'English' },
+            { code: 'fa', label: 'فارسی', rtl: true },
+        ],
+        defaultLocale: 'en',
+        fallback: true,
+    },
     secret: process.env.PAYLOAD_SECRET || '',
     typescript: {
         outputFile: path.resolve(dirname, 'payload-types.ts'),

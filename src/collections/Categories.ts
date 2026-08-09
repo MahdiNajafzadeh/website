@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 import { slugField } from 'payload'
 
 import { adminOnly, anyone, employeeOrAdmin } from '@/access/byRole'
+import { localizedSlugify } from '@/lib/slugify'
 
 export const Categories: CollectionConfig = {
     slug: 'categories',
@@ -20,9 +21,11 @@ export const Categories: CollectionConfig = {
             name: 'name',
             type: 'text',
             required: true,
+            localized: true,
         },
         slugField({
             fieldToUse: 'name',
+            slugify: localizedSlugify,
         }),
         {
             name: 'description',

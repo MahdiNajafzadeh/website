@@ -5,19 +5,28 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { AlertCircle } from 'lucide-react'
 
+import { useTranslation } from '@/components/i18n/TranslationProvider'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import type { Locale } from '@/lib/locale'
+import { localeHref } from '@/lib/locale'
+import { sanitizeRedirect } from '@/lib/redirect'
+import { useBeforeUnload } from '@/lib/use-before-unload'
 
 type Props = {
     redirectTo?: string
+    locale: Locale
 }
 
-export const LoginForm = ({ redirectTo }: Props) => {
+export const LoginForm = ({ redirectTo, locale }: Props) => {
     const router = useRouter()
+    const { t } = useTranslation()
     const [submitting, setSubmitting] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const [dirty, setDirty] = useState(false)
+    useBeforeUnload(dirty && !submitting)
 
     const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault()
@@ -36,25 +45,25 @@ export const LoginForm = ({ redirectTo }: Props) => {
             })
             const data = await res.json()
             if (!res.ok) {
-                throw new Error(data?.errors?.[0]?.message ?? 'خطا در ورود')
+                throw new Error(data?.errors?.[0]?.message ?? t('auth.login.errorFallback'))
             }
             router.refresh()
-            router.push(redirectTo ?? '/account')
+            router.push(redirectTo ? sanitizeRedirect(redirectTo) : localeHref(locale, '/account'))
         } catch (e) {
-            setError(e instanceof Error ? e.message : 'خطای ناشناخته')
+            setError(e instanceof Error ? e.message : t('common.unknownError'))
         } finally {
             setSubmitting(false)
         }
     }
 
     return (
-        <form onSubmit={onSubmit} className="grid gap-4">
+        <form onSubmit={onSubmit} className="grid gap-4" onChange={() => setDirty(true)}>
             <div className="grid gap-1.5">
-                <Label htmlFor="email">ایمیل</Label>
-                <Input id="email" name="email" type="email" required autoComplete="email" />
+                <Label htmlFor="email">{t('auth.login.email')}</Label>
+                <Input id="email" name="email" type="email" required autoComplete="email" inputMode="email" spellCheck={false} />
             </div>
             <div className="grid gap-1.5">
-                <Label htmlFor="password">رمز عبور</Label>
+                <Label htmlFor="password">{t('auth.login.password')}</Label>
                 <Input
                     id="password"
                     name="password"
@@ -65,24 +74,24 @@ export const LoginForm = ({ redirectTo }: Props) => {
             </div>
 
             {error ? (
-                <Alert variant="destructive">
-                    <AlertCircle className="size-4" />
-                    <AlertTitle>خطا</AlertTitle>
+                <Alert role="alert" aria-live="assertive" variant="destructive">
+                    <AlertCircle className="size-4" aria-hidden="true" />
+                    <AlertTitle>{t('common.error')}</AlertTitle>
                     <AlertDescription>{error}</AlertDescription>
                 </Alert>
             ) : null}
 
             <Button type="submit" disabled={submitting}>
-                {submitting ? 'در حال ورود...' : 'ورود'}
+                {submitting ? t('auth.login.submitting') : t('auth.login.submit')}
             </Button>
 
             <p className="text-center text-sm text-muted-foreground">
-                حساب ندارید؟{' '}
+                {t('auth.login.noAccount')}{' '}
                 <Link
-                    href={`/register${redirectTo ? `?redirect=${encodeURIComponent(redirectTo)}` : ''}`}
+                    href={`${localeHref(locale, '/register')}${redirectTo ? `?redirect=${encodeURIComponent(redirectTo)}` : ''}`}
                     className="text-primary hover:underline"
                 >
-                    ثبت‌نام کنید
+                    {t('auth.login.signupCta')}
                 </Link>
             </p>
         </form>

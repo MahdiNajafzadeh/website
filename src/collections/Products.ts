@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 import { slugField } from 'payload'
 
 import { adminOnly, anyone, employeeOrAdmin } from '@/access/byRole'
+import { localizedSlugify } from '@/lib/slugify'
 
 export const Products: CollectionConfig = {
     slug: 'products',
@@ -20,9 +21,11 @@ export const Products: CollectionConfig = {
             name: 'name',
             type: 'text',
             required: true,
+            localized: true,
         },
         slugField({
             fieldToUse: 'name',
+            slugify: localizedSlugify,
         }),
         {
             name: 'brand',
@@ -33,6 +36,7 @@ export const Products: CollectionConfig = {
         {
             name: 'description',
             type: 'richText',
+            localized: true,
         },
         {
             name: 'images',
@@ -59,10 +63,10 @@ export const Products: CollectionConfig = {
             type: 'group',
             label: 'مشخصات فنی',
             fields: [
-                { name: 'size', type: 'text', label: 'سایز' },
-                { name: 'thickness', type: 'text', label: 'ضخامت' },
-                { name: 'weight', type: 'text', label: 'وزن' },
-                { name: 'application', type: 'text', label: 'کاربرد' },
+                { name: 'size', type: 'text', label: 'سایز', localized: true },
+                { name: 'thickness', type: 'text', label: 'ضخامت', localized: true },
+                { name: 'weight', type: 'text', label: 'وزن', localized: true },
+                { name: 'application', type: 'text', label: 'کاربرد', localized: true },
             ],
         },
         {
