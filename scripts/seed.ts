@@ -194,13 +194,13 @@ const ensureProducts = async (
     }
 }
 
-const findUserByEmail = async (
+const findUserByPhone = async (
     payload: Awaited<ReturnType<typeof getPayload>>,
-    email: string,
+    phone: string,
 ): Promise<{ id: number | string } | null> => {
     const result = await payload.find({
         collection: 'users',
-        where: { email: { equals: email } },
+        where: { phone: { equals: phone } },
         limit: 1,
         depth: 0,
     })
@@ -212,25 +212,28 @@ const ensureUsers = async (
     payload: Awaited<ReturnType<typeof getPayload>>,
 ): Promise<void> => {
     for (const u of SEED_USERS) {
-        const existing = await findUserByEmail(payload, u.email)
+        const existing = await findUserByPhone(payload, u.phone)
         if (existing) {
-            log(`user "${u.email}" already exists (id=${existing.id})`)
+            log(`user "${u.phone}" already exists (id=${existing.id})`)
             continue
         }
+        const email = u.email ?? `${u.phone}@phone.local`
         const data: Record<string, unknown> = {
-            email: u.email,
+            email,
             password: u.password,
-            name: u.name,
+            firstName: u.firstName,
+            lastName: u.lastName,
+            phone: u.phone,
             role: u.role,
         }
-        if (u.phone) data.phone = u.phone
+        if (u.firstLoginAt !== undefined) data.firstLoginAt = u.firstLoginAt
         if (u.addresses) data.addresses = u.addresses
         await payload.create({
             collection: 'users',
             data,
             overrideAccess: true,
         })
-        log(`user "${u.email}" created (role=${u.role})`)
+        log(`user "${u.phone}" created (role=${u.role})`)
     }
 }
 

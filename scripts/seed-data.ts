@@ -33,11 +33,14 @@ export type SeedProduct = {
 }
 
 export type SeedUser = {
-    email: string
+    // Login is by phone number. Email is optional display-only.
+    email?: string
     password: string
-    name: string
-    phone?: string
+    firstName: string
+    lastName: string
+    phone: string
     role: 'customer' | 'employee' | 'admin'
+    firstLoginAt?: string | null
     addresses?: Array<{
         label: string
         fullName: string
@@ -428,25 +431,28 @@ export const SEED_PRODUCTS: SeedProduct[] = [
     },
 ]
 
+// ponytail: omit `email` so seed.ts synthesizes `${phoneDigits}@phone.local`,
+// which is the same form the phone-login route matches against — keeping the
+// password hash and login lookup on the same email.
 export const SEED_USERS: SeedUser[] = [
     {
-        email: 'admin@abafarin.local',
         password: 'admin1234',
-        name: 'مدیر آبفارین',
-        phone: '021-12345678',
+        firstName: 'مدیر',
+        lastName: 'آبفارین',
+        phone: '09121111111',
         role: 'admin',
     },
     {
-        email: 'employee@abafarin.local',
         password: 'employee1234',
-        name: 'کارمند فروش',
-        phone: '021-12345679',
+        firstName: 'کارمند',
+        lastName: 'فروش',
+        phone: '09122222222',
         role: 'employee',
     },
     {
-        email: 'customer@abafarin.local',
         password: 'customer1234',
-        name: 'مشتری نمونه',
+        firstName: 'مشتری',
+        lastName: 'نمونه',
         phone: '09123456789',
         role: 'customer',
         addresses: [

@@ -20,6 +20,9 @@ type Props = {
     locale: Locale
 }
 
+// ponytail: lenient phone validation — strip non-digits and require 11.
+const validatePhone = (raw: string): boolean => raw.replace(/\D+/g, '').length === 11
+
 export const LoginForm = ({ redirectTo, locale }: Props) => {
     const router = useRouter()
     const { t } = useTranslation()
@@ -33,19 +36,25 @@ export const LoginForm = ({ redirectTo, locale }: Props) => {
         setSubmitting(true)
         setError(null)
         const fd = new FormData(event.currentTarget)
-        const email = String(fd.get('email') ?? '')
+        const phone = String(fd.get('phone') ?? '')
         const password = String(fd.get('password') ?? '')
 
+        if (!validatePhone(phone)) {
+            setError(t('auth.login.errorFallback'))
+            setSubmitting(false)
+            return
+        }
+
         try {
-            const res = await fetch('/api/users/login', {
+            const res = await fetch('/api/auth/phone-login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify({ phone, password }),
             })
-            const data = await res.json()
             if (!res.ok) {
-                throw new Error(data?.errors?.[0]?.message ?? t('auth.login.errorFallback'))
+                const data = await res.json().catch(() => ({}))
+                throw new Error(data?.message ?? t('auth.login.errorFallback'))
             }
             router.refresh()
             router.push(redirectTo ? sanitizeRedirect(redirectTo) : localeHref(locale, '/account'))
@@ -59,8 +68,17 @@ export const LoginForm = ({ redirectTo, locale }: Props) => {
     return (
         <form onSubmit={onSubmit} className="grid gap-4" onChange={() => setDirty(true)}>
             <div className="grid gap-1.5">
-                <Label htmlFor="email">{t('auth.login.email')}</Label>
-                <Input id="email" name="email" type="email" required autoComplete="email" inputMode="email" spellCheck={false} />
+                <Label htmlFor="phone">{t('auth.login.phone')}</Label>
+                <Input
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    inputMode="tel"
+                    autoComplete="tel"
+                    spellCheck={false}
+                    required
+                    pattern=".*"
+                />
             </div>
             <div className="grid gap-1.5">
                 <Label htmlFor="password">{t('auth.login.password')}</Label>

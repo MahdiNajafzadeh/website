@@ -6,6 +6,7 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbS
 import { Card, CardContent } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { MediaImage } from '@/components/MediaImage'
+import { getCurrentUser } from '@/lib/auth-server'
 import { formatPriceToman } from '@/lib/format'
 import type { Locale } from '@/lib/locale'
 import { ensureLocale, localeHref } from '@/lib/locale'
@@ -60,6 +61,10 @@ export default async function ProductDetailPage({ params }: { params: Params }) 
     const localizedBrandName = brand ? localizedValue(brand.name, locale) : ''
     const images = (product.images ?? []).filter((i) => i.image)
     const isOut = typeof product.stock === 'number' && product.stock === 0
+
+    // ponytail: server-side role check; no client session manager.
+    const user = await getCurrentUser()
+    const hidePrice = user?.role === 'customer'
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -161,7 +166,15 @@ export default async function ProductDetailPage({ params }: { params: Params }) 
                         ) : null}
                     </div>
 
-                    <div className="text-3xl font-bold">{formatPriceToman(product.price, locale)}</div>
+                    <div className="text-3xl font-bold">
+                        {hidePrice ? (
+                            <span className="text-base font-normal text-muted-foreground">
+                                {t('product.price.callForPrice')}
+                            </span>
+                        ) : (
+                            formatPriceToman(product.price, locale)
+                        )}
+                    </div>
 
                     <AddToCart product={product} locale={locale} disabled={isOut} />
 

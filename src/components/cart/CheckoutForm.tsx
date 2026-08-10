@@ -28,7 +28,13 @@ type AddressShape = {
 }
 
 type Props = {
-    user: { id: number | string; email: string; name?: string | null; phone?: string | null }
+    user: {
+        id: number | string
+        email: string
+        firstName?: string | null
+        lastName?: string | null
+        phone?: string | null
+    }
     defaultAddress?: AddressShape
     locale: Locale
 }
@@ -122,7 +128,10 @@ export const CheckoutForm = ({ user, defaultAddress, locale }: Props) => {
                                 name="fullName"
                                 required
                                 autoComplete="name"
-                                defaultValue={defaultAddress?.fullName ?? user.name ?? ''}
+                                defaultValue={
+                                    defaultAddress?.fullName ??
+                                    [user.firstName, user.lastName].filter(Boolean).join(' ')
+                                }
                             />
                         </div>
                         <div className="grid gap-1.5">

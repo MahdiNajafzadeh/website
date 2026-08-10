@@ -1,6 +1,7 @@
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { MediaImage } from '@/components/MediaImage'
+import { getCurrentUser } from '@/lib/auth-server'
 import { formatPriceToman } from '@/lib/format'
 import type { Locale } from '@/lib/locale'
 import { getTranslator } from '@/lib/i18n'
@@ -14,7 +15,7 @@ type Props = {
     priority?: boolean
 }
 
-export const ProductCard = ({ product, locale, priority = false }: Props) => {
+export const ProductCard = async ({ product, locale, priority = false }: Props) => {
     const { t } = getTranslator(locale)
     const cover = product.images?.[0]?.image
     const imageUrl = mediaUrl(cover, 'card')
@@ -25,6 +26,10 @@ export const ProductCard = ({ product, locale, priority = false }: Props) => {
         product.brand && typeof product.brand !== 'number'
             ? localizedValue(product.brand.name, locale)
             : ''
+
+    // ponytail: server-side role check (no client session manager).
+    const user = await getCurrentUser()
+    const hidePrice = user?.role === 'customer'
 
     return (
         <Card className="group h-full overflow-hidden pt-0">
@@ -65,7 +70,15 @@ export const ProductCard = ({ product, locale, priority = false }: Props) => {
                     <p className="text-xs text-muted-foreground">{brandName}</p>
                 ) : null}
                 <div className="mt-auto flex items-center justify-between pt-1">
-                    <span className="text-base font-bold">{formatPriceToman(product.price, locale)}</span>
+                    {hidePrice ? (
+                        <span className="text-sm text-muted-foreground">
+                            {t('product.price.callForPrice')}
+                        </span>
+                    ) : (
+                        <span className="text-base font-bold">
+                            {formatPriceToman(product.price, locale)}
+                        </span>
+                    )}
                 </div>
             </CardContent>
         </Card>

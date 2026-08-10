@@ -2,6 +2,9 @@ import type { CollectionConfig } from 'payload'
 
 import { adminOnly, selfOrAdmin } from '@/access/byRole'
 
+// ponytail: keep `auth: true` so Payload's built-in email/password still works
+// internally; the public surface authenticates by phone. Email is synthesized
+// at register/login time and never persisted for phone-only users.
 export const Users: CollectionConfig = {
     slug: 'users',
     auth: {
@@ -11,8 +14,8 @@ export const Users: CollectionConfig = {
         useAPIKey: false,
     },
     admin: {
-        useAsTitle: 'email',
-        defaultColumns: ['name', 'email', 'role', 'createdAt'],
+        useAsTitle: 'firstName',
+        defaultColumns: ['firstName', 'lastName', 'phone', 'role', 'createdAt'],
     },
     access: {
         create: () => true,
@@ -23,13 +26,24 @@ export const Users: CollectionConfig = {
     },
     fields: [
         {
-            name: 'name',
+            name: 'firstName',
+            type: 'text',
+            required: true,
+        },
+        {
+            name: 'lastName',
             type: 'text',
             required: true,
         },
         {
             name: 'phone',
             type: 'text',
+            required: true,
+            unique: true,
+            index: true,
+            admin: {
+                description: 'شماره موبایل - شناسه ورود',
+            },
         },
         {
             name: 'role',
@@ -47,6 +61,13 @@ export const Users: CollectionConfig = {
             },
             admin: {
                 description: 'ادمین می‌تواند نقش کاربران را تغییر دهد.',
+            },
+        },
+        {
+            name: 'firstLoginAt',
+            type: 'date',
+            admin: {
+                description: 'تاریخ اولین ورود موفق',
             },
         },
         {

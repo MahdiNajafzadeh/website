@@ -9,7 +9,7 @@ import config from '@payload-config'
 import { DEFAULT_LOCALE, isLocale, type Locale } from '@/lib/locale'
 import type { User } from '@/payload-types'
 
-export type SafeUser = Pick<User, 'id' | 'email' | 'name' | 'role'>
+export type SafeUser = Pick<User, 'id' | 'email' | 'firstName' | 'lastName' | 'phone' | 'role'>
 
 export const getCurrentUser = async (): Promise<SafeUser | null> => {
     const headers = await getHeaders()
@@ -19,7 +19,9 @@ export const getCurrentUser = async (): Promise<SafeUser | null> => {
     return {
         id: user.id,
         email: user.email,
-        name: user.name,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phone: user.phone ?? null,
         role: user.role,
     }
 }

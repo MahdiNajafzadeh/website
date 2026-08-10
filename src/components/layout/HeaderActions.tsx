@@ -96,7 +96,10 @@ export const HeaderActions = ({ user, locale }: Props) => {
                     />
                     <DropdownMenuContent align="end" className="w-48">
                         <div className="px-2 py-1.5 text-sm">
-                            <p className="font-medium">{user.name ?? user.email}</p>
+                            <p className="font-medium">
+                                {[user.firstName, user.lastName].filter(Boolean).join(' ').trim() ||
+                                    user.email}
+                            </p>
                             <p className="text-xs text-muted-foreground">
                                 {t(`layout.role.${roleKey(user.role)}`)}
                             </p>

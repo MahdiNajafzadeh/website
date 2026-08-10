@@ -10,6 +10,44 @@ const STATUS_OPTIONS = [
     { label: 'لغو شد', value: 'cancelled' },
 ] as const
 
+// ponytail: only recompute total on update. Customer checkout already
+// sends the correct total on create (Cart total = sum(items.price * qty)),
+// so we leave the customer create path untouched to avoid a redundant hook.
+//
+// PATCH /api/orders/:id with `{ items: [{ id, price }] }` sends a partial
+// row — only `id` and the changed field. We must merge with the original
+// doc to recover the unchanged `quantity` (and original `price` if missing).
+const recalcTotal: import('payload').CollectionBeforeChangeHook = ({
+    data,
+    originalDoc,
+    operation,
+}) => {
+    if (operation !== 'update') return data
+    if (!Array.isArray(data?.items)) return data
+    const existingRows: Array<{
+        id?: string | null
+        price?: number | null
+        quantity?: number | null
+    }> = Array.isArray(originalDoc?.items) ? originalDoc.items : []
+    const updatedById = new Map<string, { price?: number | null; quantity?: number | null }>()
+    for (const row of data.items as Array<{ id?: string | null; price?: number | null; quantity?: number | null }>) {
+        if (row.id) updatedById.set(String(row.id), row)
+    }
+    const merged: Array<{ price?: number | null; quantity?: number | null }> =
+        updatedById.size > 0
+            ? existingRows.map((row) => {
+                  const override = row.id ? updatedById.get(String(row.id)) : undefined
+                  return override ? { ...row, ...override } : row
+              })
+            : (data.items as Array<{ price?: number | null; quantity?: number | null }>)
+    const total = merged.reduce((sum, item) => {
+        const qty = Number(item?.quantity ?? 0)
+        const price = Number(item?.price ?? 0)
+        return sum + (Number.isFinite(qty) && Number.isFinite(price) ? qty * price : 0)
+    }, 0)
+    return { ...data, total }
+}
+
 export const Orders: CollectionConfig = {
     slug: 'orders',
     admin: {
@@ -21,6 +59,9 @@ export const Orders: CollectionConfig = {
         create: authenticated,
         update: employeeOrAdmin,
         delete: adminOnly,
+    },
+    hooks: {
+        beforeChange: [recalcTotal],
     },
     fields: [
         {

@@ -45,7 +45,8 @@ export default async function CheckoutPage(props: { params: Params }) {
                 user={{
                     id: me.id,
                     email: me.email,
-                    name: me.name,
+                    firstName: me.firstName,
+                    lastName: me.lastName,
                     phone: me.phone,
                 }}
                 defaultAddress={defaultAddress}

@@ -135,12 +135,20 @@ export interface UserAuthOperations {
  */
 export interface User {
   id: number;
-  name: string;
-  phone?: string | null;
+  firstName: string;
+  lastName: string;
+  /**
+   * شماره موبایل - شناسه ورود
+   */
+  phone: string;
   /**
    * ادمین می‌تواند نقش کاربران را تغییر دهد.
    */
   role: 'customer' | 'employee' | 'admin';
+  /**
+   * تاریخ اولین ورود موفق
+   */
+  firstLoginAt?: string | null;
   addresses?:
     | {
         /**
@@ -456,9 +464,11 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
-  name?: T;
+  firstName?: T;
+  lastName?: T;
   phone?: T;
   role?: T;
+  firstLoginAt?: T;
   addresses?:
     | T
     | {

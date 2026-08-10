@@ -51,7 +51,9 @@ export default async function EmployeeDashboardPage(props: { params: Params }) {
         <div className="container mx-auto px-4 py-8">
             <h1 className="mb-2 text-3xl font-bold">{t('employee.dashboard.title')}</h1>
             <p className="mb-6 text-sm text-muted-foreground">
-                {t('employee.dashboard.greeting', { name: me.name ?? '' })}
+                {t('employee.dashboard.greeting', {
+                    name: [me.firstName, me.lastName].filter(Boolean).join(' ').trim() || me.email,
+                })}
             </p>
 
             <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

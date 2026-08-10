@@ -28,6 +28,11 @@ const roleKey = (role: string | null | undefined): 'admin' | 'employee' | 'custo
     return 'customer'
 }
 
+// ponytail: synthesized @phone.local emails are an internal artifact and
+// must not be displayed in the account UI.
+const isSyntheticEmail = (email: string | null | undefined): boolean =>
+    typeof email === 'string' && email.endsWith('@phone.local')
+
 export default async function AccountPage(props: { params: Params }) {
     const locale: Locale = ensureLocale((await props.params).locale)
     const { t } = getTranslator(locale)
@@ -49,6 +54,9 @@ export default async function AccountPage(props: { params: Params }) {
         locale,
     })
 
+    const fullName = [me.firstName, me.lastName].filter(Boolean).join(' ').trim()
+    const showEmail = me.email && !isSyntheticEmail(me.email)
+
     return (
         <div className="container mx-auto px-4 py-8">
             <h1 className="mb-6 text-3xl font-bold">{t('account.title')}</h1>
@@ -60,13 +68,19 @@ export default async function AccountPage(props: { params: Params }) {
                     </CardHeader>
                     <CardContent className="space-y-2 text-sm">
                         <div className="flex justify-between">
-                            <span className="text-muted-foreground">{t('account.field.name')}</span>
-                            <span>{me.name}</span>
+                            <span className="text-muted-foreground">{t('account.field.firstName')}</span>
+                            <span>{me.firstName}</span>
                         </div>
                         <div className="flex justify-between">
-                            <span className="text-muted-foreground">{t('account.field.email')}</span>
-                            <span dir="ltr">{me.email}</span>
+                            <span className="text-muted-foreground">{t('account.field.lastName')}</span>
+                            <span>{me.lastName}</span>
                         </div>
+                        {showEmail ? (
+                            <div className="flex justify-between">
+                                <span className="text-muted-foreground">{t('account.field.email')}</span>
+                                <span dir="ltr">{me.email}</span>
+                            </div>
+                        ) : null}
                         <div className="flex justify-between">
                             <span className="text-muted-foreground">{t('account.field.phone')}</span>
                             <span dir="ltr">{me.phone ?? '—'}</span>
@@ -76,6 +90,7 @@ export default async function AccountPage(props: { params: Params }) {
                             <span className="text-muted-foreground">{t('account.field.role')}</span>
                             <span>{t(`layout.role.${roleKey(me.role)}`)}</span>
                         </div>
+                        {fullName ? null : null}
                     </CardContent>
                 </Card>
 
