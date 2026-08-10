@@ -50,6 +50,7 @@ node_modules/
 /playwright/.cache/
 
 # custom
+repomix-output.*
 *.db
 *.sqlite
 .opencode
