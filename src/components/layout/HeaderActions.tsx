@@ -6,6 +6,7 @@ import { useState } from 'react'
 
 import { CartSheet } from '@/components/cart/CartSheet'
 import { LocaleSwitcher } from '@/components/locale-switcher'
+import { ThemeToggle } from '@/components/theme/ThemeToggle'
 import { useTranslation } from '@/components/i18n/TranslationProvider'
 import { Button } from '@/components/ui/button'
 import {
@@ -63,6 +64,7 @@ export const HeaderActions = ({ user, locale }: Props) => {
     return (
         <div className="flex items-center gap-2">
             <LocaleSwitcher locale={locale} />
+            <ThemeToggle />
             <CartSheet open={cartOpen} onOpenChange={setCartOpen} locale={locale} />
             <Button
                 variant="ghost"

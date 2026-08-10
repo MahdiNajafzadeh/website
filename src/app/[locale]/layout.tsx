@@ -4,6 +4,7 @@ import React from 'react'
 
 import { Footer } from '@/components/layout/Footer'
 import { Header } from '@/components/layout/Header'
+import { ThemeProvider } from '@/components/theme/ThemeProvider'
 import { TranslationProvider } from '@/components/i18n/TranslationProvider'
 import { ensureLocale, isLocale, localeDir } from '@/lib/locale'
 import { getDictionary, getTranslator } from '@/lib/i18n'
@@ -50,7 +51,7 @@ export default async function RootLayout(props: {
     const { t } = getTranslator(locale)
 
     return (
-        <html lang={locale} dir={dir} className={vazirmatn.variable}>
+        <html lang={locale} dir={dir} className={vazirmatn.variable} suppressHydrationWarning>
             <body
                 className={`${vazirmatn.className} flex min-h-screen flex-col bg-background text-foreground antialiased`}
             >
@@ -61,11 +62,18 @@ export default async function RootLayout(props: {
                     {t('layout.skipToContent')}
                 </a>
                 <TranslationProvider locale={locale} dictionary={dictionary}>
-                    <Header locale={locale} />
-                    <main id="main" className="flex-1">
-                        {props.children}
-                    </main>
-                    <Footer locale={locale} />
+                    <ThemeProvider
+                        attribute="class"
+                        defaultTheme="system"
+                        enableSystem
+                        disableTransitionOnChange
+                    >
+                        <Header locale={locale} />
+                        <main id="main" className="flex-1">
+                            {props.children}
+                        </main>
+                        <Footer locale={locale} />
+                    </ThemeProvider>
                 </TranslationProvider>
             </body>
         </html>

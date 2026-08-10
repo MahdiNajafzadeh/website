@@ -38,6 +38,10 @@
     "layout.locale.english": "English",
     "layout.locale.persian": "Persian",
     "layout.locale.aria": "Language",
+    "layout.theme.light": "Light",
+    "layout.theme.dark": "Dark",
+    "layout.theme.system": "System",
+    "layout.theme.aria": "Toggle theme",
 
     "home.hero.slide1.title": "Quality pipes and fittings",
     "home.hero.slide1.subtitle": "Authorized dealer of trusted Iranian brands",

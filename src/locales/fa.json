@@ -38,6 +38,10 @@
     "layout.locale.english": "English",
     "layout.locale.persian": "فارسی",
     "layout.locale.aria": "زبان",
+    "layout.theme.light": "روشن",
+    "layout.theme.dark": "تاریک",
+    "layout.theme.system": "سیستم",
+    "layout.theme.aria": "تغییر تم",
 
     "home.hero.slide1.title": "لوله و اتصالات با کیفیت",
     "home.hero.slide1.subtitle": "نمایندگی رسمی برندهای معتبر ایران",
