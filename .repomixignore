@@ -13,4 +13,6 @@ repomix-output.*
 src/app/(payload)
 src/payload-types.ts
 src/components/ui
-
+scripts/
+src/locales/*.json
+!src/locales/en.json

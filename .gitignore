@@ -58,3 +58,9 @@ repomix-output.*
 .agents
 openspec
 graphify-out
+.next
+.vscode
+.agents
+.open-next
+.wrangler
+
