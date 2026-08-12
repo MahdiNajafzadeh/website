@@ -65,7 +65,7 @@ export default async function BrandsPage(props: { params: Params }) {
                                     <div className="relative size-20 overflow-hidden rounded-md bg-muted">
                                         <MediaImage
                                             media={brand.logo}
-                                            alt={brand.logo.alt ?? brand.name}
+                                            alt={typeof brand.logo !== 'number' && brand.logo ? brand.logo.alt : brand.name}
                                             fill
                                             size="card"
                                             className="object-contain"

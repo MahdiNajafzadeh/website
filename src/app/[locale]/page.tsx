@@ -1,24 +1,22 @@
-import Link from 'next/link'
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { listActiveBrands, getSiteSettings } from '@/lib/site-settings';
+import type { Locale } from '@/lib/locale';
+import { ensureLocale, localeHref } from '@/lib/locale';
+import { getTranslator } from '@/lib/i18n';
+import { getPayload } from 'payload';
+import config from '@payload-config';
+import type { Product } from '@/payload-types';
+import { MediaImage } from '@/components/MediaImage';
+import { ProductCard } from '@/components/product/ProductCard';
 
-import { Button } from '@/components/ui/button'
-import { listActiveBrands, getSiteSettings } from '@/lib/site-settings'
-import type { Locale } from '@/lib/locale'
-import { ensureLocale, localeHref } from '@/lib/locale'
-import { getTranslator } from '@/lib/i18n'
-import { getPayload } from 'payload'
-import config from '@payload-config'
-import type { Product } from '@/payload-types'
-
-import { MediaImage } from '@/components/MediaImage'
-import { ProductCard } from '@/components/product/ProductCard'
-
-type Params = Promise<{ locale: string }>
+type Params = Promise<{ locale: string }>;
 
 export default async function HomePage(props: { params: Params }) {
-    const { locale: rawLocale } = await props.params
-    const locale: Locale = ensureLocale(rawLocale)
-    const { t } = getTranslator(locale)
-    const payload = await getPayload({ config })
+    const { locale: rawLocale } = await props.params;
+    const locale: Locale = ensureLocale(rawLocale);
+    const { t } = getTranslator(locale);
+    const payload = await getPayload({ config });
 
     const [settings, featured, brands] = await Promise.all([
         getSiteSettings(locale),
@@ -31,9 +29,9 @@ export default async function HomePage(props: { params: Params }) {
             locale,
         }),
         listActiveBrands(locale, 8),
-    ])
-    const featuredDocs: Product[] = featured.docs as Product[]
-    type Brand = (typeof brands)[number]
+    ]);
+    const featuredDocs: Product[] = featured.docs as Product[];
+    type Brand = (typeof brands)[number];
 
     const heroSlides = [
         {
@@ -54,7 +52,7 @@ export default async function HomePage(props: { params: Params }) {
             ctaKey: 'home.hero.slide3.cta',
             href: '/contact',
         },
-    ] as const
+    ] as const;
 
     return (
         <div className="flex flex-col gap-12 pb-12">
@@ -63,15 +61,11 @@ export default async function HomePage(props: { params: Params }) {
                     {heroSlides.map((slide, i) => (
                         <div
                             key={i}
-                            className="relative overflow-hidden rounded-2xl border bg-gradient-to-br from-primary/10 via-primary/5 to-background p-6 md:p-8"
+                            className="relative overflow-hidden rounded-2xl border bg-linear-to-br from-primary/10 via-primary/5 to-background p-6 md:p-8"
                         >
-                            <h2 className="text-xl font-bold leading-tight md:text-2xl">
-                                {t(slide.titleKey)}
-                            </h2>
-                            <p className="mt-2 text-sm text-muted-foreground md:text-base">
-                                {t(slide.subtitleKey)}
-                            </p>
-                            <Button className="mt-4" render={<Link href={localeHref(locale, slide.href)} />}>
+                            <h2 className="text-xl font-bold leading-tight md:text-2xl">{t(slide.titleKey)}</h2>
+                            <p className="mt-2 text-sm text-muted-foreground md:text-base">{t(slide.subtitleKey)}</p>
+                            <Button className="mt-4 bg-accent" render={<Link href={localeHref(locale, slide.href)} />}>
                                 {t(slide.ctaKey)}
                             </Button>
                         </div>
@@ -122,7 +116,11 @@ export default async function HomePage(props: { params: Params }) {
                                     <div className="relative size-16 overflow-hidden rounded-full bg-muted">
                                         <MediaImage
                                             media={brand.logo}
-                                            alt={brand.logo.alt ?? brand.name}
+                                            alt={
+                                                typeof brand.logo !== 'number' && brand.logo
+                                                    ? brand.logo.alt
+                                                    : brand.name
+                                            }
                                             fill
                                             size="thumbnail"
                                             className="object-contain"
@@ -145,12 +143,10 @@ export default async function HomePage(props: { params: Params }) {
                 <section className="container mx-auto px-4">
                     <div className="rounded-lg border border-dashed p-10 text-center">
                         <h2 className="text-xl font-semibold">{t('home.empty.title')}</h2>
-                        <p className="mt-2 text-sm text-muted-foreground">
-                            {t('home.empty.body')}
-                        </p>
+                        <p className="mt-2 text-sm text-muted-foreground">{t('home.empty.body')}</p>
                     </div>
                 </section>
             ) : null}
         </div>
-    )
+    );
 }

@@ -1,6 +1,6 @@
 import { cookies as getCookies, headers as getHeaders } from 'next/headers'
 import { NextResponse } from 'next/server'
-import { getPayload } from 'payload'
+import { createLocalReq, getPayload, logoutOperation } from 'payload'
 
 import config from '@payload-config'
 
@@ -10,7 +10,12 @@ export const POST = async () => {
     const payload = await getPayload({ config })
 
     try {
-        await payload.logout({ headers })
+        const authResult = await payload.auth({ headers })
+        if (authResult.user) {
+            const req = await createLocalReq({ user: authResult.user }, payload)
+            const collection = payload.collections[authResult.user.collection]
+            await logoutOperation({ collection, req })
+        }
     } catch {
         // even if the session was already invalid, clear the cookie
     }

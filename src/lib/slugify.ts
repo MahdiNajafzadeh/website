@@ -1,4 +1,4 @@
-import type { Slugify } from 'payload'
+import type { Slugify } from 'payload/shared'
 
 const slugifyString = (input: string): string =>
     input

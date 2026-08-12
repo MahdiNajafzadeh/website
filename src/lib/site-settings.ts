@@ -3,7 +3,7 @@ import type { Where } from 'payload'
 
 import config from '@payload-config'
 
-import type { SiteSettings as SiteSettingsType } from '@/payload-types'
+import type { SiteSetting, SiteSetting as SiteSettingsType } from '@/payload-types'
 import type { Locale } from '@/lib/locale'
 import { localizedValue } from '@/lib/localized'
 
@@ -43,13 +43,9 @@ export const listActiveBrands = async (locale: Locale, limit = 50) => {
     }))
 }
 
-type SocialLinkRow = {
-    id?: number | string
-    order?: number | null
-    createdAt?: string
-}
+export type SocialLinkItem = NonNullable<NonNullable<SiteSetting['socialLinks']>[number]>
 
-export const sortSocialLinks = <T extends SocialLinkRow>(links: T[] | undefined | null): T[] => {
+export const sortSocialLinks = (links: SocialLinkItem[] | undefined | null): SocialLinkItem[] => {
     return (links ?? [])
         .slice()
         .sort((a, b) => {
