@@ -11,6 +11,9 @@ import {
     SEED_USERS,
 } from './seed-data.js'
 
+const LOCALES = ['en', 'fa'] as const
+type Locale = (typeof LOCALES)[number]
+
 const log = (msg: string): void => {
     process.stdout.write(`[seed] ${msg}\n`)
 }
@@ -21,17 +24,61 @@ const warn = (msg: string): void => {
 
 const matchSlug = (raw: unknown, target: string): boolean => raw === target
 
+// Minimal Lexical editor state wrapping a single paragraph of plain text.
+type RichTextState = {
+    root: {
+        type: string
+        children: { type: any; version: number; [k: string]: unknown }[]
+        direction: 'ltr' | 'rtl' | null
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | ''
+        indent: number
+        version: number
+    }
+    [k: string]: unknown
+}
+
+const makeRichText = (text: string): RichTextState => ({
+    root: {
+        type: 'root',
+        children: [
+            {
+                type: 'paragraph',
+                children: [
+                    {
+                        type: 'text',
+                        detail: 0,
+                        format: 0,
+                        mode: 'normal',
+                        style: '',
+                        text,
+                        version: 1,
+                    },
+                ],
+                direction: 'ltr',
+                format: '',
+                indent: 0,
+                textFormat: 0,
+                version: 1,
+            },
+        ],
+        direction: 'ltr',
+        format: '',
+        indent: 0,
+        version: 1,
+    },
+})
+
 const findBrandBySlug = async (
     payload: Awaited<ReturnType<typeof getPayload>>,
     slug: string,
-): Promise<{ id: number | string; slug: string } | null> => {
+): Promise<{ id: number; slug: string } | null> => {
     const result = await payload.find({
         collection: 'brands',
         limit: 100,
         depth: 0,
         locale: 'en',
     })
-    const docs = result.docs as Array<{ id: number | string; slug: unknown }>
+    const docs = result.docs as Array<{ id: number; slug: unknown }>
     const match = docs.find((d) => matchSlug(d.slug, slug))
     if (!match) return null
     return { id: match.id, slug }
@@ -40,14 +87,14 @@ const findBrandBySlug = async (
 const findCategoryBySlug = async (
     payload: Awaited<ReturnType<typeof getPayload>>,
     slug: string,
-): Promise<{ id: number | string; slug: string } | null> => {
+): Promise<{ id: number; slug: string } | null> => {
     const result = await payload.find({
         collection: 'categories',
         limit: 100,
         depth: 0,
         locale: 'en',
     })
-    const docs = result.docs as Array<{ id: number | string; slug: unknown }>
+    const docs = result.docs as Array<{ id: number; slug: unknown }>
     const match = docs.find((d) => matchSlug(d.slug, slug))
     if (!match) return null
     return { id: match.id, slug }
@@ -56,14 +103,14 @@ const findCategoryBySlug = async (
 const findProductByEnSlug = async (
     payload: Awaited<ReturnType<typeof getPayload>>,
     slug: string,
-): Promise<{ id: number | string } | null> => {
+): Promise<{ id: number } | null> => {
     const result = await payload.find({
         collection: 'products',
         limit: 500,
         depth: 0,
         locale: 'en',
     })
-    const docs = result.docs as Array<{ id: number | string; slug: unknown }>
+    const docs = result.docs as Array<{ id: number; slug: unknown }>
     const match = docs.find((d) => matchSlug(d.slug, slug))
     if (!match) return null
     return { id: match.id }
@@ -71,23 +118,29 @@ const findProductByEnSlug = async (
 
 const ensureBrands = async (
     payload: Awaited<ReturnType<typeof getPayload>>,
-): Promise<Map<string, { id: number | string }>> => {
-    const map = new Map<string, { id: number | string }>()
+): Promise<Map<string, { id: number }>> => {
+    const map = new Map<string, { id: number }>()
     for (const brand of SEED_BRANDS) {
         const existing = await findBrandBySlug(payload, brand.slug)
+        const localized = (locale: Locale) => ({
+            name: brand.name[locale],
+            description: makeRichText(brand.description[locale]),
+        })
         if (existing) {
-            await payload.update({
-                collection: 'brands',
-                id: existing.id,
-                data: {
-                    name: brand.name,
-                    slug: brand.slug || brand.name.en,
-                    description: brand.description,
-                    order: brand.order,
-                    generateSlug: false,
-                },
-                overrideAccess: true,
-            })
+            for (const locale of LOCALES) {
+                await payload.update({
+                    collection: 'brands',
+                    id: existing.id,
+                    data: {
+                        ...localized(locale),
+                        slug: brand.slug || brand.name.en,
+                        order: brand.order,
+                        generateSlug: false,
+                    },
+                    locale,
+                    overrideAccess: true,
+                })
+            }
             log(`brand "${brand.name.en}" updated (id=${existing.id})`)
             map.set(brand.slug, { id: existing.id })
             continue
@@ -95,12 +148,19 @@ const ensureBrands = async (
         const created = await payload.create({
             collection: 'brands',
             data: {
-                name: brand.name,
+                ...localized('en'),
                 slug: brand.slug || brand.name.en,
-                description: brand.description,
                 order: brand.order,
                 generateSlug: false,
             },
+            locale: 'en',
+            overrideAccess: true,
+        })
+        await payload.update({
+            collection: 'brands',
+            id: created.id,
+            data: localized('fa'),
+            locale: 'fa',
             overrideAccess: true,
         })
         log(`brand "${brand.name.en}" created (id=${created.id})`)
@@ -111,22 +171,28 @@ const ensureBrands = async (
 
 const ensureCategories = async (
     payload: Awaited<ReturnType<typeof getPayload>>,
-): Promise<Map<string, { id: number | string }>> => {
-    const map = new Map<string, { id: number | string }>()
+): Promise<Map<string, { id: number }>> => {
+    const map = new Map<string, { id: number }>()
     for (const cat of SEED_CATEGORIES) {
         const existing = await findCategoryBySlug(payload, cat.slug)
+        const localized = (locale: Locale) => ({
+            name: cat.name[locale],
+        })
         if (existing) {
-            await payload.update({
-                collection: 'categories',
-                id: existing.id,
-                data: {
-                    name: cat.name,
-                    slug: cat.slug || cat.name.en,
-                    description: cat.description,
-                    generateSlug: false,
-                },
-                overrideAccess: true,
-            })
+            for (const locale of LOCALES) {
+                await payload.update({
+                    collection: 'categories',
+                    id: existing.id,
+                    data: {
+                        ...localized(locale),
+                        slug: cat.slug || cat.name.en,
+                        description: cat.description,
+                        generateSlug: false,
+                    },
+                    locale,
+                    overrideAccess: true,
+                })
+            }
             log(`category "${cat.name.en}" updated (id=${existing.id})`)
             map.set(cat.slug, { id: existing.id })
             continue
@@ -134,11 +200,19 @@ const ensureCategories = async (
         const created = await payload.create({
             collection: 'categories',
             data: {
-                name: cat.name,
+                ...localized('en'),
                 slug: cat.slug || cat.name.en,
                 description: cat.description,
                 generateSlug: false,
             },
+            locale: 'en',
+            overrideAccess: true,
+        })
+        await payload.update({
+            collection: 'categories',
+            id: created.id,
+            data: localized('fa'),
+            locale: 'fa',
             overrideAccess: true,
         })
         log(`category "${cat.name.en}" created (id=${created.id})`)
@@ -149,8 +223,8 @@ const ensureCategories = async (
 
 const ensureProducts = async (
     payload: Awaited<ReturnType<typeof getPayload>>,
-    brandMap: Map<string, { id: number | string }>,
-    categoryMap: Map<string, { id: number | string }>,
+    brandMap: Map<string, { id: number }>,
+    categoryMap: Map<string, { id: number }>,
 ): Promise<void> => {
     for (const product of SEED_PRODUCTS) {
         const existing = await findProductByEnSlug(payload, product.slug)
@@ -161,9 +235,13 @@ const ensureProducts = async (
         }
         const categoryIds = product.categorySlugs
             .map((slug) => categoryMap.get(slug)?.id)
-            .filter((id): id is number | string => Boolean(id))
-        const data: Record<string, unknown> = {
-            name: product.name,
+            .filter((id): id is number => Boolean(id))
+        const localized = (locale: Locale) => ({
+            name: product.name[locale],
+            ...(product.description ? { description: makeRichText(product.description[locale]) } : {}),
+            ...(product.specifications ? { specifications: product.specifications[locale] } : {}),
+        })
+        const base = {
             slug: product.slug || product.name.en,
             brand: brandId,
             categories: categoryIds,
@@ -172,22 +250,37 @@ const ensureProducts = async (
             featured: product.featured ?? false,
             generateSlug: false,
         }
-        if (product.description) data.description = product.description
-        if (product.specifications) data.specifications = product.specifications
 
         if (existing) {
-            await payload.update({
-                collection: 'products',
-                id: existing.id,
-                data: data as Parameters<typeof payload.update>[0]['data'],
-                overrideAccess: true,
-            })
+            for (const locale of LOCALES) {
+                await payload.update({
+                    collection: 'products',
+                    id: existing.id,
+                    data: {
+                        ...base,
+                        ...localized(locale),
+                    },
+                    locale,
+                    overrideAccess: true,
+                })
+            }
             log(`product "${product.name.en}" updated (id=${existing.id})`)
             continue
         }
         const created = await payload.create({
             collection: 'products',
-            data: data as Parameters<typeof payload.create>[0]['data'],
+            data: {
+                ...base,
+                ...localized('en'),
+            },
+            locale: 'en',
+            overrideAccess: true,
+        })
+        await payload.update({
+            collection: 'products',
+            id: created.id,
+            data: localized('fa'),
+            locale: 'fa',
             overrideAccess: true,
         })
         log(`product "${product.name.en}" created (id=${created.id})`)
@@ -218,19 +311,31 @@ const ensureUsers = async (
             continue
         }
         const email = u.email ?? `${u.phone}@phone.local`
-        const data: Record<string, unknown> = {
-            email,
-            password: u.password,
-            firstName: u.firstName,
-            lastName: u.lastName,
-            phone: u.phone,
-            role: u.role,
-        }
-        if (u.firstLoginAt !== undefined) data.firstLoginAt = u.firstLoginAt
-        if (u.addresses) data.addresses = u.addresses
         await payload.create({
             collection: 'users',
-            data,
+            data: {
+                email,
+                password: u.password,
+                firstName: u.firstName,
+                lastName: u.lastName,
+                phone: u.phone,
+                role: u.role,
+                ...(u.firstLoginAt !== undefined ? { firstLoginAt: u.firstLoginAt } : {}),
+                ...(u.addresses
+                    ? {
+                          addresses: u.addresses.map((a) => ({
+                              label: a.label,
+                              fullName: a.fullName,
+                              phone: a.phone,
+                              address: a.address,
+                              city: a.city,
+                              province: a.province,
+                              default: Boolean(a.isPrimary),
+                          })),
+                      }
+                    : {}),
+            },
+            draft: false,
             overrideAccess: true,
         })
         log(`user "${u.phone}" created (role=${u.role})`)
@@ -242,24 +347,35 @@ const ensureSiteSettings = async (
 ): Promise<void> => {
     const existing = await payload.findGlobal({ slug: 'site-settings', depth: 0 }).catch(() => null)
     if (existing && existing.contactInfo && existing.contactInfo.phones && existing.contactInfo.phones.length > 0) {
-        await payload.updateGlobal({
-            slug: 'site-settings',
-            data: {
-                siteName: SEED_SITE_SETTINGS.siteName,
-                footerText: SEED_SITE_SETTINGS.footerText,
-                contactInfo: SEED_SITE_SETTINGS.contactInfo,
-                socialLinks: SEED_SITE_SETTINGS.socialLinks,
-            },
-            overrideAccess: true,
-        })
+        for (const locale of LOCALES) {
+            await payload.updateGlobal({
+                slug: 'site-settings',
+                data: {
+                    siteName: SEED_SITE_SETTINGS.siteName[locale],
+                    footerText: makeRichText(SEED_SITE_SETTINGS.footerText[locale]),
+                    contactInfo: SEED_SITE_SETTINGS.contactInfo,
+                    socialLinks: SEED_SITE_SETTINGS.socialLinks,
+                },
+                locale,
+                overrideAccess: true,
+            })
+        }
         log('site-settings updated with localized fields')
         return
     }
-    await payload.updateGlobal({
-        slug: 'site-settings',
-        data: SEED_SITE_SETTINGS,
-        overrideAccess: true,
-    })
+    for (const locale of LOCALES) {
+        await payload.updateGlobal({
+            slug: 'site-settings',
+            data: {
+                siteName: SEED_SITE_SETTINGS.siteName[locale],
+                footerText: makeRichText(SEED_SITE_SETTINGS.footerText[locale]),
+                contactInfo: SEED_SITE_SETTINGS.contactInfo,
+                socialLinks: SEED_SITE_SETTINGS.socialLinks,
+            },
+            locale,
+            overrideAccess: true,
+        })
+    }
     log('site-settings seeded')
 }
 
