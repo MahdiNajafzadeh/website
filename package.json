@@ -1,7 +1,7 @@
 {
     "name": "website",
-    "version": "1.0.0",
-    "description": "A blank template to get started with Payload 3.0",
+    "version": "0.5.3",
+    "description": "A website for abafarin company",
     "license": "MIT",
     "type": "module",
     "scripts": {
@@ -13,9 +13,10 @@
         "lint": "cross-env NODE_OPTIONS=--no-deprecation eslint .",
         "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
         "seed": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" tsx scripts/seed.ts",
-        "seed:reset": "rm -f website.db media/ && echo 'Local DB and media cleared. Run pnpm seed to re-populate.'",
-        "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
-        "test": "pnpm run test:int && pnpm run test:e2e",
+        "seed:reset": "rm -f website.db media/ && echo 'Local DB and media cleared. Run npm seed to re-populate.'",
+        "migrate": "cross-env NODE_OPTIONS=--no-deprecation payload migrate",
+        "start": "npm run migrate && cross-env NODE_OPTIONS=--no-deprecation next start",
+        "test": "npm run test:int && npm run test:e2e",
         "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" playwright test --config=playwright.config.ts",
         "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts"
     },
@@ -64,9 +65,9 @@
     },
     "engines": {
         "node": "^18.20.2 || >=20.9.0",
-        "pnpm": "^9 || ^10 || ^11"
+        "npm": "^9 || ^10 || ^11"
     },
-    "pnpm": {
+    "npm": {
         "onlyBuiltDependencies": [
             "sharp",
             "esbuild",
