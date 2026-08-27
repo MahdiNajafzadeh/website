@@ -1,14 +1,14 @@
-import type { CollectionConfig } from 'payload'
-import { slugField } from 'payload'
+import type { CollectionConfig } from "payload";
+import { slugField } from "payload";
 
-import { adminOnly, anyone, employeeOrAdmin } from '@/access/byRole'
-import { localizedSlugify } from '@/lib/slugify'
+import { adminOnly, anyone, employeeOrAdmin } from "@/access/byRole";
+import { localizedSlugify } from "@/lib/slugify";
 
 export const Products: CollectionConfig = {
-    slug: 'products',
+    slug: "products",
     admin: {
-        useAsTitle: 'name',
-        defaultColumns: ['name', 'brand', 'price', 'stock', 'featured'],
+        useAsTitle: "name",
+        defaultColumns: ["name", "brand", "price", "stock", "featured"],
     },
     access: {
         read: anyone,
@@ -18,88 +18,88 @@ export const Products: CollectionConfig = {
     },
     fields: [
         {
-            name: 'name',
-            type: 'text',
+            name: "name",
+            type: "text",
             required: true,
             localized: true,
         },
         slugField({
-            fieldToUse: 'name',
+            fieldToUse: "name",
             slugify: localizedSlugify,
         }),
         {
-            name: 'brand',
-            type: 'relationship',
-            relationTo: 'brands',
+            name: "brand",
+            type: "relationship",
+            relationTo: "brands",
             required: true,
         },
         {
-            name: 'description',
-            type: 'richText',
+            name: "description",
+            type: "richText",
             localized: true,
         },
         {
-            name: 'images',
-            type: 'array',
+            name: "images",
+            type: "array",
             labels: {
-                singular: 'تصویر',
-                plural: 'تصاویر',
+                singular: "تصویر",
+                plural: "تصاویر",
             },
             fields: [
                 {
-                    name: 'image',
-                    type: 'upload',
-                    relationTo: 'media',
+                    name: "image",
+                    type: "upload",
+                    relationTo: "media",
                     required: true,
                 },
                 {
-                    name: 'caption',
-                    type: 'text',
+                    name: "caption",
+                    type: "text",
                 },
             ],
         },
         {
-            name: 'specifications',
-            type: 'group',
-            label: 'مشخصات فنی',
+            name: "specifications",
+            type: "group",
+            label: "مشخصات فنی",
             fields: [
-                { name: 'size', type: 'text', label: 'سایز', localized: true },
-                { name: 'thickness', type: 'text', label: 'ضخامت', localized: true },
-                { name: 'weight', type: 'text', label: 'وزن', localized: true },
-                { name: 'application', type: 'text', label: 'کاربرد', localized: true },
+                { name: "size", type: "text", label: "سایز", localized: true },
+                { name: "thickness", type: "text", label: "ضخامت", localized: true },
+                { name: "weight", type: "text", label: "وزن", localized: true },
+                { name: "application", type: "text", label: "کاربرد", localized: true },
             ],
         },
         {
-            name: 'price',
-            type: 'number',
+            name: "price",
+            type: "number",
             required: true,
             min: 0,
             admin: {
-                description: 'قیمت به تومان',
+                description: "قیمت به تومان",
             },
         },
         {
-            name: 'stock',
-            type: 'number',
+            name: "stock",
+            type: "number",
             defaultValue: 0,
             min: 0,
             admin: {
-                description: 'موجودی انبار',
+                description: "موجودی انبار",
             },
         },
         {
-            name: 'categories',
-            type: 'relationship',
-            relationTo: 'categories',
+            name: "categories",
+            type: "relationship",
+            relationTo: "categories",
             hasMany: true,
         },
         {
-            name: 'featured',
-            type: 'checkbox',
+            name: "featured",
+            type: "checkbox",
             defaultValue: false,
             admin: {
-                description: 'نمایش در محصولات ویژه صفحه اصلی',
+                description: "نمایش در محصولات ویژه صفحه اصلی",
             },
         },
     ],
-}
+};

@@ -1,14 +1,14 @@
-import type { CollectionConfig } from 'payload'
-import { slugField } from 'payload'
+import type { CollectionConfig } from "payload";
+import { slugField } from "payload";
 
-import { adminOnly, anyone, employeeOrAdmin } from '@/access/byRole'
-import { localizedSlugify } from '@/lib/slugify'
+import { adminOnly, anyone, employeeOrAdmin } from "@/access/byRole";
+import { localizedSlugify } from "@/lib/slugify";
 
 export const Categories: CollectionConfig = {
-    slug: 'categories',
+    slug: "categories",
     admin: {
-        useAsTitle: 'name',
-        defaultColumns: ['name', 'slug'],
+        useAsTitle: "name",
+        defaultColumns: ["name", "slug"],
     },
     access: {
         read: anyone,
@@ -18,18 +18,18 @@ export const Categories: CollectionConfig = {
     },
     fields: [
         {
-            name: 'name',
-            type: 'text',
+            name: "name",
+            type: "text",
             required: true,
             localized: true,
         },
         slugField({
-            fieldToUse: 'name',
+            fieldToUse: "name",
             slugify: localizedSlugify,
         }),
         {
-            name: 'description',
-            type: 'textarea',
+            name: "description",
+            type: "textarea",
         },
     ],
-}
+};

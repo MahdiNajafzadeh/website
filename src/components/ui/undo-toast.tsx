@@ -1,27 +1,27 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from "react";
 
 type Props = {
-    message: string
-    actionLabel: string
-    durationMs?: number
-    onUndo: () => void
-    onExpire: () => void
-}
+    message: string;
+    actionLabel: string;
+    durationMs?: number;
+    onUndo: () => void;
+    onExpire: () => void;
+};
 
 export const UndoToast = ({ message, actionLabel, durationMs = 5000, onUndo, onExpire }: Props) => {
-    const [open, setOpen] = useState(true)
+    const [open, setOpen] = useState(true);
 
     useEffect(() => {
         const t = window.setTimeout(() => {
-            setOpen(false)
-            onExpire()
-        }, durationMs)
-        return () => window.clearTimeout(t)
-    }, [durationMs, onExpire])
+            setOpen(false);
+            onExpire();
+        }, durationMs);
+        return () => window.clearTimeout(t);
+    }, [durationMs, onExpire]);
 
-    if (!open) return null
+    if (!open) return null;
 
     return (
         <div
@@ -34,12 +34,12 @@ export const UndoToast = ({ message, actionLabel, durationMs = 5000, onUndo, onE
                 type="button"
                 className="font-medium text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:rounded"
                 onClick={() => {
-                    onUndo()
-                    setOpen(false)
+                    onUndo();
+                    setOpen(false);
                 }}
             >
                 {actionLabel}
             </button>
         </div>
-    )
-}
+    );
+};

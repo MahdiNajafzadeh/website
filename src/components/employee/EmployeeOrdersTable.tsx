@@ -1,124 +1,97 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-import { useTranslation } from '@/components/i18n/TranslationProvider'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select'
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table'
-import { formatDate, formatOrderStatus, formatPriceToman } from '@/lib/format'
-import type { Locale } from '@/lib/locale'
-import { localeHref } from '@/lib/locale'
-import { localizedValue } from '@/lib/localized'
-import type { Order, User } from '@/payload-types'
+import { useTranslation } from "@/components/i18n/TranslationProvider";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { formatDate, formatOrderStatus, formatPriceToman } from "@/lib/format";
+import type { Locale } from "@/lib/locale";
+import { localeHref } from "@/lib/locale";
+import { localizedValue } from "@/lib/localized";
+import type { Order, User } from "@/payload-types";
 
-const STATUS_VALUES = [
-    'pending',
-    'processing',
-    'shipped',
-    'delivered',
-    'cancelled',
-] as const
+const STATUS_VALUES = ["pending", "processing", "shipped", "delivered", "cancelled"] as const;
 
-type StatusValue = (typeof STATUS_VALUES)[number]
+type StatusValue = (typeof STATUS_VALUES)[number];
 
-const statusKey = (value: StatusValue): string => `employee.orders.status.${value}`
+const statusKey = (value: StatusValue): string => `employee.orders.status.${value}`;
 
 type Props = {
-    orders: Order[]
-    currentStatus?: string
-    locale: Locale
-}
+    orders: Order[];
+    currentStatus?: string;
+    locale: Locale;
+};
 
 export const EmployeeOrdersTable = ({ orders, currentStatus, locale }: Props) => {
-    const router = useRouter()
-    const { t } = useTranslation()
-    const [updating, setUpdating] = useState<string | null>(null)
-    const [savingItem, setSavingItem] = useState<string | null>(null)
-    const [itemDrafts, setItemDrafts] = useState<Record<string, number>>({})
+    const router = useRouter();
+    const { t } = useTranslation();
+    const [updating, setUpdating] = useState<string | null>(null);
+    const [savingItem, setSavingItem] = useState<string | null>(null);
+    const [itemDrafts, setItemDrafts] = useState<Record<string, number>>({});
 
     const updateStatus = async (id: number | string, status: string) => {
-        setUpdating(String(id))
+        setUpdating(String(id));
         try {
             await fetch(`/api/orders/${id}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
                 body: JSON.stringify({ status }),
-            })
-            router.refresh()
+            });
+            router.refresh();
         } finally {
-            setUpdating(null)
+            setUpdating(null);
         }
-    }
+    };
 
-    const updateItemPrice = async (
-        orderId: number | string,
-        itemId: string,
-        price: number,
-    ) => {
-        const key = `${orderId}:${itemId}`
-        setSavingItem(key)
+    const updateItemPrice = async (orderId: number | string, itemId: string, price: number) => {
+        const key = `${orderId}:${itemId}`;
+        setSavingItem(key);
         try {
             await fetch(`/api/orders/${orderId}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
                 body: JSON.stringify({ items: [{ id: itemId, price }] }),
-            })
-            router.refresh()
+            });
+            router.refresh();
         } finally {
-            setSavingItem(null)
+            setSavingItem(null);
         }
-    }
+    };
 
     const getDraft = (orderId: number | string, itemId: string, fallback: number): number => {
-        const k = `${orderId}:${itemId}`
-        return itemDrafts[k] ?? fallback
-    }
+        const k = `${orderId}:${itemId}`;
+        return itemDrafts[k] ?? fallback;
+    };
 
     const setDraft = (orderId: number | string, itemId: string, value: number): void => {
-        const k = `${orderId}:${itemId}`
-        setItemDrafts((s) => ({ ...s, [k]: value }))
-    }
+        const k = `${orderId}:${itemId}`;
+        setItemDrafts((s) => ({ ...s, [k]: value }));
+    };
 
     return (
         <div className="space-y-4">
             <div className="flex flex-wrap gap-2">
                 <Button
-                    variant={!currentStatus ? 'default' : 'outline'}
+                    variant={!currentStatus ? "default" : "outline"}
                     size="sm"
-                    render={<Link href={localeHref(locale, '/employee/orders')} />}
+                    render={<Link href={localeHref(locale, "/employee/orders")} />}
                 >
-                    {t('employee.orders.filter.all')}
+                    {t("employee.orders.filter.all")}
                 </Button>
                 {STATUS_VALUES.map((value) => (
                     <Button
                         key={value}
-                        variant={currentStatus === value ? 'default' : 'outline'}
+                        variant={currentStatus === value ? "default" : "outline"}
                         size="sm"
-                        render={
-                            <Link
-                                href={`${localeHref(locale, '/employee/orders')}?status=${value}`}
-                            />
-                        }
+                        render={<Link href={`${localeHref(locale, "/employee/orders")}?status=${value}`} />}
                     >
                         {t(statusKey(value))}
                     </Button>
@@ -127,31 +100,34 @@ export const EmployeeOrdersTable = ({ orders, currentStatus, locale }: Props) =>
 
             {orders.length === 0 ? (
                 <div className="rounded-md border p-10 text-center text-sm text-muted-foreground">
-                    {t('employee.orders.empty')}
+                    {t("employee.orders.empty")}
                 </div>
             ) : (
                 <div className="overflow-x-auto rounded-md border">
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead>{t('employee.orders.table.id')}</TableHead>
-                                <TableHead>{t('employee.orders.table.customer')}</TableHead>
-                                <TableHead>{t('employee.orders.table.total')}</TableHead>
-                                <TableHead>{t('employee.orders.table.status')}</TableHead>
-                                <TableHead>{t('employee.orders.table.date')}</TableHead>
-                                <TableHead>{t('employee.orders.table.changeStatus')}</TableHead>
+                                <TableHead>{t("employee.orders.table.id")}</TableHead>
+                                <TableHead>{t("employee.orders.table.customer")}</TableHead>
+                                <TableHead>{t("employee.orders.table.total")}</TableHead>
+                                <TableHead>{t("employee.orders.table.status")}</TableHead>
+                                <TableHead>{t("employee.orders.table.date")}</TableHead>
+                                <TableHead>{t("employee.orders.table.changeStatus")}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {orders.map((order) => {
                                 const customer =
-                                    order.user && typeof order.user !== 'number'
-                                        ? (order.user as Pick<User, 'id' | 'firstName' | 'lastName' | 'email' | 'phone'>)
-                                        : null
+                                    order.user && typeof order.user !== "number"
+                                        ? (order.user as Pick<
+                                              User,
+                                              "id" | "firstName" | "lastName" | "email" | "phone"
+                                          >)
+                                        : null;
                                 const customerName = customer
-                                    ? [customer.firstName, customer.lastName].filter(Boolean).join(' ') ||
+                                    ? [customer.firstName, customer.lastName].filter(Boolean).join(" ") ||
                                       customer.email
-                                    : `#${order.user}`
+                                    : `#${order.user}`;
                                 return (
                                     <TableRow key={order.id}>
                                         <TableCell className="align-top font-medium">#{order.id}</TableCell>
@@ -166,27 +142,26 @@ export const EmployeeOrdersTable = ({ orders, currentStatus, locale }: Props) =>
                                                 {order.items && order.items.length > 0 ? (
                                                     <details className="mt-2">
                                                         <summary className="cursor-pointer text-xs text-primary hover:underline">
-                                                            {t('employee.orders.table.items', {
+                                                            {t("employee.orders.table.items", {
                                                                 count: order.items.length,
                                                             })}
                                                         </summary>
                                                         <ul className="mt-2 space-y-2 text-xs">
                                                             {order.items.map((item) => {
-                                                                const itemKey = String(item.id ?? '')
-                                                                if (!itemKey) return null
+                                                                const itemKey = String(item.id ?? "");
+                                                                if (!itemKey) return null;
                                                                 const productName =
-                                                                    item.product && typeof item.product !== 'number'
+                                                                    item.product && typeof item.product !== "number"
                                                                         ? localizedValue(item.product.name, locale)
-                                                                        : t('orders.productFallback', {
+                                                                        : t("orders.productFallback", {
                                                                               id: String(item.product),
-                                                                          })
+                                                                          });
                                                                 const draft = getDraft(
                                                                     order.id,
                                                                     itemKey,
                                                                     item.price ?? 0,
-                                                                )
-                                                                const dirty =
-                                                                    draft !== (item.price ?? 0)
+                                                                );
+                                                                const dirty = draft !== (item.price ?? 0);
                                                                 return (
                                                                     <li
                                                                         key={itemKey}
@@ -221,8 +196,11 @@ export const EmployeeOrdersTable = ({ orders, currentStatus, locale }: Props) =>
                                                                         <Button
                                                                             type="button"
                                                                             size="sm"
-                                                                            variant={dirty ? 'default' : 'outline'}
-                                                                            disabled={!dirty || savingItem === `${order.id}:${itemKey}`}
+                                                                            variant={dirty ? "default" : "outline"}
+                                                                            disabled={
+                                                                                !dirty ||
+                                                                                savingItem === `${order.id}:${itemKey}`
+                                                                            }
                                                                             onClick={() =>
                                                                                 updateItemPrice(
                                                                                     order.id,
@@ -232,11 +210,11 @@ export const EmployeeOrdersTable = ({ orders, currentStatus, locale }: Props) =>
                                                                             }
                                                                         >
                                                                             {savingItem === `${order.id}:${itemKey}`
-                                                                                ? t('employee.orders.table.saving')
-                                                                                : t('employee.orders.table.save')}
+                                                                                ? t("employee.orders.table.saving")
+                                                                                : t("employee.orders.table.save")}
                                                                         </Button>
                                                                     </li>
-                                                                )
+                                                                );
                                                             })}
                                                         </ul>
                                                     </details>
@@ -247,9 +225,7 @@ export const EmployeeOrdersTable = ({ orders, currentStatus, locale }: Props) =>
                                             {formatPriceToman(order.total, locale)}
                                         </TableCell>
                                         <TableCell className="align-top">
-                                            <Badge>
-                                                {formatOrderStatus(order.status, locale)}
-                                            </Badge>
+                                            <Badge>{formatOrderStatus(order.status, locale)}</Badge>
                                         </TableCell>
                                         <TableCell className="align-top text-xs text-muted-foreground">
                                             {formatDate(order.createdAt, locale)}
@@ -264,10 +240,7 @@ export const EmployeeOrdersTable = ({ orders, currentStatus, locale }: Props) =>
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     {STATUS_VALUES.map((value) => (
-                                                        <SelectItem
-                                                            key={value}
-                                                            value={value}
-                                                        >
+                                                        <SelectItem key={value} value={value}>
                                                             {t(statusKey(value))}
                                                         </SelectItem>
                                                     ))}
@@ -275,17 +248,17 @@ export const EmployeeOrdersTable = ({ orders, currentStatus, locale }: Props) =>
                                             </Select>
                                             {updating === String(order.id) ? (
                                                 <span className="ms-2 text-xs text-muted-foreground">
-                                                    {t('employee.orders.table.saving')}
+                                                    {t("employee.orders.table.saving")}
                                                 </span>
                                             ) : null}
                                         </TableCell>
                                     </TableRow>
-                                )
+                                );
                             })}
                         </TableBody>
                     </Table>
                 </div>
             )}
         </div>
-    )
-}
+    );
+};

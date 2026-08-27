@@ -4,13 +4,13 @@
  * malformed, or points off-site.
  */
 export const sanitizeRedirect = (raw: string | undefined): string => {
-    if (!raw) return '/'
+    if (!raw) return "/";
     try {
-        const decoded = decodeURIComponent(raw)
-        if (!decoded.startsWith('/')) return '/'
-        if (decoded.startsWith('//')) return '/'
-        return decoded
+        const decoded = decodeURIComponent(raw);
+        if (!decoded.startsWith("/")) return "/";
+        if (decoded.startsWith("//")) return "/";
+        return decoded;
     } catch {
-        return '/'
+        return "/";
     }
-}
+};

@@ -1,66 +1,62 @@
-import { getPayload } from 'payload'
-import type { Where } from 'payload'
+import { getPayload } from "payload";
+import type { Where } from "payload";
 
-import config from '@payload-config'
+import config from "@payload-config";
 
-import type { SiteSetting, SiteSetting as SiteSettingsType } from '@/payload-types'
-import type { Locale } from '@/lib/locale'
-import { localizedValue } from '@/lib/localized'
+import type { SiteSetting, SiteSetting as SiteSettingsType } from "@/payload-types";
+import type { Locale } from "@/lib/locale";
+import { localizedValue } from "@/lib/localized";
 
-type ContactRow = { id?: number | string; isPrimary?: boolean | null; createdAt?: string }
+type ContactRow = { id?: number | string; isPrimary?: boolean | null; createdAt?: string };
 
 export const getSiteSettings = async (locale: Locale): Promise<SiteSettingsType | null> => {
-    const payload = await getPayload({ config })
+    const payload = await getPayload({ config });
     try {
         const settings = await payload.findGlobal({
-            slug: 'site-settings',
+            slug: "site-settings",
             depth: 2,
             locale,
-        })
+        });
         return {
             ...settings,
             siteName: localizedValue(settings.siteName, locale),
-        } as SiteSettingsType
+        } as SiteSettingsType;
     } catch {
-        return null
+        return null;
     }
-}
+};
 
 export const listActiveBrands = async (locale: Locale, limit = 50) => {
-    const payload = await getPayload({ config })
-    const where: Where = {}
+    const payload = await getPayload({ config });
+    const where: Where = {};
     const result = await payload.find({
-        collection: 'brands',
+        collection: "brands",
         where,
-        sort: 'order',
+        sort: "order",
         limit,
         depth: 1,
         locale,
-    })
+    });
     return result.docs.map((brand) => ({
         ...brand,
         name: localizedValue(brand.name, locale),
-    }))
-}
+    }));
+};
 
-export type SocialLinkItem = NonNullable<NonNullable<SiteSetting['socialLinks']>[number]>
+export type SocialLinkItem = NonNullable<NonNullable<SiteSetting["socialLinks"]>[number]>;
 
 export const sortSocialLinks = (links: SocialLinkItem[] | undefined | null): SocialLinkItem[] => {
-    return (links ?? [])
-        .slice()
-        .sort((a, b) => {
-            const orderDiff = (a.order ?? 0) - (b.order ?? 0)
-            if (orderDiff !== 0) return orderDiff
-            return String(b.id ?? '').localeCompare(String(a.id ?? ''))
-        })
-}
+    return (links ?? []).slice().sort((a, b) => {
+        const orderDiff = (a.order ?? 0) - (b.order ?? 0);
+        if (orderDiff !== 0) return orderDiff;
+        return String(b.id ?? "").localeCompare(String(a.id ?? ""));
+    });
+};
 
 export const sortContactRows = <T extends ContactRow>(rows: T[] | undefined | null): T[] => {
-    return (rows ?? [])
-        .slice()
-        .sort((a, b) => {
-            const primaryDiff = Number(!!b.isPrimary) - Number(!!a.isPrimary)
-            if (primaryDiff !== 0) return primaryDiff
-            return String(a.id ?? '').localeCompare(String(b.id ?? ''))
-        })
-}
+    return (rows ?? []).slice().sort((a, b) => {
+        const primaryDiff = Number(!!b.isPrimary) - Number(!!a.isPrimary);
+        if (primaryDiff !== 0) return primaryDiff;
+        return String(a.id ?? "").localeCompare(String(b.id ?? ""));
+    });
+};

@@ -1,9 +1,9 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig } from "payload";
 
-import { adminOnly, employeeOrAdmin } from '@/access/byRole'
+import { adminOnly, employeeOrAdmin } from "@/access/byRole";
 
 export const Media: CollectionConfig = {
-    slug: 'media',
+    slug: "media",
     access: {
         read: () => true,
         create: employeeOrAdmin,
@@ -11,26 +11,26 @@ export const Media: CollectionConfig = {
         delete: adminOnly,
     },
     upload: {
-        staticDir: 'media',
-        mimeTypes: ['image/*'],
+        staticDir: "media",
+        mimeTypes: ["image/*"],
         imageSizes: [
-            { name: 'thumbnail', width: 400, height: 400, position: 'centre' },
-            { name: 'card', width: 768, height: 1024 },
-            { name: 'hero', width: 1920, height: 1080 },
+            { name: "thumbnail", width: 400, height: 400, position: "centre" },
+            { name: "card", width: 768, height: 1024 },
+            { name: "hero", width: 1920, height: 1080 },
         ],
-        adminThumbnail: 'thumbnail',
+        adminThumbnail: "thumbnail",
         focalPoint: true,
         crop: true,
     },
     fields: [
         {
-            name: 'alt',
-            type: 'text',
+            name: "alt",
+            type: "text",
             required: true,
         },
         {
-            name: 'caption',
-            type: 'text',
+            name: "caption",
+            type: "text",
         },
     ],
-}
+};

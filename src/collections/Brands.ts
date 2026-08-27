@@ -1,14 +1,14 @@
-import type { CollectionConfig } from 'payload'
-import { slugField } from 'payload'
+import type { CollectionConfig } from "payload";
+import { slugField } from "payload";
 
-import { adminOnly, anyone, employeeOrAdmin } from '@/access/byRole'
-import { localizedSlugify } from '@/lib/slugify'
+import { adminOnly, anyone, employeeOrAdmin } from "@/access/byRole";
+import { localizedSlugify } from "@/lib/slugify";
 
 export const Brands: CollectionConfig = {
-    slug: 'brands',
+    slug: "brands",
     admin: {
-        useAsTitle: 'name',
-        defaultColumns: ['name', 'slug', 'order'],
+        useAsTitle: "name",
+        defaultColumns: ["name", "slug", "order"],
     },
     access: {
         read: anyone,
@@ -18,32 +18,32 @@ export const Brands: CollectionConfig = {
     },
     fields: [
         {
-            name: 'name',
-            type: 'text',
+            name: "name",
+            type: "text",
             required: true,
             localized: true,
         },
         slugField({
-            fieldToUse: 'name',
+            fieldToUse: "name",
             slugify: localizedSlugify,
         }),
         {
-            name: 'logo',
-            type: 'upload',
-            relationTo: 'media',
+            name: "logo",
+            type: "upload",
+            relationTo: "media",
         },
         {
-            name: 'description',
-            type: 'richText',
+            name: "description",
+            type: "richText",
             localized: true,
         },
         {
-            name: 'order',
-            type: 'number',
+            name: "order",
+            type: "number",
             defaultValue: 0,
             admin: {
-                description: 'ترتیب نمایش در صفحه برندها (کمتر = بالاتر)',
+                description: "ترتیب نمایش در صفحه برندها (کمتر = بالاتر)",
             },
         },
     ],
-}
+};
