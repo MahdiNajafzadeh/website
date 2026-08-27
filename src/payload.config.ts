@@ -1,20 +1,20 @@
-import { sqliteAdapter } from '@payloadcms/db-sqlite'
-import { lexicalEditor } from '@payloadcms/richtext-lexical'
-import path from 'path'
-import { buildConfig } from 'payload'
-import { fileURLToPath } from 'url'
-import sharp from 'sharp'
+import { sqliteAdapter } from "@payloadcms/db-sqlite";
+import { lexicalEditor } from "@payloadcms/richtext-lexical";
+import path from "path";
+import { buildConfig } from "payload";
+import { fileURLToPath } from "url";
+import sharp from "sharp";
 
-import { Brands } from './collections/Brands'
-import { Categories } from './collections/Categories'
-import { Media } from './collections/Media'
-import { Orders } from './collections/Orders'
-import { Products } from './collections/Products'
-import { Users } from './collections/Users'
-import { SiteSettings } from './globals/SiteSettings'
+import { Brands } from "./collections/Brands";
+import { Categories } from "./collections/Categories";
+import { Media } from "./collections/Media";
+import { Orders } from "./collections/Orders";
+import { Products } from "./collections/Products";
+import { Users } from "./collections/Users";
+import { SiteSettings } from "./globals/SiteSettings";
 
-const filename = fileURLToPath(import.meta.url)
-const dirname = path.dirname(filename)
+const filename = fileURLToPath(import.meta.url);
+const dirname = path.dirname(filename);
 
 export default buildConfig({
     admin: {
@@ -28,22 +28,22 @@ export default buildConfig({
     editor: lexicalEditor(),
     localization: {
         locales: [
-            { code: 'en', label: 'English' },
-            { code: 'fa', label: 'فارسی', rtl: true },
+            { code: "en", label: "English", rtl: false },
+            { code: "fa", label: "فارسی", rtl: true },
         ],
-        defaultLocale: 'en',
+        defaultLocale: "fa",
         fallback: true,
     },
-    secret: process.env.PAYLOAD_SECRET || '',
+    secret: process.env.PAYLOAD_SECRET || "",
     typescript: {
-        outputFile: path.resolve(dirname, 'payload-types.ts'),
+        outputFile: path.resolve(dirname, "payload-types.ts"),
     },
     db: sqliteAdapter({
         client: {
-            url: process.env.DATABASE_URL || '',
+            url: process.env.DATABASE_URL || "",
         },
         transactionOptions: {},
     }),
     sharp,
     plugins: [],
-})
+});
