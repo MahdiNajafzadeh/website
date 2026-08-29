@@ -48,19 +48,3 @@ node_modules/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
-
-# custom
-repomix-output.*
-*.db
-*.sqlite
-.opencode
-.claude
-.agents
-openspec
-graphify-out
-.next
-.vscode
-.agents
-.open-next
-.wrangler
-

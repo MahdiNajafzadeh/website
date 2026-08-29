@@ -2,17 +2,5 @@
 # Example:
 # *.log
 # tmp/
-*.xml
-openspec
-.agents
-.opencode
-.claude
-repomix-output.*
-*.db
-*.sqlite
-src/app/(payload)
+.agents/skills/*/*
 src/payload-types.ts
-src/components/ui
-scripts/
-src/locales/*.json
-!src/locales/en.json

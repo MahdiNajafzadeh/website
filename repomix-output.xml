@@ -1,0 +1,3314 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+.agents/
+  skills/
+    .openspec-target
+openspec/
+  specs/
+    auth/
+      spec.md
+    cart/
+      spec.md
+    collection-brand/
+      spec.md
+    collection-category/
+      spec.md
+    collection-order/
+      spec.md
+    collection-post/
+      spec.md
+    collection-product/
+      spec.md
+    customer/
+      spec.md
+    global-site-settings/
+      spec.md
+    i18n/
+      spec.md
+    page-about/
+      spec.md
+    page-contract/
+      spec.md
+    project-structure/
+      spec.md
+    role/
+      spec.md
+    ui/
+      spec.md
+    ui-dark-mode/
+      spec.md
+    user/
+      spec.md
+  config.yaml
+src/
+  app/
+    (app)/
+      layout.tsx
+      page.tsx
+      styles.css
+    (payload)/
+      admin/
+        [[...segments]]/
+          not-found.tsx
+          page.tsx
+        importMap.js
+      api/
+        [...slug]/
+          route.ts
+        graphql/
+          route.ts
+        graphql-playground/
+          route.ts
+      custom.scss
+      layout.tsx
+  collections/
+    Media.ts
+    Users.ts
+  payload.config.ts
+tests/
+  e2e/
+    admin.e2e.spec.ts
+    frontend.e2e.spec.ts
+  helpers/
+    login.ts
+    seedUser.ts
+  int/
+    api.int.spec.ts
+.env.example
+.gitignore
+.npmrc
+.prettierrc.json
+.repomixignore
+.yarnrc
+AGENTS.md
+CLAUDE.md
+docker-compose.yml
+Dockerfile
+eslint.config.mjs
+next.config.ts
+package.json
+playwright.config.ts
+README.md
+repomix.config.json
+skills-lock.json
+test.env
+tsconfig.json
+vitest.config.mts
+vitest.setup.ts
+website.db
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path=".agents/skills/.openspec-target">
+agents
+</file>
+
+<file path="openspec/specs/auth/spec.md">
+# Auth
+
+This spec defines the authentication workflow for the e-commerce platform.
+
+## Requirements
+
+### Requirement: Login
+
+Users MUST be able to log in to their account. Users SHALL be able to view public information on the site without logging in.
+
+#### Scenario: Login success with valid credentials
+
+- **GIVEN** The user is on the login page
+- **AND** The user has a valid mobile number and password
+- **WHEN** The user submits the login form
+- **THEN** The system authenticates the user
+- **AND** The user is redirected to the page they were viewing before login
+
+#### Scenario: Login success redirects to previous page
+
+- **GIVEN** The user is viewing a product page
+- **AND** The user is not authenticated
+- **WHEN** The user completes the login process successfully
+- **THEN** The user is redirected back to the product page
+
+#### Scenario: Login fails with incorrect credentials
+
+- **GIVEN** The user is on the login page
+- **AND** The user has filled in the mobile number and password fields
+- **WHEN** The user submits the login form with an incorrect mobile number or password
+- **THEN** The system rejects the login attempt
+- **AND** A clear error message is displayed indicating that either the mobile number or password is incorrect
+
+### Requirement: Logout
+
+Users MUST be able to log out of their account. Users SHALL be able to view public information on the site after logging out.
+
+#### Scenario: User logs out
+
+- **GIVEN** The user is authenticated
+- **WHEN** The user clicks the logout button in the user interface
+- **THEN** The system clears the authentication cookie
+- **AND** The user is redirected to the homepage
+
+### Requirement: Session Expiration
+
+The system MUST expire the authentication token for inactive users after a defined period of inactivity.
+
+#### Scenario: Token expires after inactivity
+
+- **GIVEN** The user is authenticated
+- **WHEN** The user has no activity for 24 hours (1 day)
+- **THEN** The system invalidates the authentication token
+- **AND** The user must log in again to continue
+
+### Requirement: Public Access Without Login
+
+Users SHALL be able to browse products, brands, and other public content without being authenticated. Authentication is only required for actions such as placing orders, viewing order history, and accessing the account dashboard.
+
+#### Scenario: Unauthenticated user browses products
+
+- **GIVEN** The user is not logged in
+- **WHEN** The user navigates to the products page
+- **THEN** The products are displayed correctly
+- **AND** The user can view product details without being prompted to log in
+
+#### Scenario: Unauthenticated user attempts to place an order
+
+- **GIVEN** The user is not logged in
+- **WHEN** The user attempts to proceed to checkout
+- **THEN** The system redirects the user to the login page
+- **AND** After successful login, the user is redirected back to the checkout page
+</file>
+
+<file path="openspec/specs/cart/spec.md">
+# Cart
+
+## Purpose
+This spec defines the shopping cart behavior for the e‑commerce platform. The cart allows authenticated and guest users to collect products before proceeding to checkout. Cart data SHALL persist across page reloads.
+
+## Requirements
+
+### Requirement: Add Item to Cart
+
+Users MUST be able to add a product to the cart. If the product is already in the cart, the quantity SHALL be increased by the specified amount. The default quantity for a new item SHALL be 1.
+
+#### Scenario: Add a new product to an empty cart
+
+- **GIVEN** The user is viewing a product detail page
+- **AND** The cart is empty
+- **WHEN** The user clicks the "Add to Cart" button with quantity 1
+- **THEN** The product is added to the cart with quantity 1
+- **AND** The cart count badge updates to display "1"
+
+#### Scenario: Add a product that is already in the cart
+
+- **GIVEN** The user has a product in the cart with quantity 2
+- **WHEN** The user adds the same product again with quantity 3
+- **THEN** The product quantity in the cart updates to 5 (2 + 3)
+- **AND** The cart count badge updates to reflect the new total
+
+#### Scenario: Add product with custom quantity
+
+- **GIVEN** The user is viewing a product detail page
+- **WHEN** The user sets the quantity to 5 and clicks "Add to Cart"
+- **THEN** The product is added to the cart with quantity 5
+
+### Requirement: View Cart Contents
+
+Users MUST be able to view the contents of their cart. The cart SHALL display each item's name, image, quantity, unit price, and subtotal (price × quantity). The grand total SHALL be displayed at the bottom.
+
+#### Scenario: View cart in the sheet (slide‑over)
+
+- **GIVEN** The user has items in the cart
+- **WHEN** The user clicks the cart icon in the header
+- **THEN** A sheet slides open from the side
+- **AND** All cart items are listed with their name, quantity, unit price, and subtotal
+- **AND** The grand total is displayed at the bottom
+- **AND** "Continue Shopping" and "Checkout" buttons are visible
+
+#### Scenario: View cart on the dedicated cart page
+
+- **GIVEN** The user has items in the cart
+- **WHEN** The user navigates to `/cart`
+- **THEN** All cart items are displayed in a list
+- **AND** Each item shows name, image, quantity controls, unit price, and subtotal
+- **AND** The grand total is displayed in a summary card
+- **AND** A "Proceed to Checkout" button is visible
+
+#### Scenario: Empty cart view
+
+- **GIVEN** The cart has no items
+- **WHEN** The user opens the cart sheet or navigates to `/cart`
+- **THEN** A friendly empty state message is displayed (e.g., "Your cart is empty")
+- **AND** A "Browse Products" button is shown to encourage shopping
+
+### Requirement: Update Item Quantity
+
+Users MUST be able to increase or decrease the quantity of an item in the cart. When quantity is reduced to zero, the item SHALL be removed from the cart.
+
+#### Scenario: Increase item quantity
+
+- **GIVEN** The user has an item in the cart with quantity 2
+- **WHEN** The user clicks the "+" (increase) button
+- **THEN** The item quantity updates to 3
+- **AND** The subtotal and grand total recalculate automatically
+
+#### Scenario: Decrease item quantity (still positive)
+
+- **GIVEN** The user has an item in the cart with quantity 3
+- **WHEN** The user clicks the "−" (decrease) button
+- **THEN** The item quantity updates to 2
+- **AND** The subtotal and grand total recalculate automatically
+
+#### Scenario: Decrease item quantity to zero removes the item
+
+- **GIVEN** The user has an item in the cart with quantity 1
+- **WHEN** The user clicks the "−" (decrease) button
+- **THEN** The item is removed from the cart
+
+### Requirement: Remove Item from Cart
+
+Users MUST be able to remove an item from the cart using a "Remove" or trash icon button. After removal, the user SHALL have the option to undo the removal for a short period.
+
+#### Scenario: Remove item using trash button
+
+- **GIVEN** The user has an item in the cart
+- **WHEN** The user clicks the trash icon next to the item
+- **THEN** The item is removed from the cart
+- **AND** The cart count and totals update immediately
+- **AND** An "Undo" toast notification appears for a short duration (e.g., 3 seconds)
+
+#### Scenario: Undo removal of an item
+
+- **GIVEN** The user has just removed an item from the cart
+- **AND** The "Undo" toast notification is visible
+- **WHEN** The user clicks the "Undo" button
+- **THEN** The removed item is restored to the cart with its previous quantity
+- **AND** The cart count and totals revert to their previous state
+
+#### Scenario: Undo expires automatically
+
+- **GIVEN** The user has just removed an item from the cart
+- **WHEN** The "Undo" toast notification times out (expires) without user action
+- **THEN** The item remains removed
+- **AND** The toast disappears
+
+### Requirement: Cart Persistence
+
+The cart state SHALL persist across page reloads and browser sessions. Users who close and reopen the browser SHALL find their cart items intact.
+
+#### Scenario: Cart persists after page reload
+
+- **GIVEN** The user has items in the cart
+- **WHEN** The user refreshes the browser page
+- **THEN** The cart items, quantities, and totals remain unchanged
+
+#### Scenario: Cart persists after closing and reopening browser
+
+- **GIVEN** The user has items in the cart
+- **WHEN** The user closes the browser tab and later reopens the site
+- **THEN** The cart items, quantities, and totals are restored
+
+### Requirement: Cart Total Calculation
+
+The system MUST automatically calculate the total price of the cart as the sum of `(item.price × item.quantity)` for all items. The total SHALL update immediately whenever an item is added, removed, or quantity changes.
+
+#### Scenario: Calculate total for multiple items
+
+- **GIVEN** The cart contains:
+  - Product A: price 100,000 Toman, quantity 2
+  - Product B: price 50,000 Toman, quantity 1
+- **WHEN** The user views the cart
+- **THEN** The grand total is displayed as 250,000 Toman (100,000×2 + 50,000×1)
+
+#### Scenario: Total updates when quantity changes
+
+- **GIVEN** The user has Product A (100,000 Toman × 2) in the cart
+- **WHEN** The user increases the quantity to 3
+- **THEN** The grand total updates from 200,000 Toman to 300,000 Toman
+
+### Requirement: Cart Count Badge
+
+The system SHALL display a count badge on the cart icon in the header. The badge SHALL show the total number of items (sum of all quantities), not the number of unique products.
+
+#### Scenario: Cart count badge displays total quantity
+
+- **GIVEN** The cart contains Product A (quantity 2) and Product B (quantity 3)
+- **WHEN** The user views the header
+- **THEN** The cart badge displays "5" (2 + 3)
+
+#### Scenario: Cart count badge updates on add/remove
+
+- **GIVEN** The cart badge currently displays "3"
+- **WHEN** The user adds a product with quantity 2
+- **THEN** The cart badge updates to "5"
+
+#### Scenario: Cart count badge disappears when empty
+
+- **GIVEN** The cart is empty
+- **WHEN** The user views the header
+- **THEN** No badge is displayed on the cart icon
+
+### Requirement: Clear Cart on Checkout
+
+The cart MUST be cleared automatically after a successful order placement. This prevents the user from being charged again for the same items.
+
+#### Scenario: Cart clears after successful order
+
+- **GIVEN** The user has items in the cart
+- **WHEN** The user successfully places an order
+- **THEN** The cart is cleared
+- **AND** The cart count badge updates to show "0"
+- **AND** The user is redirected to the order confirmation page
+
+#### Scenario: Cart remains intact if order fails
+
+- **GIVEN** The user has items in the cart
+- **WHEN** The order placement fails (e.g., validation error, server error)
+- **THEN** The cart items remain unchanged
+- **AND** The user can retry checkout without re‑adding items
+
+### Requirement: Add to Cart Feedback
+
+Users MUST receive visual feedback when an item is added to the cart. The "Add to Cart" button SHALL temporarily change to indicate success.
+
+#### Scenario: Button feedback on add
+
+- **GIVEN** The user is on a product detail page
+- **WHEN** The user clicks the "Add to Cart" button
+- **THEN** The button text briefly changes to "Added" or shows a checkmark icon
+- **AND** After a short delay (e.g., 1.5 seconds), the button reverts to its original state
+</file>
+
+<file path="openspec/specs/collection-brand/spec.md">
+# Collection Brand
+
+This spec defines the behavior and management of product brands in the e‑commerce platform.
+
+## Requirements
+
+### Requirement: Brand Listing
+
+The system MUST display a list of all active brands. Each brand item MUST show the brand name and its icon.
+
+#### Scenario: View all brands
+
+- **GIVEN** At least one brand exists in the system
+- **WHEN** The user navigates to the brands page
+- **THEN** All brands are displayed in the configured sort order
+- **AND** Each brand shows its name and icon
+
+#### Scenario: Empty brand list
+
+- **GIVEN** No brands have been created yet
+- **WHEN** The user navigates to the brands page
+- **THEN** A friendly empty-state message is displayed
+- **AND** No error occurs
+
+### Requirement: Brand Detail Page
+
+The system MUST provide a dedicated page for each brand showing its name, icon, description, and all related products.
+
+#### Scenario: View brand details
+
+- **GIVEN** A specific brand exists (e.g., brand slug “brand‑x”)
+- **WHEN** The user navigates to `/brands/brand‑x`
+- **THEN** The brand name, icon, and description are displayed
+- **AND** All products belonging to that brand are listed below
+- **AND** Product count is displayed
+
+#### Scenario: Non‑existent brand
+
+- **GIVEN** No brand exists with the given slug
+- **WHEN** The user navigates to `/brands/unknown-brand`
+- **THEN** The system returns a 404 Not Found page
+
+### Requirement: Product Filter by Brand
+
+The system SHALL allow users to filter the product listing by selecting a brand.
+
+#### Scenario: Filter products by brand
+
+- **GIVEN** The user is on the products page
+- **AND** At least one brand exists with associated products
+- **WHEN** The user clicks on a brand filter
+- **THEN** The product list updates to show only products of that brand
+- **AND** The brand filter remains visible for further refinement
+
+#### Scenario: Clear brand filter
+
+- **GIVEN** The product list is already filtered by a brand
+- **WHEN** The user removes the brand filter
+- **THEN** All products are displayed again
+
+### Requirement: Brand Management (Admin)
+
+`admin` and `employee` MUST be able to create, update, and delete brands via the admin panel.
+
+#### Scenario: Create a new brand
+
+- **GIVEN** An authenticated admin user is in the brand creation form
+- **WHEN** The user fills in the name, uploads an icon, and submits
+- **THEN** The brand is saved in the database
+- **AND** The brand appears in the brand list on the frontend
+
+#### Scenario: Update an existing brand
+
+- **GIVEN** An authenticated admin user is editing a brand
+- **WHEN** The user changes the brand name or icon and saves
+- **THEN** The brand information is updated
+- **AND** The changes are reflected on the frontend
+
+#### Scenario: Delete a brand
+
+- **GIVEN** An authenticated admin user views a brand
+- **WHEN** The user deletes the brand
+- **THEN** The brand is removed from the database
+- **AND** Any associated products remain but their brand field is cleared or set to null
+</file>
+
+<file path="openspec/specs/collection-category/spec.md">
+# Collection Category
+
+This spec defines the behavior and management of product categories in the e‑commerce platform.
+
+## Requirements
+
+### Requirement: Category Listing
+
+The system MUST display a list of all available categories. Each category item MUST show the category name.
+
+#### Scenario: View all categories
+
+- **GIVEN** At least one category exists in the system
+- **WHEN** The user navigates to the categories section (e.g., sidebar on products page)
+- **THEN** All categories are displayed
+- **AND** Each category shows its name
+
+#### Scenario: Empty category list
+
+- **GIVEN** No categories have been created yet
+- **WHEN** The user views the categories section
+- **THEN** The categories section is empty or hidden
+- **AND** No error occurs
+
+### Requirement: Product Filter by Category
+
+The system SHALL allow users to filter the product listing by selecting a category.
+
+#### Scenario: Filter products by category
+
+- **GIVEN** The user is on the products page
+- **AND** At least one category exists with associated products
+- **WHEN** The user clicks on a category filter
+- **THEN** The product list updates to show only products of that category
+- **AND** The category filter remains visible for further refinement
+
+#### Scenario: Clear category filter
+
+- **GIVEN** The product list is already filtered by a category
+- **WHEN** The user removes the category filter
+- **THEN** All products are displayed again
+
+### Requirement: Category Detail Page
+
+The system MUST provide a dedicated page for each category showing its name, description, and all related products.
+
+#### Scenario: View category details
+
+- **GIVEN** A specific category exists (e.g., category slug “plumbing”)
+- **WHEN** The user navigates to `/categories/plumbing` (if implemented) or views category-filtered products
+- **THEN** The category name and description are displayed
+- **AND** All products belonging to that category are listed
+
+#### Scenario: Non‑existent category
+
+- **GIVEN** No category exists with the given slug
+- **WHEN** The user tries to view that category
+- **THEN** The system returns a 404 Not Found page
+
+### Requirement: Category Management (Admin)
+
+Administrators and employees MUST be able to create, update, and delete categories via the admin panel.
+
+#### Scenario: Create a new category
+
+- **GIVEN** An authenticated admin user is in the category creation form
+- **WHEN** The user fills in the name and submits
+- **THEN** The category is saved in the database
+- **AND** The category appears in the category list on the frontend
+
+#### Scenario: Update an existing category
+
+- **GIVEN** An authenticated admin user is editing a category
+- **WHEN** The user changes the category name or description and saves
+- **THEN** The category information is updated
+- **AND** The changes are reflected on the frontend
+
+#### Scenario: Delete a category
+
+- **GIVEN** An authenticated admin user views a category
+- **WHEN** The user deletes the category
+- **THEN** The category is removed from the database
+- **AND** Any associated products remain but their category field is cleared or set to null
+</file>
+
+<file path="openspec/specs/collection-order/spec.md">
+# Order Collection
+
+## Purpose
+This spec defines the behavior and lifecycle of orders within the e‑commerce platform. Orders are created by authenticated customers and processed by employees through a defined workflow.
+
+## Requirements
+
+### Requirement: Order Creation
+
+Authenticated users MUST be able to create an order from their cart. The order SHALL capture the customer's shipping address, selected items with their quantities and prices, and a calculated total.
+
+#### Scenario: Customer places an order successfully
+
+- **GIVEN** An authenticated customer has a non‑empty cart
+- **AND** The customer is on the checkout page
+- **WHEN** The customer fills in the shipping address and submits the order
+- **THEN** The system creates a new order with status `review`
+- **AND** The order total is calculated automatically
+- **AND** The cart is cleared
+- **AND** The customer is redirected to the order confirmation page
+
+#### Scenario: Customer places an order with zero‑priced items
+
+- **GIVEN** An authenticated customer has a cart containing one or more items with a price of `0`
+- **WHEN** The customer submits the order
+- **THEN** The system creates a new order with status `review`
+- **AND** The order total is calculated as `0` (or based on other items)
+- **AND** A flag or note is added to the order indicating that it contains zero‑priced items requiring manual review
+
+### Requirement: Order Status Lifecycle
+
+Each order SHALL transition through a defined set of statuses: `review` → `approved` → `preparing` → `delivered`. The system MUST enforce that status transitions occur in the correct order (except for cancellation, which can happen at any stage).
+
+| Status        | Description |
+|---------------|-------------|
+| `review`      | Initial state. The order is being verified by an employee. |
+| `approved`    | Order has been approved for fulfillment. |
+| `preparing`   | Order is being picked, packed, and prepared for shipment. |
+| `delivered`   | Order has been delivered to the customer. |
+| `cancelled`   | Order has been cancelled (can be initiated by employee or customer under certain conditions). |
+
+#### Scenario: Order moves from review to approved
+
+- **GIVEN** An employee is viewing an order with status `review`
+- **WHEN** The employee approves the order (e.g., confirms inventory and pricing)
+- **THEN** The order status updates to `approved`
+- **AND** The customer is notified via SMS or in‑app notification
+
+#### Scenario: Order moves from approved to preparing
+
+- **GIVEN** An employee is viewing an order with status `approved`
+- **WHEN** The employee marks the order as being prepared
+- **THEN** The order status updates to `preparing`
+
+#### Scenario: Order moves from preparing to delivered
+
+- **GIVEN** An employee is viewing an order with status `preparing`
+- **WHEN** The employee marks the order as delivered
+- **THEN** The order status updates to `delivered`
+- **AND** The customer is notified via SMS or in‑app notification
+
+#### Scenario: Order is cancelled
+
+- **GIVEN** An employee or customer has permission to cancel
+- **WHEN** A cancellation is requested (and reasons are provided, if required)
+- **THEN** The order status updates to `cancelled`
+- **AND** The order is removed from active processing lists
+- **AND** The customer is notified of the cancellation via SMS or in‑app notification (if initiated by employee)
+
+### Requirement: Zero‑Price Item Review
+
+When an order contains any item with a price of `0`, the system MUST set the order status to `review` and SHALL allow employees to investigate and contact the customer before approving.
+
+#### Scenario: Employee reviews a zero‑price order
+
+- **GIVEN** An order exists with status `review` and contains zero‑priced items
+- **WHEN** An employee opens the order detail
+- **THEN** The zero‑priced items are highlighted or flagged
+- **AND** The employee can add notes about the review process
+
+#### Scenario: Employee approves a zero‑price order after manual confirmation
+
+- **GIVEN** An employee has reviewed a zero‑price order and confirmed the pricing with the customer
+- **WHEN** The employee updates the order status to `approved`
+- **THEN** The order proceeds to the next stage
+
+#### Scenario: Employee rejects a zero‑price order
+
+- **GIVEN** An employee determines that a zero‑price order cannot be fulfilled
+- **WHEN** The employee updates the order status to `cancelled`
+- **THEN** The order is cancelled
+- **AND** The customer is notified via SMS or in‑app notification with the reason
+
+### Requirement: Order Total Calculation
+
+The system MUST automatically calculate the total of an order as the sum of `(item.quantity * item.price)` for all items. The total SHALL be recalculated whenever an item's price or quantity changes.
+
+#### Scenario: Order total is calculated on creation
+
+- **GIVEN** A customer adds items to the cart with prices and quantities
+- **WHEN** The order is submitted
+- **THEN** The `total` field is set to the sum of all `(price × quantity)`
+
+#### Scenario: Order total is recalculated when an item price is updated by employee
+
+- **GIVEN** An employee updates the price of an item in an existing order
+- **WHEN** The change is saved
+- **THEN** The order total is recalculated
+- **AND** The new total is displayed
+
+### Requirement: Order Item Snapshot
+
+The system MUST store a snapshot of each item's name, price, and quantity at the time of order placement. Changes to the product catalog (e.g., product name, price updates) SHALL NOT affect existing orders.
+
+#### Scenario: Product price changes after order placement
+
+- **GIVEN** A product price is updated in the catalog after an order has been placed
+- **WHEN** The customer views their order history
+- **THEN** The order still shows the original price at the time of purchase
+
+### Requirement: Order History for Customers
+
+Authenticated customers MUST be able to view a list of their past orders with status and total amounts.
+
+#### Scenario: Customer views all orders
+
+- **GIVEN** A customer has placed multiple orders
+- **WHEN** The customer navigates to their orders page (`/orders`)
+- **THEN** A list of orders is displayed, sorted by creation date (newest first)
+- **AND** Each order shows: order ID, creation date, status, and total
+
+#### Scenario: Customer views order details
+
+- **GIVEN** A customer clicks on a specific order
+- **WHEN** The order detail page loads
+- **THEN** The full order details are displayed, including items, shipping address, and order status history
+
+### Requirement: Order Management for Employees
+
+Employees SHALL have full read/write access to orders via the admin panel.
+
+#### Scenario: Employee views all orders
+
+- **GIVEN** An authenticated employee is in the admin panel
+- **WHEN** The employee navigates to the orders list
+- **THEN** All orders are displayed with filters by status, customer, and date range
+
+#### Scenario: Employee changes order status
+
+- **GIVEN** An employee is viewing an order detail
+- **WHEN** The employee selects a new status from the dropdown and saves
+- **THEN** The order status updates
+- **AND** The change is logged in the order history
+
+### Requirement: Order Notes
+
+Employees MUST be able to add internal notes to an order. These notes SHALL NOT be visible to customers.
+
+#### Scenario: Employee adds a note to an order
+
+- **GIVEN** An employee is viewing an order detail
+- **WHEN** The employee writes a note (e.g., "Call customer about address change") and saves
+- **THEN** The note is attached to the order
+- **AND** The note is visible only to other employees
+
+### Requirement: Customer Notification on Order Status Change
+
+The system SHALL notify customers when their order status changes. Notifications SHALL be sent via SMS (using the customer's phone number) or through in‑app notifications.
+
+#### Scenario: Customer receives SMS when order is approved
+
+- **GIVEN** An order status changes from `review` to `approved`
+- **WHEN** The change is saved
+- **THEN** The system sends an SMS to the customer's phone number
+- **AND** The SMS contains the order ID and the new status ("تایید شد")
+
+#### Scenario: Customer receives SMS when order is delivered
+
+- **GIVEN** An order status changes from `preparing` to `delivered`
+- **WHEN** The change is saved
+- **THEN** The system sends an SMS to the customer's phone number
+- **AND** The SMS contains the order ID and a delivery confirmation message
+
+#### Scenario: Customer receives SMS when order is cancelled by employee
+
+- **GIVEN** An employee cancels an order
+- **WHEN** The cancellation is saved
+- **THEN** The system sends an SMS to the customer's phone number
+- **AND** The SMS includes the order ID and the cancellation reason (if provided)
+</file>
+
+<file path="openspec/specs/collection-post/spec.md">
+
+</file>
+
+<file path="openspec/specs/collection-product/spec.md">
+# Collection Product
+
+This spec defines the behavior and management of products in the e‑commerce platform.
+
+## Requirements
+
+### Requirement: Product Name
+
+The system MUST require a name for every product. Products without a name cannot be created.
+
+#### Scenario: Create product with name
+
+- **GIVEN** An authenticated admin user is creating a product
+- **WHEN** The user fills in the product name and submits the form
+- **THEN** The product is saved successfully
+
+#### Scenario: Cannot create product without name
+
+- **GIVEN** An authenticated admin user is creating a product
+- **WHEN** The user submits the form without providing a name
+- **THEN** The system rejects the submission
+- **AND** An error message indicates that the name is required
+
+### Requirement: Product Visibility
+
+The system MUST allow products to be hidden from the storefront. Hidden products SHALL NOT appear in product listings, search results, or brand/category filters. Only administrators and employees can see hidden products in the admin panel.
+
+#### Scenario: Product is visible by default
+
+- **GIVEN** A product is created with the default visibility setting (visible = false)
+- **WHEN** The user views the product list on the frontend
+- **THEN** The product does NOT appear (since default is false)
+- **NOTE:** This scenario assumes default behavior. Administrators must explicitly set visible = true to show products.
+
+#### Scenario: Visible product appears on frontend
+
+- **GIVEN** A product exists with visibility set to true
+- **WHEN** The user navigates to the products page
+- **THEN** The product is displayed in the list
+
+#### Scenario: Hidden product does not appear on frontend
+
+- **GIVEN** A product exists with visibility set to false
+- **WHEN** The user navigates to the products page
+- **THEN** The product is NOT displayed
+- **AND** The product is not accessible via direct URL
+
+### Requirement: Product Price
+
+The system MUST store a price for each product. The default price SHALL be zero.
+
+#### Scenario: Product price displayed on frontend
+
+- **GIVEN** A product exists with a set price (e.g., 150,000 Toman)
+- **WHEN** The user views the product detail page
+- **THEN** The price is displayed in Toman
+
+#### Scenario: Product with zero price
+
+- **GIVEN** A product exists with price set to zero (default)
+- **WHEN** The user views the product detail page
+- **THEN** The price is displayed as “۰ تومان” in Persian or “0 Toman” in English
+- **AND** The user is not prevented from viewing the product
+
+### Requirement: Product Inventory
+
+The system MUST track inventory count for each product. The default inventory SHALL be zero (out of stock).
+
+#### Scenario: Product with positive inventory
+
+- **GIVEN** A product exists with inventory = 10
+- **WHEN** The user views the product detail page
+- **THEN** The inventory is displayed as “موجود: ۱۰ عدد” (Persian) or “Stock: 10 units” (English)
+- **AND** The “Add to Cart” button is enabled
+
+#### Scenario: Product with zero inventory
+
+- **GIVEN** A product exists with inventory = 0 (default)
+- **WHEN** The user views the product detail page
+- **THEN** A label “ناموجود” (out of stock) is displayed
+- **AND** The “Add to Cart” button is disabled
+
+#### Scenario: Low inventory warning
+
+- **GIVEN** A product exists with inventory between 1 and 5
+- **WHEN** The user views the product list or detail page
+- **THEN** A “low stock” badge or indicator is displayed
+
+### Requirement: Product Brand Association
+
+Products SHALL have an optional relationship to a brand. When a brand is associated, the brand name SHALL be displayed on the product detail page and in product listings.
+
+#### Scenario: Product with brand association
+
+- **GIVEN** A product is associated with a specific brand
+- **WHEN** The user views the product detail page
+- **THEN** The brand name is displayed below the product name
+- **AND** The brand name is clickable and links to the brand detail page
+
+#### Scenario: Product without brand association
+
+- **GIVEN** A product has no brand associated (default)
+- **WHEN** The user views the product detail page
+- **THEN** No brand information is displayed
+- **AND** No error occurs
+
+### Requirement: Product Category Association
+
+Products SHALL have an optional relationship to a category. When a category is associated, the category name SHALL be displayed as a filterable attribute.
+
+#### Scenario: Product with category association
+
+- **GIVEN** A product is associated with a specific category
+- **WHEN** The user views the product detail page
+- **THEN** The category name is displayed
+- **AND** Clicking the category filters the product list to show only products in that category
+
+#### Scenario: Product without category association
+
+- **GIVEN** A product has no category associated (default)
+- **WHEN** The user views the product detail page
+- **THEN** No category information is displayed
+- **AND** No error occurs
+
+### Requirement: Product Images
+
+Products SHALL support multiple optional images (gallery) and one optional showcase image (featured/hero image).
+
+#### Scenario: Product with multiple images
+
+- **GIVEN** A product has a gallery of 3 images
+- **WHEN** The user views the product detail page
+- **THEN** A thumbnail gallery is displayed
+- **AND** Clicking a thumbnail shows the full-size image
+
+#### Scenario: Product with showcase image
+
+- **GIVEN** A product has a showcase image
+- **WHEN** The user views the product detail page
+- **THEN** The showcase image is displayed as the primary image at the top of the page
+
+#### Scenario: Product without any images
+
+- **GIVEN** A product has no images associated (default)
+- **WHEN** The user views the product detail page
+- **THEN** A placeholder is displayed indicating “No image available”
+- **AND** No error occurs
+
+### Requirement: Product Search
+
+The system SHALL allow users to search for products by name.
+
+#### Scenario: Search product by name
+
+- **GIVEN** At least one product exists with “copper pipe” in its name
+- **WHEN** The user enters “copper” in the search box and submits
+- **THEN** Only products containing “copper” in their name are displayed
+
+#### Scenario: Search with no results
+
+- **GIVEN** No products match the search term
+- **WHEN** The user searches for a non‑existent term (e.g., “xyzxyz”)
+- **THEN** An empty state message is displayed
+- **AND** No errors occur
+
+### Requirement: Product Filter by Brand and Category
+
+The system SHALL allow users to filter product listings by brand or category, independently or combined.
+
+#### Scenario: Filter products by brand
+
+- **GIVEN** The user is on the products page
+- **WHEN** The user selects a brand filter
+- **THEN** Only products belonging to that brand are displayed
+
+#### Scenario: Filter products by category
+
+- **GIVEN** The user is on the products page
+- **WHEN** The user selects a category filter
+- **THEN** Only products belonging to that category are displayed
+
+#### Scenario: Filter by brand and category combined
+
+- **GIVEN** The user is on the products page
+- **WHEN** The user selects both a brand and a category
+- **THEN** Only products matching both filters are displayed
+
+### Requirement: Product Management (Admin)
+
+Administrators and employees MUST be able to create, update, and delete products via the admin panel.
+
+#### Scenario: Create a new product
+
+- **GIVEN** An authenticated admin user is in the product creation form
+- **WHEN** The user provides a name, price, inventory, optional brand, optional category, optional images, and submits
+- **THEN** The product is saved in the database
+- **AND** The product appears on the frontend (if visible = true)
+
+#### Scenario: Update an existing product
+
+- **GIVEN** An authenticated admin user is editing a product
+- **WHEN** The user modifies any field (name, price, inventory, brand, category, images, visibility) and saves
+- **THEN** The product information is updated
+- **AND** Changes are reflected on the frontend
+
+#### Scenario: Delete a product
+
+- **GIVEN** An authenticated admin user views a product
+- **WHEN** The user deletes the product
+- **THEN** The product is removed from the database
+- **AND** The product no longer appears on the frontend
+- **AND** Any related orders or cart items that reference the product are handled gracefully (e.g., show a fallback message)
+</file>
+
+<file path="openspec/specs/customer/spec.md">
+# Customer
+
+## Purpose
+This spec defines the customer types and their pricing behavior within the e‑commerce platform. Customers are classified into two types: regular and partner (corporate). Partner customers receive special discounts configured by administrators.
+
+## Requirements
+
+### Requirement: Customer Types
+
+The system MUST support two customer types: `regular` and `partner`. Every customer SHALL have a type assigned, with `regular` being the default after registration.
+
+#### Scenario: New customer is registered as regular
+
+- **GIVEN** A new user completes the registration process
+- **WHEN** The account is created
+- **THEN** The customer type is set to `regular` by default
+
+#### Scenario: Customer type is displayed on account page
+
+- **GIVEN** A customer views their account page
+- **THEN** The customer type (`regular` or `partner`) is displayed
+
+### Requirement: Customer Type Management (Admin/Employee)
+
+Administrators and employees MUST be able to change a customer's type after registration. Only users with `admin` or `employee` roles SHALL have permission to update a customer's type.
+
+#### Scenario: Admin changes customer type to partner
+
+- **GIVEN** An authenticated admin user is viewing a customer's profile in the admin panel
+- **WHEN** The admin selects `partner` from the customer type dropdown and saves
+- **THEN** The customer type is updated to `partner`
+- **AND** The customer's pricing behavior updates accordingly
+
+#### Scenario: Employee changes customer type to regular
+
+- **GIVEN** An authenticated employee user is viewing a customer's profile in the admin panel
+- **WHEN** The employee selects `regular` from the customer type dropdown and saves
+- **THEN** The customer type is updated to `regular`
+- **AND** The customer's pricing behavior updates accordingly
+
+#### Scenario: Customer cannot change their own type
+
+- **GIVEN** A customer is viewing their own profile
+- **WHEN** The customer attempts to change their type
+- **THEN** The customer type field is read‑only or not visible
+- **AND** No change is applied
+
+### Requirement: Regular Customer Pricing
+
+Regular customers SHALL see the standard product price (the `price` field on the product) with no discounts applied.
+
+#### Scenario: Regular customer views product price
+
+- **GIVEN** A regular customer is browsing the product catalog
+- **WHEN** The customer views a product detail page
+- **THEN** The product price is displayed as the standard price (no discount)
+- **AND** No discount badge or indicator is shown
+
+#### Scenario: Regular customer adds product to cart
+
+- **GIVEN** A regular customer adds a product to the cart
+- **WHEN** The cart is displayed
+- **THEN** The product price matches the standard price (no discount applied)
+
+### Requirement: Partner Customer Pricing
+
+Partner customers SHALL see a discounted price applied to all products. The discount percentage SHALL be configured globally in the `SiteSettings` by an administrator.
+
+#### Scenario: Partner customer views product price with discount
+
+- **GIVEN** A partner customer is browsing the product catalog
+- **AND** The global partner discount is set to 10% in `SiteSettings`
+- **AND** The product has a standard price of 100,000 Toman
+- **WHEN** The customer views the product detail page
+- **THEN** The discounted price (90,000 Toman) is displayed
+- **AND** The original price (100,000 Toman) is displayed with a strikethrough
+- **AND** A discount badge (e.g., "۱۰٪ تخفیف") is shown
+
+#### Scenario: Partner customer adds product to cart with discount
+
+- **GIVEN** A partner customer views a product with a 10% discount
+- **WHEN** The customer adds the product to the cart
+- **THEN** The discounted price (90,000 Toman) is used in the cart total
+
+#### Scenario: Partner discount changes in SiteSettings
+
+- **GIVEN** The global partner discount is updated from 10% to 15% by an administrator
+- **WHEN** A partner customer views a product
+- **THEN** The new discounted price is displayed (e.g., 85,000 Toman for a 100,000 Toman product)
+- **AND** The updated discount is applied immediately to all partner customers
+
+#### Scenario: Partner discount set to 0%
+
+- **GIVEN** The global partner discount is set to 0% in `SiteSettings`
+- **WHEN** A partner customer views a product
+- **THEN** The product price is displayed as the standard price (no discount applied)
+- **AND** No discount badge is shown
+
+### Requirement: Partner Discount Configuration
+
+The system MUST expose a configurable partner discount percentage in `SiteSettings`. Only administrators SHALL have permission to update this setting.
+
+#### Scenario: Admin updates partner discount
+
+- **GIVEN** An authenticated admin user is editing `SiteSettings`
+- **WHEN** The admin changes the partner discount percentage and saves
+- **THEN** The discount is stored and applied to all partner customers
+
+#### Scenario: Employee attempts to update partner discount
+
+- **GIVEN** An authenticated employee user is editing `SiteSettings`
+- **WHEN** The employee attempts to change the partner discount
+- **THEN** The system denies the operation (forbidden)
+- **AND** The employee sees a permission error
+
+### Requirement: Customer Type for Checkout
+
+The customer type SHALL determine the pricing used during checkout. The order total MUST reflect the appropriate pricing (regular or discounted).
+
+#### Scenario: Partner customer places an order with discounted prices
+
+- **GIVEN** A partner customer has products in the cart with discounted prices applied
+- **WHEN** The customer proceeds to checkout and places the order
+- **THEN** The order total is calculated using the discounted prices
+- **AND** The order record stores the final prices (snapshot) as they were at checkout
+
+#### Scenario: Regular customer places an order with standard prices
+
+- **GIVEN** A regular customer has products in the cart with standard prices
+- **WHEN** The customer proceeds to checkout and places the order
+- **THEN** The order total is calculated using the standard prices
+- **AND** The order record stores the standard prices (snapshot)
+
+### Requirement: Customer Type Visibility for Employees
+
+Employees SHALL be able to view a customer's type in the customer list and detail pages in the admin panel.
+
+#### Scenario: Employee views customer list with type column
+
+- **GIVEN** An authenticated employee is in the admin panel
+- **WHEN** The employee views the customer list
+- **THEN** Each customer row includes a column showing the customer type (`regular` or `partner`)
+- **AND** The employee can sort or filter by customer type
+
+#### Scenario: Employee views customer detail
+
+- **GIVEN** An authenticated employee opens a customer's detail page
+- **WHEN** The page loads
+- **THEN** The customer type is displayed as a read‑only or editable field (depending on permissions)
+</file>
+
+<file path="openspec/specs/global-site-settings/spec.md">
+# Global Site Settings
+
+## Purpose
+This spec defines the global configuration settings for the e‑commerce platform. These settings control the site's branding, contact information, and social media presence. Only users with the `admin` role SHALL have permission to modify these settings.
+
+## Requirements
+
+### Requirement: Site Branding
+
+The system MUST support configurable branding elements including site name, logo, and favicon. The site name SHALL be available in both English and Persian (Farsi).
+
+#### Scenario: Admin updates site name in English
+
+- **GIVEN** An authenticated admin user is editing Site Settings
+- **WHEN** The admin changes the English site name and saves
+- **THEN** The site name is updated in all English‑language pages
+
+#### Scenario: Admin updates site name in Persian
+
+- **GIVEN** An authenticated admin user is editing Site Settings
+- **WHEN** The admin changes the Persian site name and saves
+- **THEN** The site name is updated in all Persian‑language pages
+
+#### Scenario: Admin uploads a site logo
+
+- **GIVEN** An authenticated admin user is editing Site Settings
+- **WHEN** The admin uploads a new logo image and saves
+- **THEN** The logo is displayed in the site header across all pages
+
+#### Scenario: Admin uploads a favicon
+
+- **GIVEN** An authenticated admin user is editing Site Settings
+- **WHEN** The admin uploads a favicon image and saves
+- **THEN** The favicon appears in the browser tab
+
+### Requirement: Contact Information
+
+The system MUST store contact information including email address, phone numbers, and physical addresses. Multiple phone numbers and addresses SHALL be supported.
+
+#### Scenario: Admin adds a phone number
+
+- **GIVEN** An authenticated admin user is editing Site Settings
+- **WHEN** The admin adds a phone number with a label (e.g., "Support", "Sales") and saves
+- **THEN** The phone number is stored and displayed in the contact section
+- **AND** If marked as primary, it is highlighted in the footer and contact page
+
+#### Scenario: Admin adds multiple phone numbers
+
+- **GIVEN** An authenticated admin user is editing Site Settings
+- **WHEN** The admin adds multiple phone numbers with different labels
+- **THEN** All phone numbers are stored and displayed in the contact section
+- **AND** The primary phone number is indicated
+
+#### Scenario: Admin adds an email address
+
+- **GIVEN** An authenticated admin user is editing Site Settings
+- **WHEN** The admin enters an email address and saves
+- **THEN** The email address is stored and displayed in the contact section
+
+#### Scenario: Admin adds a physical address
+
+- **GIVEN** An authenticated admin user is editing Site Settings
+- **WHEN** The admin adds an address with a label (e.g., "Main Office", "Warehouse") and saves
+- **THEN** The address is stored and displayed in the contact section
+
+#### Scenario: Admin adds multiple addresses
+
+- **GIVEN** An authenticated admin user is editing Site Settings
+- **WHEN** The admin adds multiple addresses with different labels
+- **THEN** All addresses are stored and displayed in the contact section
+- **AND** The primary address is indicated
+
+#### Scenario: Admin removes a phone number or address
+
+- **GIVEN** An authenticated admin user is editing Site Settings
+- **WHEN** The admin deletes a phone number or address
+- **THEN** The entry is removed from the contact section
+
+### Requirement: Social Media Links
+
+The system MUST support configurable social media links. Each link SHALL include an icon, a display name, and a URL. Multiple social links SHALL be supported.
+
+#### Scenario: Admin adds a social media link
+
+- **GIVEN** An authenticated admin user is editing Site Settings
+- **WHEN** The admin adds a social link with an icon (uploaded image), display name (e.g., "WhatsApp"), and URL, then saves
+- **THEN** The social link is stored and displayed in the footer and contact page
+
+#### Scenario: Admin adds multiple social media links
+
+- **GIVEN** An authenticated admin user is editing Site Settings
+- **WHEN** The admin adds multiple social links with different platforms
+- **THEN** All social links are stored and displayed
+
+#### Scenario: Admin updates a social media link
+
+- **GIVEN** An authenticated admin user is editing Site Settings
+- **WHEN** The admin changes the URL or icon of an existing social link and saves
+- **THEN** The social link is updated
+
+#### Scenario: Admin removes a social media link
+
+- **GIVEN** An authenticated admin user is editing Site Settings
+- **WHEN** The admin deletes a social link
+- **THEN** The link is removed from the site
+
+### Requirement: Site Settings Access Control
+
+Only users with the `admin` role SHALL be able to view or modify Site Settings. The system MUST deny access to `employee` and `customer` users.
+
+#### Scenario: Employee attempts to access Site Settings
+
+- **GIVEN** An authenticated employee user navigates to Site Settings in the admin panel
+- **WHEN** The page loads
+- **THEN** The system returns a `403 Forbidden` error
+- **AND** The employee cannot view or modify any settings
+
+#### Scenario: Customer attempts to access Site Settings
+
+- **GIVEN** An authenticated customer user attempts to access Site Settings
+- **WHEN** The user navigates to the admin panel
+- **THEN** The system redirects to the homepage
+- **AND** No settings are displayed
+
+### Requirement: Site Settings Display on Frontend
+
+The system SHALL display contact information and social links on the footer and contact page. The site name and logo SHALL be displayed in the header.
+
+#### Scenario: Contact information is displayed in the footer
+
+- **GIVEN** Site Settings have been configured with phone numbers, email, and addresses
+- **WHEN** A user views any page on the site
+- **THEN** The footer displays the primary phone number, email, and primary address
+- **AND** Social media icons are displayed with links
+
+#### Scenario: Contact information is displayed on the contact page
+
+- **GIVEN** Site Settings have been configured with contact information
+- **WHEN** A user navigates to the contact page (`/contact`)
+- **THEN** All phone numbers, email addresses, physical addresses, and social links are displayed
+
+#### Scenario: Site logo is displayed in the header
+
+- **GIVEN** Site Settings have a logo configured
+- **WHEN** A user views any page on the site
+- **THEN** The logo is displayed in the header
+- **AND** Clicking the logo redirects to the homepage
+</file>
+
+<file path="openspec/specs/i18n/spec.md">
+# i18n
+
+## ADDED Requirements
+
+### Requirement: 'en' language
+
+the system MUST provide `en` language. `en` language is default language for admin panel section.
+
+### Requirement: 'fa' language
+
+the system MUST provide `fa` language. ‍‍`fa` language is default language for website. SHALL do not use `fa` language in admin panel section.
+
+#### Scenario: change language
+
+- GIVEN user want to change language from `fa` to `en`
+- WHEN change language in UI
+- THEN set selected language in user cookie
+- AND reload page to load new language
+
+#### Scenario: first time user open website 
+
+- WHEN new user for first time open website
+- THEN set default language in cookie
+- AND show website with default language
+</file>
+
+<file path="openspec/specs/page-about/spec.md">
+# Page: About Us
+
+## Purpose
+This spec defines the behavior and content of the About Us page (`/about`) on the e‑commerce platform. The page content SHALL be managed through a global collection named `page-about` using Payload's rich text editor. Administrators SHALL be able to update the content without requiring code changes.
+
+## Requirements
+
+### Requirement: About Us Page Display
+
+The system MUST display an About Us page that shows rich text content managed via the Payload CMS global collection `page-about`. The page SHALL be publicly accessible without authentication.
+
+#### Scenario: About Us page loads with published content
+
+- **GIVEN** The `page-about` global has been configured with rich text content
+- **WHEN** A user navigates to `/about`
+- **THEN** The page title displays "About Us" (or localized equivalent)
+- **AND** The rich text content is rendered as HTML on the page
+- **AND** The content preserves formatting (headings, paragraphs, lists, links, images)
+
+#### Scenario: About Us page when no content is configured
+
+- **GIVEN** The `page-about` global has no content saved
+- **WHEN** A user navigates to `/about`
+- **THEN** A friendly empty state message is displayed (e.g., "About Us content is being prepared")
+- **AND** No errors are shown
+
+### Requirement: About Us Content Management (Admin)
+
+Administrators MUST be able to create, update, and publish content for the About Us page using Payload's rich text editor. The content SHALL be saved to the `page-about` global collection.
+
+#### Scenario: Admin creates About Us content
+
+- **GIVEN** An authenticated admin user is in the admin panel
+- **WHEN** The admin navigates to the `page-about` global and saves rich text content
+- **THEN** The content is stored in the database
+- **AND** The content is immediately displayed on the frontend `/about` page
+
+#### Scenario: Admin updates About Us content
+
+- **GIVEN** An authenticated admin user is editing the `page-about` global
+- **WHEN** The admin modifies the rich text content and saves
+- **THEN** The content is updated in the database
+- **AND** The updated content is immediately displayed on the frontend
+
+#### Scenario: Admin formats content using rich text editor
+
+- **GIVEN** An authenticated admin user is editing the `page-about` global
+- **WHEN** The admin uses the rich text editor features (headings, bold, italic, lists, links, images)
+- **THEN** All formatting is preserved when displayed on the frontend
+
+### Requirement: About Us Page Breadcrumb
+
+The About Us page SHALL include a breadcrumb trail to help users navigate back to the homepage.
+
+#### Scenario: Breadcrumb is displayed
+
+- **GIVEN** A user is on the About Us page
+- **WHEN** The page loads
+- **THEN** A breadcrumb trail shows: "Home › About Us"
+
+### Requirement: About Us Page Metadata
+
+The About Us page MUST have appropriate SEO metadata including title and description. The title SHALL include the site name (e.g., "About Us | Abafarin").
+
+#### Scenario: Meta title is generated
+
+- **GIVEN** Site Settings has site name configured
+- **WHEN** The About Us page loads
+- **THEN** The page title is "About Us | {siteName}"
+- **AND** The meta description is a localized description
+
+### Requirement: About Us Page Accessibility
+
+The About Us page content SHALL be accessible to all users, including those using screen readers.
+
+#### Scenario: Rich text content is accessible
+
+- **GIVEN** The About Us page has rich text content
+- **WHEN** A user using a screen reader navigates to the page
+- **THEN** All text content is read aloud
+- **AND** Images within the content have appropriate alt text
+- **AND** Links are properly labeled
+</file>
+
+<file path="openspec/specs/page-contract/spec.md">
+# Page: Contact
+
+## Purpose
+This spec defines the behavior and content of the contact page (`/contact`) on the e‑commerce platform. The page SHALL display all contact information and social media links configured in the Site Settings. All content is read‑only and sourced from the global settings.
+
+## Requirements
+
+### Requirement: Contact Page Display
+
+The system MUST display a contact page that shows all configured phone numbers, email addresses, physical addresses, and social media links from Site Settings. The page SHALL be publicly accessible without authentication.
+
+#### Scenario: Contact page loads with complete information
+
+- **GIVEN** Site Settings are configured with:
+  - At least one phone number
+  - At least one email address
+  - At least one physical address
+  - At least one social media link
+- **WHEN** A user navigates to `/contact`
+- **THEN** The page title displays "Contact Us" (or localized equivalent)
+- **AND** A subheading or description is shown (e.g., "Reach us through any of the channels below")
+- **AND** All phone numbers are displayed with their labels
+- **AND** All email addresses are displayed with their labels
+- **AND** All physical addresses are displayed with their labels
+- **AND** All social media links are displayed with their icons, names, and descriptions (if available)
+
+#### Scenario: Contact page with partial information
+
+- **GIVEN** Site Settings have only phone numbers configured (no email, no addresses, no social links)
+- **WHEN** A user navigates to `/contact`
+- **THEN** The phone numbers are displayed
+- **AND** Sections for email, addresses, and social links are omitted or hidden
+- **AND** No errors are shown
+
+#### Scenario: Contact page with no information configured
+
+- **GIVEN** Site Settings have no contact information configured (empty phone, email, address, and social link arrays)
+- **WHEN** A user navigates to `/contact`
+- **THEN** A friendly empty state message is displayed (e.g., "Contact information has not been configured in the admin panel yet.")
+- **AND** No errors are shown
+
+### Requirement: Phone Number Display on Contact Page
+
+Phone numbers SHALL be displayed with their labels and SHALL be clickable for direct calling on mobile devices.
+
+#### Scenario: Phone number is displayed with label
+
+- **GIVEN** Site Settings have a phone number with label "Main Office" and number "+98 21 1234 5678"
+- **WHEN** The contact page loads
+- **THEN** The label "Main Office" is displayed
+- **AND** The phone number is displayed
+
+#### Scenario: Primary phone number is highlighted
+
+- **GIVEN** Site Settings have multiple phone numbers, one marked as `isPrimary: true`
+- **WHEN** The contact page loads
+- **THEN** The primary phone number is displayed with a "Primary" badge or indicator
+
+#### Scenario: Phone number is clickable (tel link)
+
+- **GIVEN** A phone number is displayed on the contact page
+- **WHEN** A user clicks on the phone number on a mobile device
+- **THEN** The device opens the dialer with the phone number pre‑filled
+
+### Requirement: Email Display on Contact Page
+
+Email addresses SHALL be displayed with their labels and SHALL be clickable to open the user's email client.
+
+#### Scenario: Email is displayed with label
+
+- **GIVEN** Site Settings have an email with label "Support" and address "support@abafarin.com"
+- **WHEN** The contact page loads
+- **THEN** The label "Support" is displayed
+- **AND** The email address "support@abafarin.com" is displayed
+
+#### Scenario: Primary email is highlighted
+
+- **GIVEN** Site Settings have multiple emails, one marked as `isPrimary: true`
+- **WHEN** The contact page loads
+- **THEN** The primary email is displayed with a "Primary" badge or indicator
+
+#### Scenario: Email is clickable (mailto link)
+
+- **GIVEN** An email address is displayed on the contact page
+- **WHEN** A user clicks on the email address
+- **THEN** The default email client opens with the address pre‑filled in the "To" field
+
+### Requirement: Address Display on Contact Page
+
+Physical addresses SHALL be displayed with their labels and full address details.
+
+#### Scenario: Address is displayed with label
+
+- **GIVEN** Site Settings have an address with label "Main Office" and address "Tehran, Iran"
+- **WHEN** The contact page loads
+- **THEN** The label "Main Office" is displayed
+- **AND** The full address is displayed below the label
+
+#### Scenario: Primary address is highlighted
+
+- **GIVEN** Site Settings have multiple addresses, one marked as `isPrimary: true`
+- **WHEN** The contact page loads
+- **THEN** The primary address is displayed with a "Primary" badge or indicator
+
+### Requirement: Social Media Links Display on Contact Page
+
+Social media links SHALL be displayed with their icons (or initials as fallback), display names, descriptions (if available), and clickable URLs.
+
+#### Scenario: Social link is displayed with icon and name
+
+- **GIVEN** Site Settings have a social link with name "WhatsApp", label "Support WhatsApp", URL "https://wa.me/09123456789"
+- **WHEN** The contact page loads
+- **THEN** The icon (uploaded image or first‑letter fallback) is displayed
+- **AND** The display name "Support WhatsApp" is shown
+- **AND** The URL is clickable and opens in a new tab
+
+#### Scenario: Social link without icon
+
+- **GIVEN** Site Settings have a social link with name "Telegram" but no icon uploaded
+- **WHEN** The contact page loads
+- **THEN** A fallback icon (first letter of the name, e.g., "T") is displayed
+- **AND** The link is still clickable
+
+#### Scenario: Social link with description
+
+- **GIVEN** Site Settings have a social link with description "For urgent inquiries"
+- **WHEN** The contact page loads
+- **THEN** The description is displayed below the link
+
+### Requirement: Breadcrumb Navigation
+
+The contact page SHALL include a breadcrumb trail to help users navigate back to the homepage.
+
+#### Scenario: Breadcrumb is displayed
+
+- **GIVEN** A user is on the contact page
+- **WHEN** The page loads
+- **THEN** A breadcrumb trail shows: "Home › Contact Us"
+
+### Requirement: Page Metadata
+
+The contact page MUST have appropriate SEO metadata including title and description. The title SHALL include the site name (e.g., "Contact Us | Abafarin").
+
+#### Scenario: Meta title is generated
+
+- **GIVEN** Site Settings has site name configured
+- **WHEN** The contact page loads
+- **THEN** The page title is "Contact Us | {siteName}"
+- **AND** The meta description is a localized contact description
+
+### Requirement: Response Time Notice
+
+The contact page SHALL display a notice indicating the typical team response time.
+
+#### Scenario: Response notice is displayed
+
+- **GIVEN** The contact page is loaded
+- **WHEN** The user views the bottom of the page
+- **THEN** A notice is displayed indicating that the team will respond as soon as possible
+- **AND** If the site name is configured, it is included in the notice (e.g., "The Abafarin team will respond as soon as possible.")
+</file>
+
+<file path="openspec/specs/project-structure/spec.md">
+# Project Structure
+
+## ADDED
+</file>
+
+<file path="openspec/specs/role/spec.md">
+# Role
+
+## Purpose
+This spec defines the user roles and their corresponding permissions within the e‑commerce platform. The system enforces role‑based access control (RBAC) across all collections and operations.
+
+## Requirements
+
+### Requirement: Admin Role
+
+The system MUST have a role named `admin`. Users with the `admin` role have full read/write access to all collections and global settings. Only an `admin` can assign or change the role of other users.
+
+#### Scenario: Admin logs into the admin panel
+
+- **GIVEN** The user has an `admin` role
+- **AND** The user is on the login page
+- **WHEN** The user submits valid credentials
+- **THEN** The user is redirected to the admin dashboard (`/admin`)
+
+#### Scenario: Admin updates any collection
+
+- **GIVEN** An authenticated admin user is in the admin panel
+- **WHEN** The user creates, updates, or deletes a document in any collection (e.g., Products, Orders, Users)
+- **THEN** The operation succeeds
+
+#### Scenario: Admin modifies global settings
+
+- **GIVEN** An authenticated admin user is in the admin panel
+- **WHEN** The user updates the `SiteSettings` global (e.g., site name, contact info, social links)
+- **THEN** The changes are saved successfully
+
+#### Scenario: Admin assigns a role to another user
+
+- **GIVEN** An authenticated admin user is editing a user record
+- **WHEN** The admin changes the user's role to `employee` or `admin`
+- **THEN** The role is updated successfully
+- **AND** The user's new permissions take effect immediately
+
+### Requirement: Employee Role
+
+The system MUST have a role named `employee`. Users with the `employee` role have access to the admin panel but with restricted permissions.
+
+**Allowed operations for `employee`:**
+- Create, read, update, and delete: `orders`, `products`, `brands`, `categories`, `media`
+- Read (view only): `users` (cannot modify or delete users)
+- Read and update: their own user profile
+
+**Restricted operations for `employee`:**
+- No access to `SiteSettings` (global configuration)
+- No access to user role management
+- No delete access on collections that are restricted by `adminOnly` access policies (e.g., cannot delete users)
+
+#### Scenario: Employee logs into the admin panel
+
+- **GIVEN** The user has an `employee` role
+- **AND** The user is on the login page
+- **WHEN** The user submits valid credentials
+- **THEN** The user is redirected to the admin dashboard (`/admin`)
+
+#### Scenario: Employee manages products and orders
+
+- **GIVEN** An authenticated employee user is in the admin panel
+- **WHEN** The employee creates, updates, or deletes a product or an order
+- **THEN** The operation succeeds
+
+#### Scenario: Employee attempts to modify global settings
+
+- **GIVEN** An authenticated employee user is in the admin panel
+- **WHEN** The employee tries to update the `SiteSettings` (e.g., changing the site name)
+- **THEN** The system returns a `403 Forbidden` error from Payload CMS
+- **AND** The changes are not applied
+
+#### Scenario: Employee attempts to delete a user
+
+- **GIVEN** An authenticated employee user is in the admin panel
+- **WHEN** The employee tries to delete a user
+- **THEN** The system denies the operation (forbidden)
+- **AND** The user is not deleted
+
+### Requirement: Customer Role
+
+The system MUST have a role named `customer`. The `customer` role is the default role assigned to all new users upon registration.
+
+**Permissions for `customer`:**
+- Can browse public pages (products, brands, categories)
+- Can add/remove items from the cart and place orders
+- Can view and update their own profile and address book
+- Can view their own order history
+- **Cannot** access the admin panel (`/admin`) under any circumstances
+
+#### Scenario: Customer attempts to access the admin panel
+
+- **GIVEN** The user has a `customer` role
+- **AND** The user is logged in
+- **WHEN** The user navigates to `/admin`
+- **THEN** The system denies access
+- **AND** The user is redirected to the homepage (`/`)
+
+#### Scenario: Customer places an order on the frontend
+
+- **GIVEN** An authenticated customer user has items in their cart
+- **WHEN** The customer submits the checkout form
+- **THEN** The order is created successfully with status `pending`
+- **AND** The customer can view the order in their order history
+
+#### Scenario: Customer views their own profile
+
+- **GIVEN** An authenticated customer user is on the frontend
+- **WHEN** The user navigates to `/account`
+- **THEN** The user's personal information (name, phone, address) and recent orders are displayed
+- **AND** The user can update their profile information
+
+### Requirement: Frontend Public Access (Unauthenticated)
+
+Users who are not logged in (unauthenticated) SHALL be able to view public content, including the homepage, product listings, product details, brands, categories, and the contact page.
+
+#### Scenario: Unauthenticated user browses products
+
+- **GIVEN** The user is not logged in
+- **WHEN** The user navigates to the products page or a product detail page
+- **THEN** The product list or detail is displayed correctly
+- **AND** No login prompt is shown
+
+#### Scenario: Unauthenticated user attempts to checkout
+
+- **GIVEN** The user is not logged in
+- **WHEN** The user attempts to proceed to checkout
+- **THEN** The system redirects the user to the login page
+- **AND** After successful login, the user is redirected back to the checkout page
+- GIVEN customer user goto `/admin` page
+- THEN fill all needed input
+- WHEN try to login 
+- THEN show access deny error to user
+- AND  redirect to `/` page
+</file>
+
+<file path="openspec/specs/ui/spec.md">
+
+</file>
+
+<file path="openspec/specs/ui-dark-mode/spec.md">
+# UI Dark Mode
+
+## Purpose
+This spec defines the dark mode (theme switching) functionality for the e‑commerce platform. Users SHALL be able to switch between light and dark themes. The system SHALL respect the user's system preference and persist their choice across sessions.
+
+## Requirements
+
+### Requirement: Theme Switching
+
+Users MUST be able to switch between light and dark themes using a theme toggle button in the header. The theme SHALL change immediately without a page reload.
+
+#### Scenario: Switch from light to dark theme
+
+- **GIVEN** The user is viewing the site in light mode
+- **AND** The theme toggle button is visible in the header
+- **WHEN** The user clicks the theme toggle button and selects "Dark"
+- **THEN** The site theme changes to dark mode immediately
+- **AND** The UI colors, backgrounds, and text update accordingly
+- **AND** No page reload occurs
+
+#### Scenario: Switch from dark to light theme
+
+- **GIVEN** The user is viewing the site in dark mode
+- **WHEN** The user clicks the theme toggle button and selects "Light"
+- **THEN** The site theme changes to light mode immediately
+- **AND** The UI colors, backgrounds, and text update accordingly
+
+### Requirement: System Preference Detection
+
+On first visit (or when "System" is selected), the system MUST detect the user's operating system color scheme preference and apply the corresponding theme.
+
+#### Scenario: First visit with system preference set to dark
+
+- **GIVEN** A user visits the site for the first time
+- **AND** The user's operating system is set to dark mode
+- **WHEN** The page loads
+- **THEN** The site automatically displays in dark mode
+
+#### Scenario: First visit with system preference set to light
+
+- **GIVEN** A user visits the site for the first time
+- **AND** The user's operating system is set to light mode
+- **WHEN** The page loads
+- **THEN** The site automatically displays in light mode
+
+### Requirement: Theme Persistence
+
+The user's theme preference MUST be saved and persisted across browser sessions. When the user returns to the site, the previously selected theme SHALL be applied.
+
+#### Scenario: Theme persists after page reload
+
+- **GIVEN** The user has selected dark mode
+- **WHEN** The user refreshes the page
+- **THEN** The site remains in dark mode
+
+#### Scenario: Theme persists after closing and reopening browser
+
+- **GIVEN** The user has selected dark mode
+- **WHEN** The user closes the browser and later reopens the site
+- **THEN** The site loads in dark mode
+
+### Requirement: Theme Options
+
+The system MUST provide three theme options: Light, Dark, and System (follow operating system preference).
+
+#### Scenario: Theme options are displayed in dropdown
+
+- **GIVEN** The user clicks the theme toggle button
+- **WHEN** The dropdown menu opens
+- **THEN** Three options are displayed: "Light", "Dark", and "System"
+- **AND** The currently active theme is marked with a checkmark icon
+
+### Requirement: Theme Toggle Accessibility
+
+The theme toggle button MUST be accessible, including proper ARIA labels and keyboard navigation.
+
+#### Scenario: Theme toggle is keyboard accessible
+
+- **GIVEN** A user navigates the site using a keyboard
+- **WHEN** The user tabs to the theme toggle button
+- **THEN** The button receives focus
+- **AND** Pressing Enter or Space opens the dropdown menu
+
+#### Scenario: Theme toggle has proper ARIA label
+
+- **GIVEN** A screen reader user visits the site
+- **WHEN** The user encounters the theme toggle button
+- **THEN** The button has an ARIA label indicating its purpose (e.g., "Toggle theme")
+- **AND** The current theme is announced if possible
+
+### Requirement: Theme Consistency Across Pages
+
+The selected theme SHALL be applied consistently across all pages of the site without flickering or flash of unstyled content.
+
+#### Scenario: Theme applies without flash on page navigation
+
+- **GIVEN** The user has selected dark mode
+- **WHEN** The user navigates from the homepage to a product page
+- **THEN** The page loads directly in dark mode
+- **AND** No flash of light mode is visible before the dark theme applies
+
+### Requirement: Visual Feedback
+
+The theme toggle button SHALL provide visual feedback indicating the currently active theme.
+
+#### Scenario: Button icon reflects current theme
+
+- **GIVEN** The user is in dark mode
+- **WHEN** The user views the theme toggle button
+- **THEN** The button displays a moon icon (or appropriate icon) indicating dark mode
+
+#### Scenario: Button icon reflects system theme
+
+- **GIVEN** The user has selected "System" as the theme
+- **WHEN** The user views the theme toggle button
+- **THEN** The button displays a monitor icon indicating system preference mode
+
+### Requirement: Color Scheme CSS Variables
+
+The system MUST use CSS custom properties (variables) defined in `styles.css` for all theme‑dependent colors. This ensures consistent theming across all components.
+
+#### Scenario: Dark mode uses dark CSS variables
+
+- **GIVEN** The user is in dark mode
+- **WHEN** The developer inspects the CSS
+- **THEN** The `:root` or `.dark` class variables are applied
+- **AND** All components use the dark theme colors
+
+#### Scenario: Light mode uses light CSS variables
+
+- **GIVEN** The user is in light mode
+- **WHEN** The developer inspects the CSS
+- **THEN** The default `:root` variables (light theme) are applied
+- **AND** All components use the light theme colors
+</file>
+
+<file path="openspec/specs/user/spec.md">
+# User
+
+## Purpose
+This spec defines the user entity and its behavior within the e‑commerce platform. Users represent all registered individuals, including customers, employees, and administrators. The primary identifier and authentication credential is the phone number.
+
+## Requirements
+
+### Requirement: User Registration Fields
+
+The system MUST capture the following fields during user registration: first name, last name, and phone number. Address SHALL NOT be required at registration time.
+
+#### Scenario: User registers with required fields
+
+- **GIVEN** A new user is on the registration page
+- **WHEN** The user provides a first name, last name, and a valid phone number
+- **THEN** The account is created successfully
+- **AND** The user is logged in automatically
+- **AND** The address field is left empty
+
+#### Scenario: Registration fails without first name or last name
+
+- **GIVEN** A new user is on the registration page
+- **WHEN** The user submits the form without a first name or last name
+- **THEN** The system rejects the registration
+- **AND** An error message indicates that first name and last name are required
+
+#### Scenario: Registration fails without phone number
+
+- **GIVEN** A new user is on the registration page
+- **WHEN** The user submits the form without a phone number
+- **THEN** The system rejects the registration
+- **AND** An error message indicates that the phone number is required
+
+### Requirement: Unique Phone Number
+
+Each user's phone number MUST be unique across the entire system. The system SHALL prevent registration or creation of a user with a phone number that is already associated with an existing account.
+
+#### Scenario: Registration with a new phone number
+
+- **GIVEN** A phone number that has not been used before
+- **WHEN** A user registers with that phone number
+- **THEN** The registration succeeds
+
+#### Scenario: Registration with an existing phone number
+
+- **GIVEN** A phone number that is already registered to another user
+- **WHEN** A new user attempts to register with that same phone number
+- **THEN** The system rejects the registration
+- **AND** An error message indicates that the phone number is already taken
+
+### Requirement: Phone Number for Authentication
+
+The phone number SHALL serve as the primary credential for authentication. Users MUST log in using their phone number and password.
+
+#### Scenario: User logs in with phone number and password
+
+- **GIVEN** A registered user has a valid phone number and password
+- **WHEN** The user enters the phone number and password on the login page
+- **THEN** The system authenticates the user and logs them in
+
+#### Scenario: User cannot log in with an unregistered phone number
+
+- **GIVEN** A phone number that does not exist in the system
+- **WHEN** The user attempts to log in with that phone number and a password
+- **THEN** The system rejects the login attempt
+- **AND** An error message indicates that the credentials are invalid
+
+### Requirement: Phone Number Format Validation
+
+The phone number MUST be a valid Iranian mobile phone number. The system SHALL validate the format during registration and update operations.
+
+#### Scenario: Valid Iranian phone number
+
+- **GIVEN** A phone number with 11 digits starting with `09` (e.g., `09123456789`)
+- **WHEN** The user submits the registration form
+- **THEN** The phone number is accepted
+
+#### Scenario: Invalid phone number format
+
+- **GIVEN** A phone number that is not 11 digits or does not start with `09` (e.g., `02112345678` or `9123456789`)
+- **WHEN** The user submits the registration form
+- **THEN** The system rejects the submission
+- **AND** An error message indicates that the phone number format is invalid
+
+### Requirement: Address for Order Placement
+
+Users MUST have a valid address saved before they can place an order. The system SHALL require an address during checkout if none exists.
+
+#### Scenario: User places an order with an existing address
+
+- **GIVEN** A user has a saved address in their profile
+- **WHEN** The user proceeds to checkout
+- **THEN** The address is pre‑filled in the checkout form
+- **AND** The order can be placed successfully
+
+#### Scenario: User attempts to place an order without an address
+
+- **GIVEN** A user does not have any saved address in their profile
+- **WHEN** The user attempts to proceed to checkout
+- **THEN** The system displays a message indicating that an address is required
+- **AND** The user is prompted to enter an address before continuing
+
+#### Scenario: User enters an address during checkout
+
+- **GIVEN** A user does not have a saved address
+- **WHEN** The user reaches the checkout page
+- **THEN** The user can enter a new address directly in the checkout form
+- **AND** The address is saved to the user's profile after the order is placed
+
+#### Scenario: User updates their address before placing an order
+
+- **GIVEN** A user has a saved address in their profile
+- **WHEN** The user edits the address on the checkout page or account page and saves
+- **THEN** The address is updated with the new information
+
+### Requirement: User Profile Display
+
+The system SHALL display user information (first name, last name, phone number, and address) on the account page. The phone number SHALL be shown in a read‑only format.
+
+#### Scenario: User views their profile
+
+- **GIVEN** A user is logged in and navigates to the account page
+- **WHEN** The page loads
+- **THEN** The user's first name, last name, phone number, and saved address are displayed
+- **AND** The phone number is read‑only
+
+#### Scenario: User profile shows address
+
+- **GIVEN** A user has a saved address
+- **WHEN** The user views the account page
+- **THEN** The address is displayed in the profile sectionlephone number format.
+</file>
+
+<file path="openspec/config.yaml">
+schema: spec-driven
+context: |
+  tech stack: typescript, next.js, payload-cms, shadcn, tailwindcss, bun (package manager), vitest (test runner)
+  git commit template: {TYPE}({SECTION}): {MESSAGE}
+  domain: e-commerce platform
+# Project context (optional)
+# This is shown to AI when creating artifacts.
+# Add your tech stack, conventions, style guides, domain knowledge, etc.
+# Example:
+#   context: |
+#     Tech stack: TypeScript, React, Node.js
+#     We use conventional commits
+#     Domain: e-commerce platform
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+# Example:
+#   rules:
+#     proposal:
+#       - Keep proposals under 500 words
+#       - Always include a "Non-goals" section
+#     tasks:
+#       - Break tasks into chunks of max 2 hours
+
+# Per-operation guidance (optional)
+# Add advisory guidance for how apply and archive work should be conducted.
+# This is separate from artifact rules above.
+# Example:
+#   operations:
+#     apply:
+#       guidance:
+#         - Keep test summaries concise
+#     archive:
+#       guidance:
+#         - Summarize the archive outcome before finishing
+</file>
+
+<file path="src/app/(app)/layout.tsx">
+import React from 'react'
+import './styles.css'
+
+export const metadata = {
+  description: 'A blank template using Payload in a Next.js app.',
+  title: 'Payload Blank Template',
+}
+
+export default async function RootLayout(props: { children: React.ReactNode }) {
+  const { children } = props
+
+  return (
+    <html lang="en">
+      <body>
+        <main>{children}</main>
+      </body>
+    </html>
+  )
+}
+</file>
+
+<file path="src/app/(app)/page.tsx">
+import { headers as getHeaders } from 'next/headers.js'
+import Image from 'next/image'
+import { getPayload } from 'payload'
+import React from 'react'
+import { fileURLToPath } from 'url'
+
+import config from '@/payload.config'
+import './styles.css'
+
+export default async function HomePage() {
+  const headers = await getHeaders()
+  const payloadConfig = await config
+  const payload = await getPayload({ config: payloadConfig })
+  const { user } = await payload.auth({ headers })
+
+  const fileURL = `vscode://file/${fileURLToPath(import.meta.url)}`
+
+  return (
+    <div className="home">
+      <div className="content">
+        <picture>
+          <source srcSet="https://raw.githubusercontent.com/payloadcms/payload/3.x/packages/ui/src/assets/payload-favicon.svg" />
+          <Image
+            alt="Payload Logo"
+            height={65}
+            src="https://raw.githubusercontent.com/payloadcms/payload/3.x/packages/ui/src/assets/payload-favicon.svg"
+            width={65}
+          />
+        </picture>
+        {!user && <h1>Welcome to your new project.</h1>}
+        {user && <h1>Welcome back, {user.email}</h1>}
+        <div className="links">
+          <a
+            className="admin"
+            href={payloadConfig.routes.admin}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            Go to admin panel
+          </a>
+          <a
+            className="docs"
+            href="https://payloadcms.com/docs"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            Documentation
+          </a>
+        </div>
+      </div>
+      <div className="footer">
+        <p>Update this page by editing</p>
+        <a className="codeLink" href={fileURL}>
+          <code>app/(frontend)/page.tsx</code>
+        </a>
+      </div>
+    </div>
+  )
+}
+</file>
+
+<file path="src/app/(app)/styles.css">
+:root {
+  --font-mono: 'Roboto Mono', monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 18px;
+  line-height: 32px;
+
+  background: rgb(0, 0, 0);
+  -webkit-font-smoothing: antialiased;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+}
+
+body {
+  font-family: system-ui;
+  font-size: 18px;
+  line-height: 32px;
+
+  margin: 0;
+  color: rgb(1000, 1000, 1000);
+
+  @media (max-width: 1024px) {
+    font-size: 15px;
+    line-height: 24px;
+  }
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+h1 {
+  margin: 40px 0;
+  font-size: 64px;
+  line-height: 70px;
+  font-weight: bold;
+
+  @media (max-width: 1024px) {
+    margin: 24px 0;
+    font-size: 42px;
+    line-height: 42px;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 38px;
+    line-height: 38px;
+  }
+
+  @media (max-width: 400px) {
+    font-size: 32px;
+    line-height: 32px;
+  }
+}
+
+p {
+  margin: 24px 0;
+
+  @media (max-width: 1024px) {
+    margin: calc(var(--base) * 0.75) 0;
+  }
+}
+
+a {
+  color: currentColor;
+
+  &:focus {
+    opacity: 0.8;
+    outline: none;
+  }
+
+  &:active {
+    opacity: 0.7;
+    outline: none;
+  }
+}
+
+svg {
+  vertical-align: middle;
+}
+
+.home {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  height: 100vh;
+  padding: 45px;
+  max-width: 1024px;
+  margin: 0 auto;
+  overflow: hidden;
+
+  @media (max-width: 400px) {
+    padding: 24px;
+  }
+
+  .content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+
+    h1 {
+      text-align: center;
+    }
+  }
+
+  .links {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    a {
+      text-decoration: none;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+    }
+
+    .admin {
+      color: rgb(0, 0, 0);
+      background: rgb(1000, 1000, 1000);
+      border: 1px solid rgb(0, 0, 0);
+    }
+
+    .docs {
+      color: rgb(1000, 1000, 1000);
+      background: rgb(0, 0, 0);
+      border: 1px solid rgb(1000, 1000, 1000);
+    }
+  }
+
+  .footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    @media (max-width: 1024px) {
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    p {
+      margin: 0;
+    }
+
+    .codeLink {
+      text-decoration: none;
+      padding: 0 0.5rem;
+      background: rgb(60, 60, 60);
+      border-radius: 4px;
+    }
+  }
+}
+</file>
+
+<file path=".repomixignore">
+# Add patterns to ignore here, one per line
+# Example:
+# *.log
+# tmp/
+.agents/skills/*/*
+src/payload-types.ts
+</file>
+
+<file path="AGENTS.md">
+<!-- BEGIN:payload-cms-agent-rules -->
+
+This project uses the Payload CMS skill at `.claude/skills/payload/`.
+Start with `.claude/skills/payload/SKILL.md` for a quick reference, then see `.claude/skills/payload/reference/` for detailed docs.
+
+<!-- END:payload-cms-agent-rules -->
+
+<!-- BEGIN:nextjs-agent-rules -->
+ 
+# This is NOT the Next.js you know
+ 
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+ 
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+ 
+<!-- END:nextjs-agent-rules -->
+</file>
+
+<file path="repomix.config.json">
+{
+  "$schema": "https://repomix.com/schemas/latest/schema.json",
+  "input": {
+    "maxFileSize": 52428800
+  },
+  "output": {
+    "filePath": "repomix-output.xml",
+    "style": "xml",
+    "parsableStyle": false,
+    "fileSummary": true,
+    "directoryStructure": true,
+    "files": true,
+    "removeComments": false,
+    "removeEmptyLines": false,
+    "compress": false,
+    "topFilesLength": 5,
+    "showLineNumbers": false,
+    "truncateBase64": false,
+    "copyToClipboard": false,
+    "includeFullDirectoryStructure": false,
+    "tokenCountTree": false,
+    "git": {
+      "sortByChanges": true,
+      "sortByChangesMaxCommits": 100,
+      "includeDiffs": false,
+      "includeLogs": false,
+      "includeLogsCount": 50
+    }
+  },
+  "include": [],
+  "ignore": {
+    "useGitignore": true,
+    "useDotIgnore": true,
+    "useDefaultPatterns": true,
+    "customPatterns": []
+  },
+  "security": {
+    "enableSecurityCheck": true
+  },
+  "tokenCount": {
+    "encoding": "o200k_base"
+  }
+}
+</file>
+
+<file path="skills-lock.json">
+{
+  "version": 1,
+  "skills": {
+    "shadcn": {
+      "source": "shadcn/ui",
+      "sourceType": "github",
+      "skillPath": "skills/shadcn/SKILL.md",
+      "computedHash": "c1a68ee06a668aced9ab2b5fbdea5f989864123794eb2e056b339a072dbb7f10"
+    },
+    "vercel-react-best-practices": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/react-best-practices/SKILL.md",
+      "computedHash": "ca7b0c0c6e5f2750043f7f0cd72d16ac4e2abc48f9b5500d047a4b77a2506212"
+    },
+    "web-design-guidelines": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/web-design-guidelines/SKILL.md",
+      "computedHash": "f3bc47f890f42a44db1007ab390709ec368e4b8c089baee6b0007182236ac474"
+    },
+    "writing-guidelines": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/writing-guidelines/SKILL.md",
+      "computedHash": "25aa3a33a97bddbcb1847ce4a6169106ec25e5b19b15b99c66e75ab383866ef2"
+    }
+  }
+}
+</file>
+
+<file path="src/app/(payload)/admin/[[...segments]]/not-found.tsx">
+/* THIS FILE WAS GENERATED AUTOMATICALLY BY PAYLOAD. */
+/* DO NOT MODIFY IT BECAUSE IT COULD BE REWRITTEN AT ANY TIME. */
+import type { Metadata } from 'next'
+
+import config from '@payload-config'
+import { NotFoundPage, generatePageMetadata } from '@payloadcms/next/views'
+import { importMap } from '../importMap'
+
+type Args = {
+  params: Promise<{
+    segments: string[]
+  }>
+  searchParams: Promise<{
+    [key: string]: string | string[]
+  }>
+}
+
+export const generateMetadata = ({ params, searchParams }: Args): Promise<Metadata> =>
+  generatePageMetadata({ config, params, searchParams })
+
+const NotFound = ({ params, searchParams }: Args) =>
+  NotFoundPage({ config, params, searchParams, importMap })
+
+export default NotFound
+</file>
+
+<file path="src/app/(payload)/admin/[[...segments]]/page.tsx">
+/* THIS FILE WAS GENERATED AUTOMATICALLY BY PAYLOAD. */
+/* DO NOT MODIFY IT BECAUSE IT COULD BE REWRITTEN AT ANY TIME. */
+import type { Metadata } from 'next'
+
+import config from '@payload-config'
+import { RootPage, generatePageMetadata } from '@payloadcms/next/views'
+import { importMap } from '../importMap'
+
+type Args = {
+  params: Promise<{
+    segments: string[]
+  }>
+  searchParams: Promise<{
+    [key: string]: string | string[]
+  }>
+}
+
+export const generateMetadata = ({ params, searchParams }: Args): Promise<Metadata> =>
+  generatePageMetadata({ config, params, searchParams })
+
+const Page = ({ params, searchParams }: Args) =>
+  RootPage({ config, params, searchParams, importMap })
+
+export default Page
+</file>
+
+<file path="src/app/(payload)/admin/importMap.js">
+import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
+
+/** @type import('payload').ImportMap */
+export const importMap = {
+  '@payloadcms/next/rsc#CollectionCards': CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1,
+}
+</file>
+
+<file path="src/app/(payload)/api/[...slug]/route.ts">
+/* THIS FILE WAS GENERATED AUTOMATICALLY BY PAYLOAD. */
+/* DO NOT MODIFY IT BECAUSE IT COULD BE REWRITTEN AT ANY TIME. */
+import config from '@payload-config'
+import '@payloadcms/next/css'
+import {
+  REST_DELETE,
+  REST_GET,
+  REST_OPTIONS,
+  REST_PATCH,
+  REST_POST,
+  REST_PUT,
+} from '@payloadcms/next/routes'
+
+export const GET = REST_GET(config)
+export const POST = REST_POST(config)
+export const DELETE = REST_DELETE(config)
+export const PATCH = REST_PATCH(config)
+export const PUT = REST_PUT(config)
+export const OPTIONS = REST_OPTIONS(config)
+</file>
+
+<file path="src/app/(payload)/api/graphql/route.ts">
+/* THIS FILE WAS GENERATED AUTOMATICALLY BY PAYLOAD. */
+/* DO NOT MODIFY IT BECAUSE IT COULD BE REWRITTEN AT ANY TIME. */
+import config from '@payload-config'
+import { GRAPHQL_POST, REST_OPTIONS } from '@payloadcms/next/routes'
+
+export const POST = GRAPHQL_POST(config)
+
+export const OPTIONS = REST_OPTIONS(config)
+</file>
+
+<file path="src/app/(payload)/api/graphql-playground/route.ts">
+/* THIS FILE WAS GENERATED AUTOMATICALLY BY PAYLOAD. */
+/* DO NOT MODIFY IT BECAUSE IT COULD BE REWRITTEN AT ANY TIME. */
+import config from '@payload-config'
+import '@payloadcms/next/css'
+import { GRAPHQL_PLAYGROUND_GET } from '@payloadcms/next/routes'
+
+export const GET = GRAPHQL_PLAYGROUND_GET(config)
+</file>
+
+<file path="src/app/(payload)/custom.scss">
+
+</file>
+
+<file path="src/app/(payload)/layout.tsx">
+/* THIS FILE WAS GENERATED AUTOMATICALLY BY PAYLOAD. */
+/* DO NOT MODIFY IT BECAUSE IT COULD BE REWRITTEN AT ANY TIME. */
+import config from '@payload-config'
+import '@payloadcms/next/css'
+import type { ServerFunctionClient } from 'payload'
+import { handleServerFunctions, RootLayout } from '@payloadcms/next/layouts'
+import React from 'react'
+
+import { importMap } from './admin/importMap.js'
+import './custom.scss'
+
+type Args = {
+  children: React.ReactNode
+}
+
+const serverFunction: ServerFunctionClient = async function (args) {
+  'use server'
+  return handleServerFunctions({
+    ...args,
+    config,
+    importMap,
+  })
+}
+
+const Layout = ({ children }: Args) => (
+  <RootLayout config={config} importMap={importMap} serverFunction={serverFunction}>
+    {children}
+  </RootLayout>
+)
+
+export default Layout
+</file>
+
+<file path="src/collections/Media.ts">
+import type { CollectionConfig } from 'payload'
+
+export const Media: CollectionConfig = {
+  slug: 'media',
+  access: {
+    read: () => true,
+  },
+  fields: [
+    {
+      name: 'alt',
+      type: 'text',
+      required: true,
+    },
+  ],
+  upload: true,
+}
+</file>
+
+<file path="src/collections/Users.ts">
+import type { CollectionConfig } from 'payload'
+
+export const Users: CollectionConfig = {
+  slug: 'users',
+  admin: {
+    useAsTitle: 'email',
+  },
+  auth: true,
+  fields: [
+    // Email added by default
+    // Add more fields as needed
+  ],
+}
+</file>
+
+<file path="src/payload.config.ts">
+import { sqliteAdapter } from '@payloadcms/db-sqlite'
+import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import path from 'path'
+import { buildConfig } from 'payload'
+import { fileURLToPath } from 'url'
+import sharp from 'sharp'
+
+import { Users } from './collections/Users'
+import { Media } from './collections/Media'
+
+const filename = fileURLToPath(import.meta.url)
+const dirname = path.dirname(filename)
+
+export default buildConfig({
+  admin: {
+    user: Users.slug,
+    importMap: {
+      baseDir: path.resolve(dirname),
+    },
+  },
+  collections: [Users, Media],
+  editor: lexicalEditor(),
+  secret: process.env.PAYLOAD_SECRET || '',
+  typescript: {
+    outputFile: path.resolve(dirname, 'payload-types.ts'),
+  },
+  db: sqliteAdapter({
+    client: {
+      url: process.env.DATABASE_URL || '',
+    },
+  }),
+  sharp,
+  plugins: [],
+})
+</file>
+
+<file path="tests/e2e/admin.e2e.spec.ts">
+import { test, expect, Page } from '@playwright/test'
+import { login } from '../helpers/login'
+import { seedTestUser, cleanupTestUser, testUser } from '../helpers/seedUser'
+
+test.describe('Admin Panel', () => {
+  let page: Page
+
+  test.beforeAll(async ({ browser }, testInfo) => {
+    await seedTestUser()
+
+    const context = await browser.newContext()
+    page = await context.newPage()
+
+    await login({ page, user: testUser })
+  })
+
+  test.afterAll(async () => {
+    await cleanupTestUser()
+  })
+
+  test('can navigate to dashboard', async () => {
+    await page.goto('http://localhost:3000/admin')
+    await expect(page).toHaveURL('http://localhost:3000/admin')
+    const dashboardArtifact = page.locator('span[title="Dashboard"]').first()
+    await expect(dashboardArtifact).toBeVisible()
+  })
+
+  test('can navigate to list view', async () => {
+    await page.goto('http://localhost:3000/admin/collections/users')
+    await expect(page).toHaveURL('http://localhost:3000/admin/collections/users')
+    const listViewArtifact = page.locator('h1', { hasText: 'Users' }).first()
+    await expect(listViewArtifact).toBeVisible()
+  })
+
+  test('can navigate to edit view', async () => {
+    await page.goto('http://localhost:3000/admin/collections/users/create')
+    await expect(page).toHaveURL(/\/admin\/collections\/users\/[a-zA-Z0-9-_]+/)
+    const editViewArtifact = page.locator('input[name="email"]')
+    await expect(editViewArtifact).toBeVisible()
+  })
+})
+</file>
+
+<file path="tests/e2e/frontend.e2e.spec.ts">
+import { test, expect, Page } from '@playwright/test'
+
+test.describe('Frontend', () => {
+  let page: Page
+
+  test.beforeAll(async ({ browser }, testInfo) => {
+    const context = await browser.newContext()
+    page = await context.newPage()
+  })
+
+  test('can go on homepage', async ({ page }) => {
+    await page.goto('http://localhost:3000')
+
+    await expect(page).toHaveTitle(/Payload Blank Template/)
+
+    const heading = page.locator('h1').first()
+
+    await expect(heading).toHaveText('Welcome to your new project.')
+  })
+})
+</file>
+
+<file path="tests/helpers/login.ts">
+import type { Page } from '@playwright/test'
+import { expect } from '@playwright/test'
+
+export interface LoginOptions {
+  page: Page
+  serverURL?: string
+  user: {
+    email: string
+    password: string
+  }
+}
+
+/**
+ * Logs the user into the admin panel via the login page.
+ */
+export async function login({
+  page,
+  serverURL = 'http://localhost:3000',
+  user,
+}: LoginOptions): Promise<void> {
+  await page.goto(`${serverURL}/admin/login`)
+
+  await page.fill('#field-email', user.email)
+  await page.fill('#field-password', user.password)
+  await page.click('button[type="submit"]')
+
+  await page.waitForURL(`${serverURL}/admin`)
+
+  const dashboardArtifact = page.locator('span[title="Dashboard"]')
+  await expect(dashboardArtifact).toBeVisible()
+}
+</file>
+
+<file path="tests/helpers/seedUser.ts">
+import { getPayload } from 'payload'
+import config from '../../src/payload.config.js'
+
+export const testUser = {
+  email: 'dev@payloadcms.com',
+  password: 'test',
+}
+
+/**
+ * Seeds a test user for e2e admin tests.
+ */
+export async function seedTestUser(): Promise<void> {
+  const payload = await getPayload({ config })
+
+  // Delete existing test user if any
+  await payload.delete({
+    collection: 'users',
+    where: {
+      email: {
+        equals: testUser.email,
+      },
+    },
+  })
+
+  // Create fresh test user
+  await payload.create({
+    collection: 'users',
+    data: testUser,
+  })
+}
+
+/**
+ * Cleans up test user after tests
+ */
+export async function cleanupTestUser(): Promise<void> {
+  const payload = await getPayload({ config })
+
+  await payload.delete({
+    collection: 'users',
+    where: {
+      email: {
+        equals: testUser.email,
+      },
+    },
+  })
+}
+</file>
+
+<file path="tests/int/api.int.spec.ts">
+import { getPayload, Payload } from 'payload'
+import config from '@/payload.config'
+
+import { describe, it, beforeAll, expect } from 'vitest'
+
+let payload: Payload
+
+describe('API', () => {
+  beforeAll(async () => {
+    const payloadConfig = await config
+    payload = await getPayload({ config: payloadConfig })
+  })
+
+  it('fetches users', async () => {
+    const users = await payload.find({
+      collection: 'users',
+    })
+    expect(users).toBeDefined()
+  })
+})
+</file>
+
+<file path=".env.example">
+DATABASE_URL=mongodb://127.0.0.1/your-database-name
+PAYLOAD_SECRET=YOUR_SECRET_HERE
+</file>
+
+<file path=".gitignore">
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+.yarn/install-state.gz
+
+/.idea/*
+!/.idea/runConfigurations
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env*.local
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+.env
+
+/media
+
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+</file>
+
+<file path=".npmrc">
+legacy-peer-deps=true
+</file>
+
+<file path=".prettierrc.json">
+{
+  "singleQuote": true,
+  "trailingComma": "all",
+  "printWidth": 100,
+  "semi": false
+}
+</file>
+
+<file path=".yarnrc">
+--install.ignore-engines true
+</file>
+
+<file path="CLAUDE.md">
+@AGENTS.md
+</file>
+
+<file path="docker-compose.yml">
+version: '3'
+
+services:
+  payload:
+    image: node:20-alpine
+    ports:
+      - '3000:3000'
+    volumes:
+      - .:/home/node/app
+      - node_modules:/home/node/app/node_modules
+    working_dir: /home/node/app/
+    command: sh -c "corepack enable && corepack prepare pnpm@latest --activate && pnpm install && pnpm dev"
+    depends_on:
+      - mongo
+      # - postgres
+    env_file:
+      - .env
+
+  # Ensure your DATABASE_URL uses 'mongo' as the hostname ie. mongodb://mongo/my-db-name
+  mongo:
+    image: mongo:latest
+    ports:
+      - '27017:27017'
+    command:
+      - --storageEngine=wiredTiger
+    volumes:
+      - data:/data/db
+    logging:
+      driver: none
+
+  # Uncomment the following to use postgres
+  # postgres:
+  #   restart: always
+  #   image: postgres:latest
+  #   volumes:
+  #     - pgdata:/var/lib/postgresql/data
+  #   ports:
+  #     - "5432:5432"
+
+volumes:
+  data:
+  # pgdata:
+  node_modules:
+</file>
+
+<file path="Dockerfile">
+# To use this Dockerfile, you have to set `output: 'standalone'` in your next.config.mjs file.
+# From https://github.com/vercel/next.js/blob/canary/examples/with-docker/Dockerfile
+
+FROM node:22.17.0-alpine AS base
+
+# Install dependencies only when needed
+FROM base AS deps
+# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+
+# Install dependencies based on the preferred package manager
+COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+RUN \
+  if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
+  elif [ -f package-lock.json ]; then npm ci; \
+  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i --frozen-lockfile; \
+  else echo "Lockfile not found." && exit 1; \
+  fi
+
+
+# Rebuild the source code only when needed
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# Next.js collects completely anonymous telemetry data about general usage.
+# Learn more here: https://nextjs.org/telemetry
+# Uncomment the following line in case you want to disable telemetry during the build.
+# ENV NEXT_TELEMETRY_DISABLED 1
+
+RUN \
+  if [ -f yarn.lock ]; then yarn run build; \
+  elif [ -f package-lock.json ]; then npm run build; \
+  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm run build; \
+  else echo "Lockfile not found." && exit 1; \
+  fi
+
+# Production image, copy all the files and run next
+FROM base AS runner
+WORKDIR /app
+
+ENV NODE_ENV production
+# Uncomment the following line in case you want to disable telemetry during runtime.
+# ENV NEXT_TELEMETRY_DISABLED 1
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+# Remove this line if you do not have this folder
+COPY --from=builder /app/public ./public
+
+# Set the correct permission for prerender cache
+RUN mkdir .next
+RUN chown nextjs:nodejs .next
+
+# Automatically leverage output traces to reduce image size
+# https://nextjs.org/docs/advanced-features/output-file-tracing
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+USER nextjs
+
+EXPOSE 3000
+
+ENV PORT 3000
+
+# server.js is created by next build from the standalone output
+# https://nextjs.org/docs/pages/api-reference/next-config-js/output
+CMD HOSTNAME="0.0.0.0" node server.js
+</file>
+
+<file path="eslint.config.mjs">
+import { dirname } from 'path'
+import { fileURLToPath } from 'url'
+import { FlatCompat } from '@eslint/eslintrc'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+
+const compat = new FlatCompat({
+  baseDirectory: __dirname,
+})
+
+const eslintConfig = [
+  ...compat.extends('next/core-web-vitals', 'next/typescript'),
+  {
+    rules: {
+      '@typescript-eslint/ban-ts-comment': 'warn',
+      '@typescript-eslint/no-empty-object-type': 'warn',
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        {
+          vars: 'all',
+          args: 'after-used',
+          ignoreRestSiblings: false,
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          destructuredArrayIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^(_|ignore)',
+        },
+      ],
+    },
+  },
+  {
+    ignores: ['.next/', 'src/payload-types.ts', 'src/payload-generated-schema.ts'],
+  },
+]
+
+export default eslintConfig
+</file>
+
+<file path="next.config.ts">
+import { withPayload } from '@payloadcms/next/withPayload'
+import type { NextConfig } from 'next'
+import path from 'path'
+import { fileURLToPath } from 'url'
+
+const __filename = fileURLToPath(import.meta.url)
+const dirname = path.dirname(__filename)
+
+const nextConfig: NextConfig = {
+  images: {
+    localPatterns: [
+      {
+        pathname: '/api/media/file/**',
+      },
+    ],
+  },
+  webpack: (webpackConfig) => {
+    webpackConfig.resolve.extensionAlias = {
+      '.cjs': ['.cts', '.cjs'],
+      '.js': ['.ts', '.tsx', '.js', '.jsx'],
+      '.mjs': ['.mts', '.mjs'],
+    }
+
+    return webpackConfig
+  },
+  turbopack: {
+    root: path.resolve(dirname),
+  },
+}
+
+export default withPayload(nextConfig, { devBundleServerPackages: false })
+</file>
+
+<file path="package.json">
+{
+  "name": "website",
+  "version": "1.0.0",
+  "description": "A blank template to get started with Payload 3.0",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" next build",
+    "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
+    "devsafe": "rm -rf .next && cross-env NODE_OPTIONS=--no-deprecation next dev",
+    "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
+    "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
+    "lint": "cross-env NODE_OPTIONS=--no-deprecation eslint .",
+    "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
+    "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
+    "test": "pnpm run test:int && pnpm run test:e2e",
+    "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" playwright test --config=playwright.config.ts",
+    "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts"
+  },
+  "dependencies": {
+    "@payloadcms/next": "3.88.0",
+    "@payloadcms/richtext-lexical": "3.88.0",
+    "@payloadcms/ui": "3.88.0",
+    "cross-env": "^7.0.3",
+    "dotenv": "16.4.7",
+    "graphql": "^16.8.1",
+    "next": "16.3.3",
+    "payload": "3.88.0",
+    "react": "19.2.6",
+    "react-dom": "19.2.6",
+    "sharp": "0.34.2",
+    "@payloadcms/db-sqlite": "3.88.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.58.2",
+    "@testing-library/react": "16.3.0",
+    "@types/node": "22.19.9",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "@vitejs/plugin-react": "4.5.2",
+    "eslint": "^9.16.0",
+    "eslint-config-next": "16.3.3",
+    "jsdom": "28.0.0",
+    "prettier": "^3.4.2",
+    "tsx": "4.22.4",
+    "typescript": "5.7.3",
+    "vite-tsconfig-paths": "6.0.5",
+    "vitest": "4.0.18"
+  },
+  "engines": {
+    "node": "^18.20.2 || >=20.9.0",
+    "pnpm": "^9 || ^10 || ^11"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "sharp",
+      "esbuild",
+      "unrs-resolver"
+    ]
+  },
+  "trustedDependencies": [
+    "unrs-resolver"
+  ]
+}
+</file>
+
+<file path="playwright.config.ts">
+import { defineConfig, devices } from '@playwright/test'
+
+/**
+ * Read environment variables from file.
+ * https://github.com/motdotla/dotenv
+ */
+import 'dotenv/config'
+
+/**
+ * See https://playwright.dev/docs/test-configuration.
+ */
+export default defineConfig({
+  testDir: './tests/e2e',
+  /* Fail the build on CI if you accidentally left test.only in the source code. */
+  forbidOnly: !!process.env.CI,
+  /* Retry on CI only */
+  retries: process.env.CI ? 2 : 0,
+  /* Opt out of parallel tests on CI. */
+  workers: process.env.CI ? 1 : undefined,
+  /* Reporter to use. See https://playwright.dev/docs/test-reporters */
+  reporter: 'html',
+  /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
+  use: {
+    /* Base URL to use in actions like `await page.goto('/')`. */
+    // baseURL: 'http://localhost:3000',
+
+    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
+    trace: 'on-first-retry',
+  },
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'], channel: 'chromium' },
+    },
+  ],
+  webServer: {
+    command: 'pnpm dev',
+    reuseExistingServer: true,
+    url: 'http://localhost:3000',
+  },
+})
+</file>
+
+<file path="README.md">
+# Payload Blank Template
+
+This template comes configured with the bare minimum to get started on anything you need.
+
+## Quick start
+
+This template can be deployed directly from our Cloud hosting and it will setup MongoDB and cloud S3 object storage for media.
+
+## Quick Start - local setup
+
+To spin up this template locally, follow these steps:
+
+### Clone
+
+After you click the `Deploy` button above, you'll want to have standalone copy of this repo on your machine. If you've already cloned this repo, skip to [Development](#development).
+
+### Development
+
+1. First [clone the repo](#clone) if you have not done so already
+2. `cd my-project && cp .env.example .env` to copy the example environment variables. You'll need to add the `MONGODB_URL` from your Cloud project to your `.env` if you want to use S3 storage and the MongoDB database that was created for you.
+
+3. `pnpm install && pnpm dev` to install dependencies and start the dev server
+4. open `http://localhost:3000` to open the app in your browser
+
+That's it! Changes made in `./src` will be reflected in your app. Follow the on-screen instructions to login and create your first admin user. Then check out [Production](#production) once you're ready to build and serve your app, and [Deployment](#deployment) when you're ready to go live.
+
+#### Docker (Optional)
+
+If you prefer to use Docker for local development instead of a local MongoDB instance, the provided docker-compose.yml file can be used.
+
+To do so, follow these steps:
+
+- Modify the `MONGODB_URL` in your `.env` file to `mongodb://127.0.0.1/<dbname>`
+- Modify the `docker-compose.yml` file's `MONGODB_URL` to match the above `<dbname>`
+- Run `docker-compose up` to start the database, optionally pass `-d` to run in the background.
+
+## How it works
+
+The Payload config is tailored specifically to the needs of most websites. It is pre-configured in the following ways:
+
+### Collections
+
+See the [Collections](https://payloadcms.com/docs/configuration/collections) docs for details on how to extend this functionality.
+
+- #### Users (Authentication)
+
+  Users are auth-enabled collections that have access to the admin panel.
+
+  For additional help, see the official [Auth Example](https://github.com/payloadcms/payload/tree/3.x/examples/auth) or the [Authentication](https://payloadcms.com/docs/authentication/overview#authentication-overview) docs.
+
+- #### Media
+
+  This is the uploads enabled collection. It features pre-configured sizes, focal point and manual resizing to help you manage your pictures.
+
+### Docker
+
+Alternatively, you can use [Docker](https://www.docker.com) to spin up this template locally. To do so, follow these steps:
+
+1. Follow [steps 1 and 2 from above](#development), the docker-compose file will automatically use the `.env` file in your project root
+1. Next run `docker-compose up`
+1. Follow [steps 4 and 5 from above](#development) to login and create your first admin user
+
+That's it! The Docker instance will help you get up and running quickly while also standardizing the development environment across your teams.
+
+## Questions
+
+If you have any issues or questions, reach out to us on [Discord](https://discord.com/invite/payload) or start a [GitHub discussion](https://github.com/payloadcms/payload/discussions).
+</file>
+
+<file path="test.env">
+NODE_OPTIONS="--no-deprecation --no-experimental-strip-types"
+</file>
+
+<file path="tsconfig.json">
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "lib": [
+      "DOM",
+      "DOM.Iterable",
+      "ES2022"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+      "@payload-config": [
+        "./src/payload.config.ts"
+      ]
+    },
+    "target": "ES2022"
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
+</file>
+
+<file path="vitest.config.mts">
+import { defineConfig } from 'vitest/config'
+import react from '@vitejs/plugin-react'
+import tsconfigPaths from 'vite-tsconfig-paths'
+
+export default defineConfig({
+  plugins: [tsconfigPaths(), react()],
+  test: {
+    environment: 'jsdom',
+    setupFiles: ['./vitest.setup.ts'],
+    include: ['tests/int/**/*.int.spec.ts'],
+  },
+})
+</file>
+
+<file path="vitest.setup.ts">
+// Any setup scripts you might need go here
+
+// Load .env files
+import 'dotenv/config'
+</file>
+
+</files>
