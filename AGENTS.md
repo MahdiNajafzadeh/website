@@ -1,9 +1,17 @@
 <!-- BEGIN:payload-cms-agent-rules -->
 
-This project uses the Payload CMS skill at `.claude/skills/payload/`.
-Start with `.claude/skills/payload/SKILL.md` for a quick reference, then see `.claude/skills/payload/reference/` for detailed docs.
+This project uses the Payload CMS skill at `.agents/skills/payload/` (symlinked to `.claude/skills/payload/` and `.opencode/skills/payload/`).
+Start with `.agents/skills/payload/SKILL.md` for a quick reference, then see `.agents/skills/payload/reference/` for detailed docs.
+ALWAYS load this skill before working with Payload collections, globals, fields, hooks, access control, or jobs.
 
 <!-- END:payload-cms-agent-rules -->
+
+<!-- BEGIN:design-system-agent-rules -->
+
+This project has a design system spec at `DESIGN.md` (Google `design.md` format) at the repo root — a Nike-based e-commerce visual language: front-matter tokens (colors, typography, spacing, rounded, components) + prose specs.
+ALWAYS read `DESIGN.md` before any UI/design work (colors, typography, spacing, radii, component specs). Reference its tokens directly (e.g. `{colors.ink}`, `{typography.button-md}`, `{rounded.full}`, `{component.button-primary}`) instead of inventing ad-hoc values. After editing `DESIGN.md`, lint it with `bunx @google/design.md lint DESIGN.md` (`broken-ref`, `contrast-ratio`, `orphaned-tokens` warnings).
+
+<!-- END:design-system-agent-rules -->
 
 <!-- BEGIN:nextjs-agent-rules -->
  

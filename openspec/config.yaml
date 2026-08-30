@@ -1,35 +1,54 @@
 schema: spec-driven
 context: |
-  tech stack: typescript, next.js, payload-cms, shadcn, tailwindcss, bun (package manager), vitest (test runner)
-  git commit template: {TYPE}({SECTION}): {MESSAGE}
-  domain: e-commerce platform
-# Project context (optional)
-# This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
+  Tech stack: TypeScript, Next.js 16 (App Router), Payload CMS 3.88, Tailwind CSS v4, shadcn/ui, beui (@beui registry), bun (package manager + runner), Vitest + Playwright.
+  Domain: e-commerce platform.
+  Package manager: bun ONLY — use `bun install`, `bun run`, `bunx --bun shadcn@latest ...`. Do NOT use npm/pnpm/npx/yarn.
+  Frontend routes: ALL public website UI MUST live under `src/app/(app)` (route group). Do NOT put front-end pages in `src/app/` root or `src/app/(payload)`. `(payload)` is reserved for Payload admin/api.
+  UI system: Use `shadcn` package (`shadcn@latest`) to manage components/blocks. Use `beui` registry (`@beui/*`) as the preferred source for animated components/blocks via shadcn. Always check `bunx --bun shadcn@latest search` / `curl -fsS https://beui.dev/r/registry.json` before building custom UI.
+  Skills location: All skills are in `.agents/skills/` (symlinked to `.claude/skills/` and `.opencode/skills/`). The source of truth is `.agents/skills/`.
+  Design system: `DESIGN.md` (Google design.md format, Nike-based e-commerce visual language) at the repo root is the single source of truth for colors, typography, spacing, radii, and component specs. ALWAYS read it before any UI work. Reference its tokens directly (e.g. `{colors.ink}`, `{typography.button-md}`, `{rounded.full}`, `{component.button-primary}`) — never invent ad-hoc hex/px values. Lint after edits: `bunx @google/design.md lint DESIGN.md`.
+  Payload: Payload CMS skill MUST be loaded before any Payload work (collections, globals, fields, hooks, access, jobs). Skill path: `.agents/skills/payload/SKILL.md` (if present, also check `.claude/skills/payload/`). Load `.agents/skills/beui/SKILL.md` and `.agents/skills/shadcn/SKILL.md` before any UI work.
+  Git commit template: {TYPE}({SECTION}): {MESSAGE}
 
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always include a "Non-goals" section
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
+rules:
+  proposal:
+    - MUST specify that front-end changes target `src/app/(app)` — reject proposals that place public UI elsewhere.
+    - MUST identify shadcn + beui (@beui) as the UI source; if UI is in scope, list beui/shadcn components or note that registry search is required.
+    - If UI/visual styling is in scope, MUST state that `DESIGN.md` tokens (front matter + prose) govern all colors, typography, spacing, radii, and component specs, and that they will be referenced via token paths (e.g. `{colors.ink}`, `{component.button-primary}`) instead of ad-hoc values.
+    - MUST state `bun` as the runner/manager (e.g., `bunx --bun shadcn@latest add @beui/<slug>`, `bun run dev`).
+    - If Payload CMS is in scope, MUST note that the payload skill at `.agents/skills/payload/SKILL.md` will be loaded before specs/design.
 
-# Per-operation guidance (optional)
-# Add advisory guidance for how apply and archive work should be conducted.
-# This is separate from artifact rules above.
-# Example:
-#   operations:
-#     apply:
-#       guidance:
-#         - Keep test summaries concise
-#     archive:
-#       guidance:
-#         - Summarize the archive outcome before finishing
+  specs:
+    - Front-end behavior MUST be specified as routes/components under `src/app/(app)`; scenarios MUST reference `(app)` paths.
+    - UI requirements that duplicate existing shadcn/beui components are INVALID — specs MUST reuse registry components where available.
+    - UI/visual scenarios MUST use `DESIGN.md` token paths (e.g. `{colors.soft-cloud}`, `{typography.caption-md}`, `{rounded.lg}`, `{component.product-card}`) — raw hex values, px sizes, or invented color names in specs are INVALID.
+    - Payload requirements MUST align with payload skill conventions (collections/globals config, Lexical, access control). Reference the skill, do not invent Payload patterns.
+
+  design:
+    - Design MUST show `src/app/(app)` structure for front-end (layout, pages, co-located components) and keep `(payload)` isolated.
+    - Design MUST choose shadcn + beui (`@beui/<slug>` via `bunx --bun shadcn@latest add`) over custom motion/UI where registry covers the need; include registry lookup step.
+    - Design MUST be grounded in `DESIGN.md` — read it first and map each UI surface to its tokens/components (e.g. `{component.button-primary}` pill CTAs, `{colors.soft-cloud}` product-photo stages, `{spacing.section}` rhythm); deviations from the design system MUST be justified explicitly.
+    - Design MUST use `bun` for all commands (`bunx --bun`, `bun install`, `bun run`) — never `npx`/`pnpm dlx` without `--bun`.
+    - Design involving Payload MUST state that `.agents/skills/payload/SKILL.md` was consulted (and `.agents/skills/beui/SKILL.md` / `.agents/skills/shadcn/SKILL.md` for UI).
+
+  tasks:
+    - Tasks that create front-end files MUST write to `src/app/(app)` and verify the path exists (e.g., `ls src/app/\(app\)`).
+    - Tasks that add UI MUST use `bunx --bun shadcn@latest add @beui/<slug>` or `bunx --bun shadcn@latest add <component>` — never raw file creation for registry-available UI.
+    - Tasks that style/build UI MUST read `DESIGN.md` first and apply its token paths (e.g. `{colors.ink}`, `{typography.button-md}`, `{rounded.full}`) rather than ad-hoc values; flag any hardcoded hex/px in UI tasks as needing correction.
+    - Tasks MUST use `bun` commands (`bun run build`, `bun run test:int`, `bunx --bun ...`); flag any npm/pnpm usage as needing correction.
+    - Tasks touching Payload MUST include a first step to load/read `.agents/skills/payload/SKILL.md` and generate importmap/types (`bun run generate:importmap`, `bun run generate:types`) where applicable.
+
+operations:
+  apply:
+    guidance:
+      - Enforce `src/app/(app)` for all front-end writes; reject writes to `src/app/(payload)` or `src/app` root for public UI.
+      - Use `bunx --bun shadcn@latest ...` for UI installation; verify installed files under the project's `resolvedPaths.ui` (from `bunx --bun shadcn@latest info --json`).
+      - Load `.agents/skills/payload/SKILL.md` before implementing collections/globals/fields; load `.agents/skills/beui/SKILL.md` and `.agents/skills/shadcn/SKILL.md` before UI implementation.
+      - Enforce `DESIGN.md` as the source of truth for UI styling: colors, typography, spacing, radii, and component variants MUST reference its token paths (e.g. `{colors.ink}`, `{component.button-primary}`); reject hardcoded ad-hoc hex/px values in UI code.
+      - "Keep AGENTS.md in sync: payload rule points to .agents/skills/payload/, nextjs rule, design-system rule points to DESIGN.md, and openspec context."
+
+  archive:
+    guidance:
+      - Verify no front-end artifacts remain outside `src/app/(app)`.
+      - Confirm UI components are traceable to shadcn/beui registry additions (not hand-rolled duplicates).
+      - Confirm bun was used consistently (check bun.lock changes, no package-lock drift).
