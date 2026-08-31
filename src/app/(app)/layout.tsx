@@ -1,11 +1,13 @@
 import React from 'react'
 import Link from 'next/link'
+import Script from 'next/script'
 import { getPayload } from 'payload'
 import { ShoppingBag } from 'lucide-react'
 
 import config from '@/payload.config'
 import { Toaster } from '@/components/ui/sonner'
 import { CartBadge } from '@/components/layout/CartBadge'
+import { ThemeToggle } from '@/components/layout/ThemeToggle'
 
 import '../globals.css'
 import './styles.css'
@@ -67,7 +69,21 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   const socialLinks = siteSettings?.socialLinks ?? []
 
   return (
-    <html lang="en">
+    <html lang="fa" suppressHydrationWarning>
+      <head>
+        <Script id="theme-pref" strategy="beforeInteractive">{`
+          (function () {
+            var KEY = 'theme-pref';
+            var root = document.documentElement;
+            var saved = null;
+            try { saved = localStorage.getItem(KEY); } catch (e) { saved = null; }
+            var theme = (saved === 'dark' || saved === 'light')
+              ? saved
+              : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            root.setAttribute('data-theme', theme);
+          })();
+        `}</Script>
+      </head>
       <body className="min-h-screen bg-white antialiased">
         {/* Header — {colors.canvas} #ffffff bg, {colors.ink} #111111 text, {component.primary-nav} height 56px, border {colors.hairline-soft} #e5e5e5 */}
         <header
@@ -124,6 +140,9 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
                 <ShoppingBag className="h-5 w-5" />
                 <CartBadge />
               </Link>
+
+              {/* Theme toggle — {component.button-icon-circular} 40px, {colors.soft-cloud} #f5f5f5 */}
+              <ThemeToggle />
 
               {/* Auth links — {typography.button-sm} 14px/500, pill variants */}
               <Link
