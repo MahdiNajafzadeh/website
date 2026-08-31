@@ -147,7 +147,10 @@ export interface User {
   customerType: 'regular' | 'partner';
   updatedAt: string;
   createdAt: string;
-  email: string;
+  /**
+   * Optional. Users log in with phone.
+   */
+  email?: string | null;
   resetPasswordToken?: string | null;
   resetPasswordExpiration?: string | null;
   salt?: string | null;
@@ -191,9 +194,10 @@ export interface Brand {
   id: number;
   name: string;
   /**
-   * Auto-generated from name if left empty.
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
-  slug?: string | null;
+  generateSlug?: boolean | null;
+  slug: string;
   icon?: (number | null) | Media;
   description?: string | null;
   updatedAt: string;
@@ -207,9 +211,10 @@ export interface Category {
   id: number;
   name: string;
   /**
-   * Auto-generated from name if left empty.
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
-  slug?: string | null;
+  generateSlug?: boolean | null;
+  slug: string;
   description?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -222,9 +227,10 @@ export interface Product {
   id: number;
   name: string;
   /**
-   * Auto-generated from name if left empty.
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
-  slug?: string | null;
+  generateSlug?: boolean | null;
+  slug: string;
   visible?: boolean | null;
   price?: number | null;
   inventory?: number | null;
@@ -248,8 +254,9 @@ export interface Post {
   id: number;
   name: string;
   /**
-   * Auto-generated from name if left empty.
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
+  generateSlug?: boolean | null;
   slug: string;
   content?: {
     root: {
@@ -466,6 +473,7 @@ export interface MediaSelect<T extends boolean = true> {
  */
 export interface BrandsSelect<T extends boolean = true> {
   name?: T;
+  generateSlug?: T;
   slug?: T;
   icon?: T;
   description?: T;
@@ -478,6 +486,7 @@ export interface BrandsSelect<T extends boolean = true> {
  */
 export interface CategoriesSelect<T extends boolean = true> {
   name?: T;
+  generateSlug?: T;
   slug?: T;
   description?: T;
   updatedAt?: T;
@@ -489,6 +498,7 @@ export interface CategoriesSelect<T extends boolean = true> {
  */
 export interface ProductsSelect<T extends boolean = true> {
   name?: T;
+  generateSlug?: T;
   slug?: T;
   visible?: T;
   price?: T;
@@ -511,6 +521,7 @@ export interface ProductsSelect<T extends boolean = true> {
  */
 export interface PostsSelect<T extends boolean = true> {
   name?: T;
+  generateSlug?: T;
   slug?: T;
   content?: T;
   published?: T;

@@ -1,13 +1,6 @@
 import type { CollectionConfig } from 'payload'
+import { slugField } from 'payload'
 import { isAdminOrEmployee, readPublishedOnly } from '../access/index'
-
-const slugify = (value: string): string =>
-  value
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
 
 export const Posts: CollectionConfig = {
   slug: 'posts',
@@ -21,19 +14,6 @@ export const Posts: CollectionConfig = {
     delete: isAdminOrEmployee,
   },
   hooks: {
-    beforeValidate: [
-      ({ data }) => {
-        if (data) {
-          const d = data as Record<string, unknown>
-          if (!d.slug && typeof d.name === 'string' && d.name.trim().length > 0) {
-            d.slug = slugify(d.name)
-          } else if (typeof d.slug === 'string' && d.slug.length > 0) {
-            d.slug = slugify(d.slug)
-          }
-        }
-        return data
-      },
-    ],
     beforeChange: [
       ({ data, originalDoc }) => {
         if (data) {
@@ -77,16 +57,7 @@ export const Posts: CollectionConfig = {
       type: 'text',
       required: true,
     },
-    {
-      name: 'slug',
-      type: 'text',
-      required: true,
-      unique: true,
-      index: true,
-      admin: {
-        description: 'Auto-generated from name if left empty.',
-      },
-    },
+    slugField({ useAsSlug: 'name', position: undefined }),
     {
       name: 'content',
       type: 'richText',

@@ -17,7 +17,7 @@ function LoginForm() {
   const searchParams = useSearchParams()
   const nextParam = searchParams.get('next') || '/'
 
-  const [identifier, setIdentifier] = useState('')
+  const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -27,20 +27,12 @@ function LoginForm() {
     setError(null)
     setLoading(true)
 
-    const isEmail = identifier.includes('@')
-    // Payload auth defaults to `email` as username. If phone-login is enabled
-    // via `auth.loginWithUsername` the same endpoint accepts phone — we send
-    // both shapes so the example works either way.
-    const body = isEmail
-      ? { email: identifier.trim(), password }
-      : { email: identifier.trim(), phone: identifier.trim(), password }
-
     try {
       const res = await fetch('/api/users/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify(body),
+        body: JSON.stringify({ phone: phone.trim(), password }),
       })
 
       if (!res.ok) {
@@ -48,7 +40,7 @@ function LoginForm() {
         const msg =
           (data?.errors?.[0]?.message as string) ||
           (data?.message as string) ||
-          'Login failed. Check phone/email and password.'
+          'Login failed. Check phone and password.'
         throw new Error(msg)
       }
 
@@ -74,27 +66,28 @@ function LoginForm() {
         </h1>
         <p className="mt-2 text-center text-sm font-medium text-[#707072] leading-[1.5]">
           {/* {colors.mute} */}
-          Enter your phone or email and password.
+          Enter your phone and password.
         </p>
 
         <form onSubmit={onSubmit} noValidate className="mt-8 space-y-5">
           <div className="space-y-2">
             <label
-              htmlFor="identifier"
+              htmlFor="phone"
               className="block text-sm font-medium leading-[1.75] text-[#111111]"
             >
               {/* {typography.heading-md} on {colors.ink} */}
-              Phone or Email
+              Phone
             </label>
             <input
-              id="identifier"
-              name="identifier"
-              type="text"
+              id="phone"
+              name="phone"
+              type="tel"
+              inputMode="numeric"
               autoComplete="username"
               required
-              value={identifier}
-              onChange={(e) => setIdentifier(e.target.value)}
-              placeholder="09123456789 or you@example.com"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="09123456789"
               className="h-12 w-full rounded-[24px] border border-[#cacacb] bg-white px-4 text-base font-normal text-[#111111] placeholder:text-[#9e9ea0] outline-none focus:border-[#111111] focus:ring-2 focus:ring-[#111111]/10"
               // {colors.hairline} border, {rounded.md}, {typography.body-md}, focus {colors.ink}
             />

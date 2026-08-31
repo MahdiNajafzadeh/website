@@ -3,10 +3,10 @@ import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { AddToCartButton } from '@/components/product/AddToCartButton'
-import { Heart, Share2, Package, AlertTriangle } from 'lucide-react'
+import { ProductActions } from '@/components/product/ProductActions'
+import { Package, AlertTriangle } from 'lucide-react'
 import type { Brand, Category, Media, Product } from '@/payload-types'
 
 export const dynamic = 'force-dynamic'
@@ -224,25 +224,7 @@ export default async function ProductDetailPage({
           </div>
 
           {/* Wishlist / Share row */}
-          <div className="flex items-center gap-2 pt-2">
-            <Button
-              variant="outline"
-              className="flex-1 rounded-full border-[#cacacb] text-[#111111] hover:bg-[#f5f5f5]"
-              type="button"
-            >
-              <Heart className="size-4" />
-              Wishlist
-            </Button>
-            <Button
-              variant="outline"
-              className="flex-1 rounded-full border-[#cacacb] text-[#111111] hover:bg-[#f5f5f5]"
-              type="button"
-              onClick={() => {}}
-            >
-              <Share2 className="size-4" />
-              Share
-            </Button>
-          </div>
+          <ProductActions productId={product.id} productName={product.name} />
 
           {/* Meta card */}
           <Card className="mt-2 rounded-[30px] border border-[#e5e5e5] bg-[#f5f5f5]">

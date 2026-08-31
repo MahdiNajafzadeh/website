@@ -20,7 +20,6 @@ function RegisterForm() {
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [phone, setPhone] = useState('')
-  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [address, setAddress] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -43,20 +42,11 @@ function RegisterForm() {
       setError('Password must be at least 6 characters.')
       return
     }
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      setError('Email address is invalid.')
-      return
-    }
 
     setLoading(true)
 
-    // Payload Users requires `email` (unique). Task 3.3 says email optional —
-    // if omitted we synthesize a deterministic placeholder so user can still
-    // be created and later login via phone.
-    const effectiveEmail = email.trim() ? email.trim() : `${trimmedPhone}@placeholder.local`
-
     try {
-      // 1) Create user via REST `POST /api/users`
+      // 1) Create user via REST `POST /api/users` (no email sent).
       const createRes = await fetch('/api/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -65,10 +55,8 @@ function RegisterForm() {
           firstName: firstName.trim(),
           lastName: lastName.trim(),
           phone: trimmedPhone,
-          email: effectiveEmail,
           password,
           address: address.trim() || undefined,
-          // role/customerType default to customer/regular — server applies defaults
         }),
       })
 
@@ -81,12 +69,12 @@ function RegisterForm() {
         throw new Error(msg)
       }
 
-      // 2) Auto-login after registration — POST /api/users/login
+      // 2) Auto-login after registration — POST /api/users/login (phone-keyed).
       const loginRes = await fetch('/api/users/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ email: effectiveEmail, password }),
+        body: JSON.stringify({ phone: trimmedPhone, password }),
       })
 
       if (!loginRes.ok) {
@@ -120,7 +108,7 @@ function RegisterForm() {
           Create account
         </h1>
         <p className="mt-2 text-center text-sm font-medium text-[#707072]">
-          Join with your phone — email and address are optional.
+          Join with your phone — address is optional.
         </p>
 
         <form onSubmit={onSubmit} noValidate className="mt-8 space-y-5">
@@ -174,21 +162,6 @@ function RegisterForm() {
               className={inputClass}
             />
             <p className="text-xs font-medium text-[#707072]">Must be 11 digits starting with 09.</p>
-          </div>
-
-          <div className="space-y-2">
-            <label htmlFor="email" className={labelClass}>
-              Email <span className="text-[#707072] font-normal">(optional)</span>
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              className={inputClass}
-            />
           </div>
 
           <div className="space-y-2">

@@ -19,24 +19,24 @@ const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 export default buildConfig({
-  admin: {
-    user: Users.slug,
-    importMap: {
-      baseDir: path.resolve(dirname),
+    admin: {
+        user: Users.slug,
+        importMap: {
+            baseDir: path.resolve(dirname),
+        },
     },
-  },
-  collections: [Users, Media, Brands, Categories, Products, Posts, Orders],
-  globals: [SiteSettings, PageAbout],
-  editor: lexicalEditor(),
-  secret: process.env.PAYLOAD_SECRET || '',
-  typescript: {
-    outputFile: path.resolve(dirname, 'payload-types.ts'),
-  },
-  db: sqliteAdapter({
-    client: {
-      url: process.env.DATABASE_URL || '',
+    collections: [Users, Media, Brands, Categories, Products, Posts, Orders],
+    globals: [SiteSettings, PageAbout],
+    editor: lexicalEditor(),
+    secret: process.env.PAYLOAD_SECRET || '',
+    typescript: {
+        outputFile: path.resolve(dirname, 'payload-types.ts'),
     },
-  }),
-  sharp,
-  plugins: [],
+    db: sqliteAdapter({
+        client: {
+            url: process.env.DATABASE_URL || '',
+        },
+    }),
+    sharp,
+    plugins: [],
 })
