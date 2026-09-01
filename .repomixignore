@@ -4,3 +4,7 @@
 # tmp/
 .agents/skills/*/*
 src/payload-types.ts
+repomix-output.*
+repomix.config.json
+src/migrations/
+openspec
