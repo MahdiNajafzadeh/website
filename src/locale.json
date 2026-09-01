@@ -149,5 +149,11 @@
   "auth.firstNamePlaceholder": "علی",
   "auth.lastNamePlaceholder": "احمدی",
   "auth.registrationFailed": "ثبت‌نام ناموفق بود.",
-  "auth.loginFailed": "ورود ناموفق بود."
+  "auth.loginFailed": "ورود ناموفق بود.",
+  "header.logout": "خروج",
+  "categories.title": "دسته‌ها",
+  "categories.searchPlaceholder": "جستجوی دسته‌ها…",
+  "categories.viewProducts": "نمایش محصولات →",
+  "categories.noCategories": "هنوز دسته‌ای ثبت نشده",
+  "categories.pagination": "صفحه {page} از {totalPages} · {count} دسته"
 }

@@ -13,6 +13,10 @@ import { getCurrentUser } from '@/lib/current-user'
 import '../globals.css'
 
 import type { Media, SiteSetting } from '@/payload-types'
+import { LogoutButton } from '@/components/layout/LogoutButton'
+import { t } from '@/lib/t'
+
+export const dynamic = 'force-dynamic'
 
 export const metadata = {
     description: 'A blank template using Payload in a Next.js app.',
@@ -128,24 +132,27 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
                             <ThemeToggle />
 
                             {currentUser ? (
-                                <Link
-                                    href="/account"
-                                    aria-label="حساب کاربری"
-                                    className="flex h-9 w-9 items-center justify-center rounded-full bg-[#111111] text-[12px] font-medium text-white transition-opacity hover:opacity-90 dark:bg-white dark:text-[#111111]"
-                                    data-od-id="header-avatar"
-                                >
-                                    {initials.toUpperCase()}
-                                </Link>
+                                <>
+                                    <Link
+                                        href="/account"
+                                        aria-label={t('header.account')}
+                                        className="flex h-9 w-9 items-center justify-center rounded-full bg-[#111111] text-[12px] font-medium text-white transition-opacity hover:opacity-90 dark:bg-white dark:text-[#111111]"
+                                        data-od-id="header-avatar"
+                                    >
+                                        {initials.toUpperCase()}
+                                    </Link>
+                                    <LogoutButton />
+                                </>
                             ) : (
                                 <>
                                     <Link href="/login" className="hidden text-[14px] font-medium leading-[1.5] text-[#707072] hover:text-[#111111] dark:text-[#9e9ea0] dark:hover:text-white sm:inline-flex">
-                                        ورود
+                                        {t('header.login')}
                                     </Link>
                                     <Link
                                         href="/register"
                                         className="inline-flex h-9 items-center justify-center rounded-full bg-[#111111] px-5 text-[14px] font-medium leading-[1.5] text-white transition-opacity hover:opacity-90 dark:bg-white dark:text-[#111111]"
                                     >
-                                        ثبت‌نام
+                                        {t('header.register')}
                                     </Link>
                                 </>
                             )}
