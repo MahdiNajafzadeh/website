@@ -8,6 +8,7 @@ import { AddToCartButton } from '@/components/product/AddToCartButton'
 import { ProductActions } from '@/components/product/ProductActions'
 import { Package, AlertTriangle } from 'lucide-react'
 import type { Brand, Category, Media, Product } from '@/payload-types'
+import { t } from '@/lib/t'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,7 +18,7 @@ function getMediaUrl(media: number | Media | null | undefined): string | null {
 }
 
 function formatPrice(price: number): string {
-  return `${price.toLocaleString('en-US')} تومان`
+  return `${price.toLocaleString('fa-IR')} ${t('common.toman')}`
 }
 
 export default async function ProductDetailPage({
@@ -67,47 +68,41 @@ export default async function ProductDetailPage({
 
   return (
     <div className="mx-auto max-w-[1440px] px-4 py-6 md:px-8">
-      {/* Breadcrumb */}
-      <nav className="mb-6 flex items-center gap-1.5 text-sm text-[#707072]" aria-label="Breadcrumb">
-        <Link href="/" className="hover:text-[#111111]">
-          Home
+      <nav className="mb-6 flex items-center gap-1.5 text-sm text-[#707072] dark:text-[#9e9ea0]" aria-label="Breadcrumb">
+        <Link href="/" className="hover:text-[#111111] dark:hover:text-white">
+          {t('common.home')}
         </Link>
         <span aria-hidden>/</span>
-        <Link href="/products" className="hover:text-[#111111]">
-          Products
+        <Link href="/products" className="hover:text-[#111111] dark:hover:text-white">
+          {t('common.products')}
         </Link>
         <span aria-hidden>/</span>
-        <span className="text-[#111111] font-medium line-clamp-1">{product.name}</span>
+        <span className="font-medium text-[#111111] dark:text-white line-clamp-1">{product.name}</span>
       </nav>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         {/* Gallery — beui gallery pattern — stage {colors.soft-cloud} #f5f5f5 */}
         <div className="flex flex-col gap-3">
-          <div className="overflow-hidden rounded-[30px] bg-[#f5f5f5] aspect-square flex items-center justify-center">
-            {/* {rounded.lg} 30px, {colors.soft-cloud} #f5f5f5 */}
+          <div className="overflow-hidden rounded-[30px] bg-[#f5f5f5] dark:bg-[#1a1a1a] aspect-square flex items-center justify-center">
             {heroImage ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={heroImage}
-                alt={product.name}
-                className="h-full w-full object-cover"
-              />
+              <img src={heroImage} alt={product.name} className="h-full w-full object-cover" />
             ) : (
-              <div className="text-[#707072] text-sm flex flex-col items-center gap-2 py-12">
+              <div className="flex flex-col items-center gap-2 py-12 text-sm text-[#707072] dark:text-[#9e9ea0]">
                 <Package className="size-8 text-[#9e9ea0]" />
-                No image
+                {t('common.noImage')}
               </div>
             )}
           </div>
 
           {showcaseUrl && showcaseUrl !== heroImage && (
-            <Card className="overflow-hidden rounded-[30px] border border-[#e5e5e5] p-0">
-              <div className="aspect-[16/9] overflow-hidden bg-[#f5f5f5]">
+            <Card className="overflow-hidden rounded-[30px] border border-[#e5e5e5] dark:border-[#39393b] dark:bg-[#1a1a1a] p-0">
+              <div className="aspect-[16/9] overflow-hidden bg-[#f5f5f5] dark:bg-[#111111]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={showcaseUrl} alt={`${product.name} showcase`} className="h-full w-full object-cover" />
               </div>
               <CardContent className="p-3">
-                <p className="text-[12px] font-medium text-[#707072]">Showcase</p>
+                <p className="text-[12px] font-medium text-[#707072] dark:text-[#9e9ea0]">Showcase</p>
               </CardContent>
             </Card>
           )}
@@ -115,10 +110,7 @@ export default async function ProductDetailPage({
           {allImages.length > 1 && (
             <div className="grid grid-cols-4 gap-2">
               {allImages.map((url) => (
-                <div
-                  key={url}
-                  className="overflow-hidden rounded-[18px] bg-[#f5f5f5] aspect-square ring-1 ring-[#e5e5e5]"
-                >
+                <div key={url} className="overflow-hidden rounded-[18px] bg-[#f5f5f5] dark:bg-[#1a1a1a] aspect-square ring-1 ring-[#e5e5e5] dark:ring-[#39393b]">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={url} alt={`${product.name} gallery`} className="h-full w-full object-cover" loading="lazy" />
                 </div>
@@ -127,82 +119,64 @@ export default async function ProductDetailPage({
           )}
 
           {galleryUrls.length === 0 && !showcaseUrl && (
-            <p className="text-[14px] font-medium text-[#707072] text-center py-2">No gallery images</p>
+            <p className="py-2 text-center text-[14px] font-medium text-[#707072] dark:text-[#9e9ea0]">{t('common.noImage')}</p>
           )}
         </div>
 
         {/* Details */}
         <div className="flex flex-col gap-4">
-          {/* Title — {typography.heading-xl} 32px/500 */}
-          <h1 className="text-[32px] font-medium leading-[1.2] text-[#111111]">{product.name}</h1>
+          <h1 className="text-[32px] font-medium leading-[1.2] text-[#111111] dark:text-white">{product.name}</h1>
 
           {/* Brand link + category pill */}
           <div className="flex flex-wrap items-center gap-2">
             {brandObj ? (
               <Link
                 href={`/brands/${brandObj.slug}`}
-                className="inline-flex items-center gap-2 rounded-full bg-[#f5f5f5] px-3 py-1.5 text-[14px] font-medium text-[#111111] ring-1 ring-[#e5e5e5] hover:bg-[#e5e5e5]"
+                className="inline-flex items-center gap-2 rounded-full bg-[#f5f5f5] px-3 py-1.5 text-[14px] font-medium text-[#111111] ring-1 ring-[#e5e5e5] hover:bg-[#e5e5e5] dark:bg-[#39393b] dark:text-white dark:ring-[#39393b]"
               >
                 {brandObj.icon && typeof brandObj.icon !== 'number' && (brandObj.icon as Media).url ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={(brandObj.icon as Media).url!}
-                    alt={brandObj.name}
-                    className="size-5 rounded-full object-cover"
-                  />
+                  <img src={(brandObj.icon as Media).url!} alt={brandObj.name} className="size-5 rounded-full object-cover" />
                 ) : null}
                 {brandObj.name}
               </Link>
             ) : (
-              <span className="text-[14px] font-medium text-[#707072]">No brand</span>
+              <span className="text-[14px] font-medium text-[#707072] dark:text-[#9e9ea0]">{t('brands.noBrands')}</span>
             )}
 
             {categoryObj && (
               <Link
                 href={`/categories/${categoryObj.slug}`}
-                className="rounded-full bg-white px-3 py-1.5 text-[14px] font-medium text-[#111111] ring-1 ring-[#cacacb] hover:bg-[#f5f5f5]"
-                /* pill — {rounded.full} 9999px, {typography.caption-md} 14px/500 */
+                className="rounded-full bg-white px-3 py-1.5 text-[14px] font-medium text-[#111111] ring-1 ring-[#cacacb] hover:bg-[#f5f5f5] dark:bg-transparent dark:text-white dark:ring-[#39393b]"
               >
                 {categoryObj.name}
               </Link>
             )}
           </div>
 
-          {/* Price — {colors.sale} #d30005 handling + {colors.mute} strike */}
           <div className="flex items-baseline gap-3">
             {price === 0 ? (
-              <span className="text-[24px] font-medium text-[#707072]">Contact for price</span>
+              <span className="text-[24px] font-medium text-[#707072] dark:text-[#9e9ea0]">{t('common.contactForPrice')}</span>
             ) : (
-              <>
-                <span className="text-[24px] font-medium text-[#111111]">{formatPrice(price)}</span>
-                {/* Sale handling placeholder: if product had salePrice, show discounted in {colors.sale} */}
-                {/* Example: <span className="text-[24px] font-medium text-[#d30005]">{salePrice}</span> <span className="line-through text-[#707072]">{price}</span> */}
-              </>
+              <span className="text-[24px] font-medium text-[#111111] dark:text-white">{formatPrice(price)}</span>
             )}
           </div>
 
-          {/* Inventory badges — {colors.mute} #707072 / "ناموجود" , low-stock */}
           <div className="flex flex-wrap items-center gap-2">
             {isOutOfStock ? (
-              <Badge
-                variant="outline"
-                className="rounded-full border-[#cacacb] bg-white px-3 py-1 text-[14px] font-medium text-[#707072]"
-              >
+              <Badge variant="outline" className="rounded-full border-[#cacacb] bg-white px-3 py-1 text-[14px] font-medium text-[#707072] dark:border-[#39393b] dark:bg-transparent dark:text-[#9e9ea0]">
                 <Package className="size-3.5" />
-                ناموجود
+                {t('common.outOfStock')}
               </Badge>
             ) : (
               <Badge className="rounded-full bg-[#007d48] px-3 py-1 text-[14px] font-medium text-white hover:bg-[#007d48]">
-                In stock · {inventory} available
+                {inventory.toLocaleString('fa-IR')} {t('common.productsCount')} · {t('common.browse')}
               </Badge>
             )}
             {isLowStock && !isOutOfStock && (
-              <Badge
-                variant="outline"
-                className="rounded-full border-[#d30005]/30 bg-[#d30005]/10 px-3 py-1 text-[14px] font-medium text-[#d30005]"
-              >
+              <Badge variant="outline" className="rounded-full border-[#d30005]/30 bg-[#d30005]/10 px-3 py-1 text-[14px] font-medium text-[#d30005]">
                 <AlertTriangle className="size-3.5" />
-                Low stock — only {inventory} left
+                {t('common.lowStock')} — {inventory.toLocaleString('fa-IR')}
               </Badge>
             )}
           </div>
@@ -218,24 +192,20 @@ export default async function ProductDetailPage({
                 image: cartImage,
               }}
             />
-            {isOutOfStock && (
-              <p className="mt-2 text-[12px] font-medium text-[#707072]">This item is currently out of stock.</p>
-            )}
+            {isOutOfStock && <p className="mt-2 text-[12px] font-medium text-[#707072] dark:text-[#9e9ea0]">{t('productDetail.outOfStockNote')}</p>}
           </div>
 
           {/* Wishlist / Share row */}
           <ProductActions productId={product.id} productName={product.name} />
 
-          {/* Meta card */}
-          <Card className="mt-2 rounded-[30px] border border-[#e5e5e5] bg-[#f5f5f5]">
-            <CardContent className="p-4 flex flex-col gap-1.5">
-              <p className="text-[14px] font-medium text-[#111111]">Product details</p>
-              <div className="text-[14px] font-medium text-[#707072] flex flex-col gap-1">
+          <Card className="mt-2 rounded-[30px] border border-[#e5e5e5] bg-[#f5f5f5] dark:border-[#39393b] dark:bg-[#1a1a1a]">
+            <CardContent className="flex flex-col gap-1.5 p-4">
+              <p className="text-[14px] font-medium text-[#111111] dark:text-white">{t('common.products')}</p>
+              <div className="flex flex-col gap-1 text-[14px] font-medium text-[#707072] dark:text-[#9e9ea0]">
                 <span>SKU: {product.slug}</span>
-                {brandObj && <span>Brand: {brandObj.name}</span>}
-                {categoryObj && <span>Category: {categoryObj.name}</span>}
-                <span>Inventory: {inventory}</span>
-                <span>Visibility: {product.visible ? 'Visible' : 'Hidden'}</span>
+                {brandObj && <span>{t('common.brands')}: {brandObj.name}</span>}
+                {categoryObj && <span>{t('common.categories')}: {categoryObj.name}</span>}
+                <span>{t('home.utility.stock')}: {inventory.toLocaleString('fa-IR')}</span>
               </div>
             </CardContent>
           </Card>

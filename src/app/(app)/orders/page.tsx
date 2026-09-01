@@ -10,6 +10,7 @@ import { getCurrentUser } from '@/lib/current-user'
 import { getSiteSettings, deriveName } from '@/lib/site-settings'
 import { formatPriceNumber } from '@/lib/pricing'
 import type { Order } from '@/payload-types'
+import { t } from '@/lib/t'
 
 export const dynamic = 'force-dynamic'
 
@@ -25,22 +26,18 @@ export async function generateMetadata(): Promise<Metadata> {
 function formatDate(dateString: string | null | undefined): string {
   if (!dateString) return ''
   try {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    })
+    return new Date(dateString).toLocaleDateString('fa-IR', { year: 'numeric', month: 'short', day: 'numeric' })
   } catch {
     return dateString
   }
 }
 
 const STATUS_LABELS: Record<Order['status'], string> = {
-  review: 'Review',
-  approved: 'Approved',
-  preparing: 'Preparing',
-  delivered: 'Delivered',
-  cancelled: 'Cancelled',
+  review: t('orders.status.review'),
+  approved: t('orders.status.approved'),
+  preparing: t('orders.status.preparing'),
+  delivered: t('orders.status.delivered'),
+  cancelled: t('orders.status.cancelled'),
 }
 
 function statusTone(status: Order['status']): { bg: string; text: string; border: string } {
@@ -79,31 +76,23 @@ export default async function OrdersPage() {
 
   return (
     <div className="mx-auto max-w-[1440px] px-4 py-8 md:px-8">
-      {/* Breadcrumb — {typography.caption-md} 14px/500, {colors.mute} #707072 */}
-      <nav className="mb-6 flex items-center gap-1.5 text-sm text-[#707072]" aria-label="Breadcrumb">
-        <Link href="/" className="hover:text-[#111111]">
-          Home
-        </Link>
+      <nav className="mb-6 flex items-center gap-1.5 text-sm text-[#707072] dark:text-[#9e9ea0]" aria-label="Breadcrumb">
+        <Link href="/" className="hover:text-[#111111] dark:hover:text-white">{t('common.home')}</Link>
         <span aria-hidden>›</span>
-        <Link href="/account" className="hover:text-[#111111]">
-          Account
-        </Link>
+        <Link href="/account" className="hover:text-[#111111] dark:hover:text-white">{t('account.title')}</Link>
         <span aria-hidden>›</span>
-        <span className="font-medium text-[#111111]">Orders</span>
+        <span className="font-medium text-[#111111] dark:text-white">{t('orders.title')}</span>
       </nav>
 
-      {/* Title — {typography.heading-xl} 32px/500, {colors.ink} #111111 */}
-      <h1 className="text-[32px] font-medium leading-[1.2] text-[#111111]">My Orders</h1>
-      <p className="mt-1 text-[14px] font-medium text-[#707072]">
-        {totalOrders} {totalOrders === 1 ? 'order' : 'orders'}
-      </p>
+      <h1 className="text-[32px] font-medium leading-[1.2] text-[#111111] dark:text-white">{t('orders.title')}</h1>
+      <p className="mt-1 text-[14px] font-medium text-[#707072] dark:text-[#9e9ea0]">{totalOrders.toLocaleString('fa-IR')} {t('common.productsCount')}</p>
 
       {orders.length === 0 ? (
-        <div className="mt-8 rounded-[30px] bg-[#f5f5f5] p-12 text-center">
+        <div className="mt-8 rounded-[30px] bg-[#f5f5f5] dark:bg-[#1a1a1a] p-12 text-center">
           {/* Empty state — {colors.soft-cloud} #f5f5f5, {rounded.lg} 30px */}
-          <p className="text-[16px] font-medium leading-[1.5] text-[#111111]">No orders yet</p>
+          <p className="text-[16px] font-medium leading-[1.5] text-[#111111] dark:text-white">{t('orders.empty')}</p>
           <p className="mt-1 text-[14px] font-medium leading-[1.5] text-[#707072]">
-            Place your first order and it will appear here.
+            {t('orders.empty')}
           </p>
           <Link
             href="/products"
@@ -134,7 +123,7 @@ export default async function OrdersPage() {
                         </Badge>
                       </div>
                       <p className="text-[14px] font-medium text-[#111111]">
-                        {formatPriceNumber(order.total ?? 0, 'en-US')} تومان
+                        {formatPriceNumber(order.total ?? 0, 'fa-IR')} تومان
                       </p>
                       <p className="text-[12px] font-medium text-[#707072]">
                         {formatDate(order.createdAt)} · {order.items?.length ?? 0}{' '}
@@ -142,7 +131,7 @@ export default async function OrdersPage() {
                       </p>
                       {order.hasZeroPrice ? (
                         <span className="text-[12px] font-medium text-[#d30005]">
-                          Includes zero-price items
+                          {t('cart.partnerDiscountApplied')}
                         </span>
                       ) : null}
                     </CardContent>
@@ -205,10 +194,10 @@ export default async function OrdersPage() {
                         <span
                           className={`text-[14px] font-medium ${order.hasZeroPrice ? 'text-[#d30005]' : 'text-[#111111]'}`}
                         >
-                          {formatPriceNumber(order.total ?? 0, 'en-US')} تومان
+                          {formatPriceNumber(order.total ?? 0, 'fa-IR')} تومان
                         </span>
                         {order.hasZeroPrice ? (
-                          <span className="ml-2 text-[12px] font-medium text-[#d30005]">zero-price</span>
+                          <span className="ml-2 text-[12px] font-medium text-[#d30005]">{t('common.toman')}</span>
                         ) : null}
                       </TableCell>
                     </TableRow>

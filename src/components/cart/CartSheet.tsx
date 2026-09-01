@@ -1,6 +1,7 @@
 "use client"
 
 import Link from 'next/link'
+import { t, tFmt } from '@/lib/t'
 import { useEffect, useState } from 'react'
 import { Minus, Plus, ShoppingBag, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
@@ -102,14 +103,14 @@ export function CartSheet({ partnerDiscount = 0, customerType = 'regular', trigg
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#f5f5f5]">
                 <ShoppingBag className="h-7 w-7 text-[#9e9ea0]" />
               </div>
-              <p className="text-[16px] font-medium text-[#111111]">Your cart is empty</p>
-              <p className="text-[14px] font-medium text-[#707072]">Browse products to add items.</p>
+              <p className="text-[16px] font-medium text-[#111111]">{t('cart.empty')}</p>
+              <p className="text-[14px] font-medium text-[#707072]">{t('cart.emptyHint')}</p>
               <Link
                 href="/products"
                 className="mt-2 inline-flex h-10 items-center justify-center rounded-full bg-[#111111] px-6 text-[14px] font-medium text-white hover:opacity-90"
                 // {component.button-primary}
               >
-                Browse Products
+                {t('cart.browseProducts')}
               </Link>
             </div>
           ) : (

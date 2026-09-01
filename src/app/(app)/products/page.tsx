@@ -14,6 +14,7 @@ import {
   PaginationEllipsis,
 } from '@/components/ui/pagination'
 import type { Brand, Category, Media, Product } from '@/payload-types'
+import { t, tFmt } from '@/lib/t'
 
 export const dynamic = 'force-dynamic'
 
@@ -63,7 +64,6 @@ export default async function ProductsPage({
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
 
-  // Resolve brand/category slugs -> ids for relationship filter
   let brandId: number | null = null
   let brandNotFound = false
   if (brandSlug) {
@@ -90,118 +90,75 @@ export default async function ProductsPage({
     else categoryNotFound = true
   }
 
-  // Build where clause: visible only + compose q/brand/category
-  // {colors.soft-cloud} stage (#f5f5f5), filters use {rounded.full} + {typography.caption-md}
   const and: Record<string, unknown>[] = [{ visible: { equals: true } }]
-
-  if (q) {
-    and.push({ name: { like: q } })
-  }
-  if (brandNotFound) {
-    // Force empty result when brand slug unknown but filter requested
-    and.push({ brand: { equals: -1 } } as unknown as Record<string, unknown>)
-  } else if (brandId !== null) {
-    and.push({ brand: { equals: brandId } })
-  }
-  if (categoryNotFound) {
-    and.push({ category: { equals: -1 } } as unknown as Record<string, unknown>)
-  } else if (categoryId !== null) {
-    and.push({ category: { equals: categoryId } })
-  }
+  if (q) and.push({ name: { like: q } })
+  if (brandNotFound) and.push({ brand: { equals: -1 } } as unknown as Record<string, unknown>)
+  else if (brandId !== null) and.push({ brand: { equals: brandId } })
+  if (categoryNotFound) and.push({ category: { equals: -1 } } as unknown as Record<string, unknown>)
+  else if (categoryId !== null) and.push({ category: { equals: categoryId } })
 
   const where = and.length > 1 ? { and } : and[0]
 
   const [productsRes, brandsRes, categoriesRes] = await Promise.all([
-    payload.find({
-      collection: 'products',
-      where: where as never,
-      depth: 1,
-      limit,
-      page,
-      sort: '-createdAt',
-      pagination: true,
-    }),
-    payload.find({
-      collection: 'brands',
-      limit: 100,
-      sort: 'name',
-      depth: 1,
-    }),
-    payload.find({
-      collection: 'categories',
-      limit: 100,
-      sort: 'name',
-      depth: 0,
-    }),
+    payload.find({ collection: 'products', where: where as never, depth: 1, limit, page, sort: '-createdAt', pagination: true }),
+    payload.find({ collection: 'brands', limit: 100, sort: 'name', depth: 1 }),
+    payload.find({ collection: 'categories', limit: 100, sort: 'name', depth: 0 }),
   ])
 
   const products = productsRes.docs as Product[]
   const brands = brandsRes.docs as Brand[]
   const categories = categoriesRes.docs as Category[]
   const totalPages = productsRes.totalPages ?? 1
-
   const activeFiltersCount = [q, brandSlug, categorySlug].filter(Boolean).length
 
   return (
     <div className="mx-auto max-w-[1440px] px-4 py-8 md:px-8">
-      {/* Breadcrumb */}
-      <nav className="mb-6 text-sm text-[#707072] flex items-center gap-1.5" aria-label="Breadcrumb">
-        <Link href="/" className="hover:text-[#111111]">
-          Home
+      <nav className="mb-6 flex items-center gap-1.5 text-sm text-[#707072] dark:text-[#9e9ea0]" aria-label="Breadcrumb">
+        <Link href="/" className="hover:text-[#111111] dark:hover:text-white">
+          {t('common.home')}
         </Link>
         <span aria-hidden>/</span>
-        <span className="text-[#111111] font-medium">Products</span>
+        <span className="font-medium text-[#111111] dark:text-white">{t('products.title')}</span>
       </nav>
 
-      <h1
-        className="text-[32px] font-medium leading-[1.2] text-[#111111] mb-2"
-        /* {typography.heading-xl} 32px/500, {colors.ink} #111111 */
-      >
-        Products
-      </h1>
-      <p className="text-[14px] font-medium text-[#707072] mb-6">
-        {productsRes.totalDocs} products {activeFiltersCount > 0 && `· ${activeFiltersCount} filter(s) active`}
+      <h1 className="mb-2 text-[32px] font-medium leading-[1.2] text-[#111111] dark:text-white">{t('products.title')}</h1>
+      <p className="mb-6 text-[14px] font-medium text-[#707072] dark:text-[#9e9ea0]">
+        {productsRes.totalDocs.toLocaleString('fa-IR')} {t('common.productsCount')}
+        {activeFiltersCount > 0 && ` · ${activeFiltersCount.toLocaleString('fa-IR')} ${t('common.browse')}`}
       </p>
 
-      {/* Search + active filter summary */}
       <form action="/products" method="get" className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-        {/* preserve brand/category when searching */}
         {brandSlug && <input type="hidden" name="brand" value={brandSlug} />}
         {categorySlug && <input type="hidden" name="category" value={categorySlug} />}
         <div className="flex flex-1 items-center gap-2">
           <input
             name="q"
             defaultValue={q}
-            placeholder="Search products…"
-            className="h-10 w-full max-w-md rounded-[24px] bg-[#f5f5f5] px-4 text-[16px] font-normal text-[#111111] placeholder:text-[#707072] outline-none ring-1 ring-transparent focus:bg-white focus:ring-[#111111]"
-            /* {colors.soft-cloud} #f5f5f5, {rounded.md} 24px, {typography.body-md} */
+            placeholder={t('products.searchPlaceholder')}
+            className="h-10 w-full max-w-md rounded-[24px] bg-[#f5f5f5] px-4 text-[16px] font-normal text-[#111111] placeholder:text-[#707072] outline-none ring-1 ring-transparent focus:bg-white focus:ring-[#111111] dark:bg-[#39393b] dark:text-white dark:placeholder:text-[#9e9ea0] dark:focus:bg-[#1a1a1a]"
           />
-          <Button type="submit" className="rounded-full bg-[#111111] text-white hover:bg-[#111111]/90">
-            Search
+          <Button type="submit" className="rounded-full bg-[#111111] text-white hover:bg-[#111111]/90 dark:bg-white dark:text-[#111111] dark:hover:bg-[#e5e5e5]">
+            {t('products.searchAction')}
           </Button>
         </div>
         {(q || brandSlug || categorySlug) && (
-          <Link
-            href="/products"
-            className="text-[14px] font-medium text-[#707072] underline hover:text-[#111111]"
-          >
-            Clear all
+          <Link href="/products" className="text-[14px] font-medium text-[#707072] underline hover:text-[#111111] dark:text-[#9e9ea0] dark:hover:text-white">
+            {t('products.clearAll')}
           </Link>
         )}
       </form>
 
-      {/* Brand pills — {colors.soft-cloud} #f5f5f5, {rounded.full} 9999px, {typography.caption-md} 14px/500 */}
       <div className="mb-3 flex flex-wrap items-center gap-2">
-        <span className="text-[14px] font-medium text-[#111111] mr-1">Brands:</span>
+        <span className="mr-1 text-[14px] font-medium text-[#111111] dark:text-white">{t('products.brandsLabel')}</span>
         <Link
           href={buildPageHref({ q, brand: brandSlug, category: categorySlug }, { brand: undefined, page: '1' })}
           className={
             !brandSlug
-              ? 'rounded-full bg-[#111111] px-4 py-1.5 text-[14px] font-medium text-white'
-              : 'rounded-full bg-[#f5f5f5] px-4 py-1.5 text-[14px] font-medium text-[#111111] ring-1 ring-[#e5e5e5] hover:bg-[#e5e5e5]'
+              ? 'rounded-full bg-[#111111] px-4 py-1.5 text-[14px] font-medium text-white dark:bg-white dark:text-[#111111]'
+              : 'rounded-full bg-[#f5f5f5] px-4 py-1.5 text-[14px] font-medium text-[#111111] ring-1 ring-[#e5e5e5] hover:bg-[#e5e5e5] dark:bg-transparent dark:text-white dark:ring-[#39393b] dark:hover:bg-[#39393b]'
           }
         >
-          All
+          {t('products.allBrands')}
         </Link>
         {brands.map((b) => {
           const isActive = b.slug === brandSlug
@@ -211,8 +168,8 @@ export default async function ProductsPage({
               href={buildPageHref({ q, brand: brandSlug, category: categorySlug }, { brand: b.slug ?? '', page: '1' })}
               className={
                 isActive
-                  ? 'rounded-full bg-[#111111] px-4 py-1.5 text-[14px] font-medium text-white'
-                  : 'rounded-full bg-[#f5f5f5] px-4 py-1.5 text-[14px] font-medium text-[#111111] ring-1 ring-[#e5e5e5] hover:bg-[#e5e5e5]'
+                  ? 'rounded-full bg-[#111111] px-4 py-1.5 text-[14px] font-medium text-white dark:bg-white dark:text-[#111111]'
+                  : 'rounded-full bg-[#f5f5f5] px-4 py-1.5 text-[14px] font-medium text-[#111111] ring-1 ring-[#e5e5e5] hover:bg-[#e5e5e5] dark:bg-transparent dark:text-white dark:ring-[#39393b] dark:hover:bg-[#39393b]'
               }
             >
               {b.name}
@@ -221,32 +178,28 @@ export default async function ProductsPage({
         })}
       </div>
 
-      {/* Category pills — {colors.soft-cloud} #f5f5f5, {rounded.full} 9999px, {typography.caption-md} 14px/500 */}
       <div className="mb-6 flex flex-wrap items-center gap-2">
-        <span className="text-[14px] font-medium text-[#111111] mr-1">Categories:</span>
+        <span className="mr-1 text-[14px] font-medium text-[#111111] dark:text-white">{t('products.categoriesLabel')}</span>
         <Link
           href={buildPageHref({ q, brand: brandSlug, category: categorySlug }, { category: undefined, page: '1' })}
           className={
             !categorySlug
-              ? 'rounded-full bg-[#111111] px-4 py-1.5 text-[14px] font-medium text-white'
-              : 'rounded-full bg-[#f5f5f5] px-4 py-1.5 text-[14px] font-medium text-[#111111] ring-1 ring-[#e5e5e5] hover:bg-[#e5e5e5]'
+              ? 'rounded-full bg-[#111111] px-4 py-1.5 text-[14px] font-medium text-white dark:bg-white dark:text-[#111111]'
+              : 'rounded-full bg-[#f5f5f5] px-4 py-1.5 text-[14px] font-medium text-[#111111] ring-1 ring-[#e5e5e5] hover:bg-[#e5e5e5] dark:bg-transparent dark:text-white dark:ring-[#39393b] dark:hover:bg-[#39393b]'
           }
         >
-          All
+          {t('products.allCategories')}
         </Link>
         {categories.map((c) => {
           const isActive = c.slug === categorySlug
           return (
             <Link
               key={c.id}
-              href={buildPageHref(
-                { q, brand: brandSlug, category: categorySlug },
-                { category: c.slug ?? '', page: '1' },
-              )}
+              href={buildPageHref({ q, brand: brandSlug, category: categorySlug }, { category: c.slug ?? '', page: '1' })}
               className={
                 isActive
-                  ? 'rounded-full bg-[#111111] px-4 py-1.5 text-[14px] font-medium text-white'
-                  : 'rounded-full bg-[#f5f5f5] px-4 py-1.5 text-[14px] font-medium text-[#111111] ring-1 ring-[#e5e5e5] hover:bg-[#e5e5e5]'
+                  ? 'rounded-full bg-[#111111] px-4 py-1.5 text-[14px] font-medium text-white dark:bg-white dark:text-[#111111]'
+                  : 'rounded-full bg-[#f5f5f5] px-4 py-1.5 text-[14px] font-medium text-[#111111] ring-1 ring-[#e5e5e5] hover:bg-[#e5e5e5] dark:bg-transparent dark:text-white dark:ring-[#39393b] dark:hover:bg-[#39393b]'
               }
             >
               {c.name}
@@ -255,13 +208,12 @@ export default async function ProductsPage({
         })}
       </div>
 
-      {/* Grid — shadcn Card + beui gallery pattern — {colors.soft-cloud} stage, {rounded.lg} 30px, {typography.body-strong} */}
       {products.length === 0 ? (
-        <div className="rounded-[30px] bg-[#f5f5f5] p-12 text-center">
-          <p className="text-[16px] font-medium text-[#111111]">No products found</p>
-          <p className="mt-1 text-[14px] font-medium text-[#707072]">Try adjusting filters or search.</p>
-          <Link href="/products" className="mt-4 inline-flex rounded-full bg-[#111111] px-6 py-2 text-[14px] font-medium text-white">
-            Browse all products
+        <div className="rounded-[30px] bg-[#f5f5f5] p-12 text-center dark:bg-[#1a1a1a]">
+          <p className="text-[16px] font-medium text-[#111111] dark:text-white">{t('common.noProducts')}</p>
+          <p className="mt-1 text-[14px] font-medium text-[#707072] dark:text-[#9e9ea0]">{t('common.noProductsHint')}</p>
+          <Link href="/products" className="mt-4 inline-flex rounded-full bg-[#111111] px-6 py-2 text-[14px] font-medium text-white dark:bg-white dark:text-[#111111]">
+            {t('common.viewAll')}
           </Link>
         </div>
       ) : (
@@ -273,72 +225,46 @@ export default async function ProductsPage({
             const categoryName = category && typeof category !== 'number' ? category.name : null
             const showcase = getMediaUrl(product.showcaseImage as Media | number | null | undefined)
             const firstImage =
-              product.images?.[0] && typeof product.images[0].image !== 'number'
-                ? getMediaUrl(product.images[0].image as Media)
-                : null
+              product.images?.[0] && typeof product.images[0].image !== 'number' ? getMediaUrl(product.images[0].image as Media) : null
             const imageUrl = showcase ?? firstImage
             const price = product.price ?? 0
             const inventory = product.inventory ?? 0
             const isOutOfStock = inventory <= 0
             const isLowStock = inventory > 0 && inventory <= 5
-
             return (
               <Link key={product.id} href={`/products/${product.slug}`} className="group">
-                <Card className="overflow-hidden rounded-[30px] border border-[#e5e5e5] bg-white p-0 gap-0">
-                  {/* image stage — {colors.soft-cloud} #f5f5f5 — beui gallery 1:1 */}
-                  <div className="aspect-square overflow-hidden bg-[#f5f5f5]">
+                <Card className="gap-0 overflow-hidden rounded-[30px] border border-[#e5e5e5] bg-white p-0 dark:border-[#39393b] dark:bg-[#1a1a1a]">
+                  <div className="aspect-square overflow-hidden bg-[#f5f5f5] dark:bg-[#111111]">
                     {imageUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={imageUrl}
-                        alt={product.name}
-                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-                        loading="lazy"
-                      />
+                      <img src={imageUrl} alt={product.name} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" loading="lazy" />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center text-[#707072] text-sm">
-                        No image
-                      </div>
+                      <div className="flex h-full w-full items-center justify-center text-sm text-[#707072] dark:text-[#9e9ea0]">{t('common.noImage')}</div>
                     )}
                   </div>
-                  <CardContent className="p-4 flex flex-col gap-1.5">
-                    <div className="flex items-center gap-1.5 flex-wrap">
+                  <CardContent className="flex flex-col gap-1.5 p-4">
+                    <div className="flex flex-wrap items-center gap-1.5">
                       {isOutOfStock && (
-                        <Badge
-                          variant="outline"
-                          className="rounded-full border-[#cacacb] bg-white text-[#707072] text-xs"
-                          /* {colors.mute} #707072 */
-                        >
-                          ناموجود
+                        <Badge variant="outline" className="rounded-full border-[#cacacb] bg-white text-xs text-[#707072] dark:border-[#39393b] dark:bg-transparent dark:text-[#9e9ea0]">
+                          {t('common.outOfStock')}
                         </Badge>
                       )}
                       {isLowStock && !isOutOfStock && (
-                        <Badge className="rounded-full bg-[#f5f5f5] text-[#111111] hover:bg-[#f5f5f5] text-xs">
-                          Low stock
+                        <Badge className="rounded-full bg-[#f5f5f5] text-xs text-[#111111] hover:bg-[#f5f5f5] dark:bg-[#39393b] dark:text-white">
+                          {t('common.lowStock')}
                         </Badge>
                       )}
                       {categoryName && (
-                        <Badge variant="secondary" className="rounded-full bg-[#f5f5f5] text-[#111111] text-xs">
+                        <Badge variant="secondary" className="rounded-full bg-[#f5f5f5] text-xs text-[#111111] dark:bg-[#39393b] dark:text-white">
                           {categoryName}
                         </Badge>
                       )}
                     </div>
-                    <h3 className="line-clamp-2 text-[16px] font-medium leading-[1.5] text-[#111111]">
-                      {/* {typography.body-strong} 16px/500 */}
-                      {product.name}
-                    </h3>
-                    {brandName && <p className="text-[14px] font-medium text-[#707072]">{brandName}</p>}
-                    <p
-                      className={
-                        price === 0
-                          ? 'text-[14px] font-medium text-[#707072]'
-                          : 'text-[16px] font-medium text-[#111111]'
-                      }
-                    >
-                      {price === 0 ? 'Contact for price' : `${price.toLocaleString()} تومان`}
-                      {price > 0 && isOutOfStock && (
-                        <span className="ml-2 text-xs text-[#707072]">— unavailable</span>
-                      )}
+                    <h3 className="line-clamp-2 text-[16px] font-medium leading-[1.5] text-[#111111] dark:text-white">{product.name}</h3>
+                    {brandName && <p className="text-[14px] font-medium text-[#707072] dark:text-[#9e9ea0]">{brandName}</p>}
+                    <p className={price === 0 ? 'text-[14px] font-medium text-[#707072] dark:text-[#9e9ea0]' : 'text-[16px] font-medium text-[#111111] dark:text-white'}>
+                      {price === 0 ? t('common.contactForPrice') : `${price.toLocaleString('fa-IR')} ${t('common.toman')}`}
+                      {price > 0 && isOutOfStock && <span className="ml-2 text-xs text-[#707072] dark:text-[#9e9ea0]">— {t('common.outOfStock')}</span>}
                     </p>
                   </CardContent>
                 </Card>
@@ -348,16 +274,13 @@ export default async function ProductsPage({
         </div>
       )}
 
-      {/* Pagination — shadcn Pagination */}
       {totalPages > 1 && (
         <div className="mt-8">
           <Pagination>
             <PaginationContent>
               {page > 1 && (
                 <PaginationItem>
-                  <PaginationPrevious
-                    href={buildPageHref({ q, brand: brandSlug, category: categorySlug, page: String(page) }, { page: String(page - 1) })}
-                  />
+                  <PaginationPrevious href={buildPageHref({ q, brand: brandSlug, category: categorySlug, page: String(page) }, { page: String(page - 1) })} />
                 </PaginationItem>
               )}
               {Array.from({ length: totalPages }, (_, i) => i + 1)
@@ -371,9 +294,7 @@ export default async function ProductsPage({
                 })
                 .reduce<(number | 'ellipsis')[]>((acc, p, idx, arr) => {
                   const prev = arr[idx - 1]
-                  if (prev !== undefined && typeof p === 'number' && typeof prev === 'number' && p - prev > 1) {
-                    acc.push('ellipsis')
-                  }
+                  if (prev !== undefined && typeof p === 'number' && typeof prev === 'number' && p - prev > 1) acc.push('ellipsis')
                   acc.push(p)
                   return acc
                 }, [])
@@ -395,15 +316,13 @@ export default async function ProductsPage({
                 )}
               {page < totalPages && (
                 <PaginationItem>
-                  <PaginationNext
-                    href={buildPageHref({ q, brand: brandSlug, category: categorySlug, page: String(page) }, { page: String(page + 1) })}
-                  />
+                  <PaginationNext href={buildPageHref({ q, brand: brandSlug, category: categorySlug, page: String(page) }, { page: String(page + 1) })} />
                 </PaginationItem>
               )}
             </PaginationContent>
           </Pagination>
-          <p className="mt-3 text-center text-[12px] font-medium text-[#707072]">
-            Page {page} of {totalPages} · {productsRes.totalDocs} products
+          <p className="mt-3 text-center text-[12px] font-medium text-[#707072] dark:text-[#9e9ea0]">
+            {tFmt('products.pagination', { page: page.toLocaleString('fa-IR'), totalPages: totalPages.toLocaleString('fa-IR'), count: productsRes.totalDocs.toLocaleString('fa-IR') })}
           </p>
         </div>
       )}

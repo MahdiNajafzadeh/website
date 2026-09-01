@@ -3,14 +3,7 @@
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useState } from 'react'
-
-// Design tokens used:
-// {colors.ink} #111111, {colors.canvas} #ffffff, {colors.soft-cloud} #f5f5f5,
-// {colors.hairline} #cacacb, {colors.mute} #707072,
-// {typography.heading-md} 16/500/1.75, {typography.heading-xl} 32/500/1.2,
-// {typography.body-md} 16/400/1.5, {typography.button-md} 16/500/1.5,
-// {rounded.full} 9999px (rounded-full), {rounded.md} 24px,
-// {component.button-primary} bg {colors.ink} text {colors.on-primary} rounded-full h-12 px-8
+import { t } from '@/lib/t'
 
 function LoginForm() {
   const router = useRouter()
@@ -26,7 +19,6 @@ function LoginForm() {
     e.preventDefault()
     setError(null)
     setLoading(true)
-
     try {
       const res = await fetch('/api/users/login', {
         method: 'POST',
@@ -34,113 +26,58 @@ function LoginForm() {
         credentials: 'include',
         body: JSON.stringify({ phone: phone.trim(), password }),
       })
-
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
-        const msg =
-          (data?.errors?.[0]?.message as string) ||
-          (data?.message as string) ||
-          'Login failed. Check phone and password.'
+        const msg = (data?.errors?.[0]?.message as string) || (data?.message as string) || t('auth.errorLogin')
         throw new Error(msg)
       }
-
       router.push(nextParam)
       router.refresh()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed')
+      setError(err instanceof Error ? err.message : t('auth.loginFailed'))
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-[70vh] bg-white flex items-center justify-center px-4 py-12">
-      {/* canvas {colors.canvas} */}
+    <div className="min-h-[70vh] flex items-center justify-center bg-white dark:bg-[#111111] px-4 py-12">
       <div className="w-full max-w-[440px]">
-        <h1
-          className="text-[32px] font-medium leading-[1.2] text-[#111111] text-center"
-          style={{ fontFamily: 'Helvetica Now Display Medium, Helvetica, Arial, sans-serif' }}
-        >
-          {/* {typography.heading-xl} */}
-          Sign in
+        <h1 className="text-center text-[32px] font-medium leading-[1.2] text-[#111111] dark:text-white" style={{ fontFamily: 'Helvetica Now Display Medium, Helvetica, Arial, sans-serif' }}>
+          {t('auth.signInTitle')}
         </h1>
-        <p className="mt-2 text-center text-sm font-medium text-[#707072] leading-[1.5]">
-          {/* {colors.mute} */}
-          Enter your phone and password.
-        </p>
+        <p className="mt-2 text-center text-sm font-medium leading-[1.5] text-[#707072] dark:text-[#9e9ea0]">{t('auth.signInSubtitle')}</p>
 
         <form onSubmit={onSubmit} noValidate className="mt-8 space-y-5">
           <div className="space-y-2">
-            <label
-              htmlFor="phone"
-              className="block text-sm font-medium leading-[1.75] text-[#111111]"
-            >
-              {/* {typography.heading-md} on {colors.ink} */}
-              Phone
+            <label htmlFor="phone" className="block text-sm font-medium leading-[1.75] text-[#111111] dark:text-white">
+              {t('auth.phone')}
             </label>
-            <input
-              id="phone"
-              name="phone"
-              type="tel"
-              inputMode="numeric"
-              autoComplete="username"
-              required
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="09123456789"
-              className="h-12 w-full rounded-[24px] border border-[#cacacb] bg-white px-4 text-base font-normal text-[#111111] placeholder:text-[#9e9ea0] outline-none focus:border-[#111111] focus:ring-2 focus:ring-[#111111]/10"
-              // {colors.hairline} border, {rounded.md}, {typography.body-md}, focus {colors.ink}
-            />
-            <p className="text-xs font-medium text-[#707072]">Use the 11-digit Iranian mobile starting with 09.</p>
+            <input id="phone" name="phone" type="tel" inputMode="numeric" autoComplete="username" required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="09123456789" className="h-12 w-full rounded-[24px] border border-[#cacacb] bg-white dark:bg-[#1a1a1a] dark:border-[#39393b] dark:text-white px-4 text-base font-normal text-[#111111] placeholder:text-[#9e9ea0] outline-none focus:border-[#111111] focus:ring-2 focus:ring-[#111111]/10 dark:focus:border-white" />
+            <p className="text-xs font-medium text-[#707072] dark:text-[#9e9ea0]">{t('auth.usePhoneHint')}</p>
           </div>
 
           <div className="space-y-2">
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium leading-[1.75] text-[#111111]"
-            >
-              Password
+            <label htmlFor="password" className="block text-sm font-medium leading-[1.75] text-[#111111] dark:text-white">
+              {t('auth.password')}
             </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="h-12 w-full rounded-[24px] border border-[#cacacb] bg-white px-4 text-base font-normal text-[#111111] placeholder:text-[#9e9ea0] outline-none focus:border-[#111111] focus:ring-2 focus:ring-[#111111]/10"
-            />
+            <input id="password" name="password" type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="h-12 w-full rounded-[24px] border border-[#cacacb] bg-white dark:bg-[#1a1a1a] dark:border-[#39393b] dark:text-white px-4 text-base font-normal text-[#111111] placeholder:text-[#9e9ea0] outline-none focus:border-[#111111] focus:ring-2 focus:ring-[#111111]/10 dark:focus:border-white" />
           </div>
 
           {error && (
-            <div
-              role="alert"
-              className="rounded-[12px] border border-[#d30005]/20 bg-[#d30005]/5 px-4 py-3 text-sm font-medium text-[#d30005]"
-            >
-              {/* {colors.sale} */}
+            <div role="alert" className="rounded-[12px] border border-[#d30005]/20 bg-[#d30005]/5 px-4 py-3 text-sm font-medium text-[#d30005]">
               {error}
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="flex h-12 w-full items-center justify-center rounded-full bg-[#111111] px-8 text-base font-medium leading-[1.5] text-white transition-opacity hover:opacity-90 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-            // {component.button-primary} : {colors.ink} bg, {colors.on-primary} text, {typography.button-md}, {rounded.full}
-          >
-            {loading ? 'Signing in…' : 'Sign In'}
+          <button type="submit" disabled={loading} className="flex h-12 w-full items-center justify-center rounded-full bg-[#111111] dark:bg-white dark:text-[#111111] px-8 text-base font-medium leading-[1.5] text-white transition-opacity hover:opacity-90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50">
+            {loading ? t('auth.signingIn') : t('auth.submitLogin')}
           </button>
 
-          <p className="text-center text-sm font-medium text-[#707072]">
-            No account?{' '}
-            <Link
-              href={nextParam !== '/' ? `/register?next=${encodeURIComponent(nextParam)}` : '/register'}
-              className="font-medium text-[#111111] underline underline-offset-4"
-            >
-              {/* {typography.link-md} / {colors.ink} */}
-              Create account
+          <p className="text-center text-sm font-medium text-[#707072] dark:text-[#9e9ea0]">
+            {t('auth.noAccount')}{' '}
+            <Link href={nextParam !== '/' ? `/register?next=${encodeURIComponent(nextParam)}` : '/register'} className="font-medium text-[#111111] dark:text-white underline underline-offset-4">
+              {t('auth.createAccountLink')}
             </Link>
           </p>
         </form>
@@ -151,13 +88,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-[70vh] bg-white flex items-center justify-center px-4 py-12">
-          <p className="text-sm text-[#707072]">Loading…</p>
-        </div>
-      }
-    >
+    <Suspense fallback={<div className="min-h-[70vh] flex items-center justify-center bg-white dark:bg-[#111111] px-4 py-12"><p className="text-sm text-[#707072] dark:text-[#9e9ea0]">{t('auth.loading')}</p></div>}>
       <LoginForm />
     </Suspense>
   )

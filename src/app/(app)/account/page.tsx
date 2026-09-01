@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { AccountForm } from '@/components/account/AccountForm'
 import { getCurrentUser } from '@/lib/current-user'
+import { t } from '@/lib/t'
 
 export const dynamic = 'force-dynamic'
 
@@ -47,41 +48,32 @@ export default async function AccountPage() {
     return (
         <div className="mx-auto max-w-[1440px] px-4 py-8 md:px-8">
             {/* Breadcrumb — {typography.caption-md} 14px/500, {colors.mute} #707072 */}
-            <nav className="mb-6 flex items-center gap-1.5 text-sm text-[#707072]" aria-label="Breadcrumb">
-                <Link href="/" className="hover:text-[#111111]">
-                    Home
-                </Link>
+            <nav className="mb-6 flex items-center gap-1.5 text-sm text-[#707072] dark:text-[#9e9ea0]" aria-label="Breadcrumb">
+                <Link href="/" className="hover:text-[#111111] dark:hover:text-white">{t('common.home')}</Link>
                 <span aria-hidden>›</span>
-                <span className="font-medium text-[#111111]">Account</span>
+                <span className="font-medium text-[#111111] dark:text-white">{t('account.title')}</span>
             </nav>
 
             {/* Title — {typography.heading-xl} 32px/500, {colors.ink} #111111 */}
             <div className="flex flex-wrap items-center justify-between gap-3">
-                <h1 className="text-[32px] font-medium leading-[1.2] text-[#111111]">Account</h1>
+                <h1 className="text-[32px] font-medium leading-[1.2] text-[#111111] dark:text-white">{t('account.title')}</h1>
                 <div className="flex items-center gap-2">
                     <Badge
                         variant="outline"
-                        className={`rounded-full border px-3 py-0.5 text-[12px] font-medium ${isPartner
-                            ? 'border-[#007d48]/30 bg-[#007d48]/10 text-[#007d48]'
-                            : 'border-[#cacacb] bg-[#f5f5f5] text-[#707072]'
-                            }`}
+                        className={`rounded-full border px-3 py-0.5 text-[12px] font-medium ${isPartner ? 'border-[#007d48]/30 bg-[#007d48]/10 text-[#007d48]' : 'border-[#cacacb] bg-[#f5f5f5] text-[#707072] dark:border-[#39393b] dark:bg-[#1a1a1a] dark:text-[#9e9ea0]'}`}
                     >
-                        {isPartner ? 'Partner' : 'Regular'} customer
+                        {isPartner ? t('account.partner') : t('account.regular')}
                     </Badge>
                 </div>
             </div>
-            <p className="mt-1 text-[14px] font-medium text-[#707072]">
-                {user.firstName} {user.lastName} · {phoneFormatted}
-            </p>
+            <p className="mt-1 text-[14px] font-medium text-[#707072] dark:text-[#9e9ea0]">{user.firstName} {user.lastName} · {phoneFormatted}</p>
 
             <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_320px]">
                 <div className="space-y-6">
-                    <Card className="rounded-[18px] border border-[#cacacb] bg-white p-0 gap-0">
+                    <Card className="rounded-[18px] border border-[#cacacb] bg-white dark:border-[#39393b] dark:bg-[#1a1a1a] p-0 gap-0">
                         <CardContent className="p-6">
-                            <h2 className="text-[16px] font-medium text-[#111111]">Profile</h2>
-                            <p className="mt-1 text-[14px] font-medium text-[#707072]">
-                                Update your name and shipping address. Your phone number is locked to this account.
-                            </p>
+                            <h2 className="text-[16px] font-medium text-[#111111] dark:text-white">{t('account.profile')}</h2>
+                            <p className="mt-1 text-[14px] font-medium text-[#707072] dark:text-[#9e9ea0]">{t('account.profile')} — {phoneFormatted}</p>
                             <div className="mt-5">
                                 <AccountForm
                                     userId={user.id}
@@ -96,32 +88,21 @@ export default async function AccountPage() {
                 </div>
 
                 <aside className="space-y-6">
-                    <Card className="rounded-[18px] border border-[#cacacb] bg-white p-0 gap-0">
+                    <Card className="rounded-[18px] border border-[#cacacb] bg-white dark:border-[#39393b] dark:bg-[#1a1a1a] p-0 gap-0">
                         <CardContent className="p-6">
-                            <h2 className="text-[16px] font-medium text-[#111111]">At a glance</h2>
+                            <h2 className="text-[16px] font-medium text-[#111111] dark:text-white">{t('account.atAGlance')}</h2>
                             <dl className="mt-4 space-y-3 text-[14px]">
                                 <div className="flex items-center justify-between">
-                                    <dt className="text-[12px] font-medium uppercase tracking-wide text-[#707072]">
-                                        Customer type
-                                    </dt>
-                                    <dd
-                                        className={`font-medium ${isPartner ? 'text-[#007d48]' : 'text-[#111111]'}`}
-                                    >
-                                        {isPartner ? 'Partner' : 'Regular'}
-                                    </dd>
+                                    <dt className="text-[12px] font-medium uppercase tracking-wide text-[#707072] dark:text-[#9e9ea0]">{t('account.customerType')}</dt>
+                                    <dd className={`font-medium ${isPartner ? 'text-[#007d48]' : 'text-[#111111] dark:text-white'}`}>{isPartner ? t('account.partner') : t('account.regular')}</dd>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <dt className="text-[12px] font-medium uppercase tracking-wide text-[#707072]">
-                                        Orders
-                                    </dt>
-                                    <dd className="font-medium text-[#111111]">{orderCount}</dd>
+                                    <dt className="text-[12px] font-medium uppercase tracking-wide text-[#707072] dark:text-[#9e9ea0]">{t('account.orders')}</dt>
+                                    <dd className="font-medium text-[#111111] dark:text-white">{orderCount.toLocaleString('fa-IR')}</dd>
                                 </div>
                             </dl>
-                            <Link
-                                href="/orders"
-                                className="mt-5 inline-flex h-10 w-full items-center justify-center rounded-full bg-[#111111] px-5 text-[14px] font-medium text-white hover:opacity-90"
-                            >
-                                View orders
+                            <Link href="/orders" className="mt-5 inline-flex h-10 w-full items-center justify-center rounded-full bg-[#111111] px-5 text-[14px] font-medium text-white hover:opacity-90 dark:bg-white dark:text-[#111111]">
+                                {t('account.viewOrders')}
                             </Link>
                         </CardContent>
                     </Card>

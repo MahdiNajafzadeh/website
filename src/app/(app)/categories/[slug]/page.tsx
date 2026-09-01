@@ -5,6 +5,7 @@ import config from '@/payload.config'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import type { Brand, Category, Media, Product } from '@/payload-types'
+import { t } from '@/lib/t'
 
 export const dynamic = 'force-dynamic'
 
@@ -56,24 +57,18 @@ export default async function CategoryDetailPage({
 
   return (
     <div className="mx-auto max-w-[1440px] px-4 py-8 md:px-8">
-      <nav className="mb-6 flex items-center gap-1.5 text-sm text-[#707072]" aria-label="Breadcrumb">
-        <Link href="/" className="hover:text-[#111111]">
-          Home
-        </Link>
+      <nav className="mb-6 flex items-center gap-1.5 text-sm text-[#707072] dark:text-[#9e9ea0]" aria-label="Breadcrumb">
+        <Link href="/" className="hover:text-[#111111] dark:hover:text-white">{t('common.home')}</Link>
         <span aria-hidden>/</span>
-        <Link href="/products" className="hover:text-[#111111]">
-          Products
-        </Link>
+        <Link href="/products" className="hover:text-[#111111] dark:hover:text-white">{t('common.products')}</Link>
         <span aria-hidden>/</span>
-        <span className="font-medium text-[#111111]">{category.name}</span>
+        <span className="font-medium text-[#111111] dark:text-white">{category.name}</span>
       </nav>
 
-      {/* Header — category pill hero */}
-      <div className="rounded-[30px] bg-[#f5f5f5] p-6">
-        {/* {colors.soft-cloud} #f5f5f5, {rounded.lg} 30px */}
-        <h1 className="text-[32px] font-medium leading-[1.2] text-[#111111]">{category.name}</h1>
-        {category.description && <p className="mt-1 text-[14px] font-medium text-[#707072]">{category.description}</p>}
-        <p className="mt-1 text-[12px] font-medium text-[#707072]">{productsRes.totalDocs} products in this category</p>
+      <div className="rounded-[30px] bg-[#f5f5f5] dark:bg-[#1a1a1a] p-6">
+        <h1 className="text-[32px] font-medium leading-[1.2] text-[#111111] dark:text-white">{category.name}</h1>
+        {category.description && <p className="mt-1 text-[14px] font-medium text-[#707072] dark:text-[#9e9ea0]">{category.description}</p>}
+        <p className="mt-1 text-[12px] font-medium text-[#707072] dark:text-[#9e9ea0]">{productsRes.totalDocs.toLocaleString('fa-IR')} {t('common.productsCount')}</p>
       </div>
 
       {/* Filter pills — pills use {colors.soft-cloud} #f5f5f5, {rounded.full} 9999px, {typography.caption-md} 14px/500 */}
@@ -120,9 +115,9 @@ export default async function CategoryDetailPage({
       </div>
 
       {products.length === 0 ? (
-        <div className="mt-8 rounded-[30px] bg-white p-12 text-center ring-1 ring-[#e5e5e5]">
-          <p className="text-[16px] font-medium text-[#111111]">No products in this category</p>
-          <p className="mt-1 text-[14px] font-medium text-[#707072]">Try another category or browse all.</p>
+        <div className="mt-8 rounded-[30px] bg-white dark:bg-[#1a1a1a] p-12 text-center ring-1 ring-[#e5e5e5] dark:ring-[#39393b]">
+          <p className="text-[16px] font-medium text-[#111111]">{t('common.noProducts')}</p>
+          <p className="mt-1 text-[14px] font-medium text-[#707072]">{t('common.noProductsHint')}</p>
           <Link href="/products" className="mt-4 inline-flex rounded-full bg-[#111111] px-6 py-2 text-[14px] font-medium text-white">
             Browse products
           </Link>
@@ -155,7 +150,7 @@ export default async function CategoryDetailPage({
                         loading="lazy"
                       />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center text-sm text-[#707072]">No image</div>
+                      <div className="flex h-full w-full items-center justify-center text-sm text-[#707072]">{t('common.noImage')}</div>
                     )}
                   </div>
                   <CardContent className="p-4 flex flex-col gap-1.5">
@@ -171,7 +166,7 @@ export default async function CategoryDetailPage({
                     </div>
                     <h3 className="line-clamp-2 text-[16px] font-medium leading-[1.5] text-[#111111]">{product.name}</h3>
                     {brandName && <p className="text-[14px] font-medium text-[#707072]">{brandName}</p>}
-                    <p className="text-[14px] font-medium text-[#111111]">{price === 0 ? 'Contact for price' : `${price.toLocaleString()} تومان`}</p>
+                    <p className="text-[14px] font-medium text-[#111111]">{price === 0 ? t('common.contactForPrice') : `${price.toLocaleString('fa-IR')} ${t('common.toman')}`}</p>
                   </CardContent>
                 </Card>
               </Link>

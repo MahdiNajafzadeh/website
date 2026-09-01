@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { getPayload } from 'payload'
 import type { Metadata } from 'next'
 import config from '@/payload.config'
+import { t, tFmt } from '@/lib/t'
 import { Card, CardContent } from '@/components/ui/card'
 import {
     Pagination,
@@ -147,7 +148,7 @@ export default async function BlogPage({
                                                 />
                                             ) : (
                                                 <div className="flex h-full w-full items-center justify-center text-sm text-[#707072]">
-                                                    No image
+                                                    {t('common.noImage')}
                                                 </div>
                                             )}
                                         </div>

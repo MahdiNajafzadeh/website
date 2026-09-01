@@ -3,6 +3,7 @@ import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { Card, CardContent } from '@/components/ui/card'
 import type { Brand, Media } from '@/payload-types'
+import { t } from '@/lib/t'
 
 export const dynamic = 'force-dynamic'
 
@@ -26,21 +27,22 @@ export default async function BrandsPage() {
 
   return (
     <div className="mx-auto max-w-[1440px] px-4 py-8 md:px-8">
-      <nav className="mb-6 flex items-center gap-1.5 text-sm text-[#707072]" aria-label="Breadcrumb">
-        <Link href="/" className="hover:text-[#111111]">
-          Home
+      <nav className="mb-6 flex items-center gap-1.5 text-sm text-[#707072] dark:text-[#9e9ea0]" aria-label="Breadcrumb">
+        <Link href="/" className="hover:text-[#111111] dark:hover:text-white">
+          {t('common.home')}
         </Link>
         <span aria-hidden>/</span>
-        <span className="font-medium text-[#111111]">Brands</span>
+        <span className="font-medium text-[#111111] dark:text-white">{t('brands.title')}</span>
       </nav>
 
-      <h1 className="text-[32px] font-medium leading-[1.2] text-[#111111]">Brands</h1>
-      <p className="mt-1 text-[14px] font-medium text-[#707072]">{brands.length} brands</p>
+      <h1 className="text-[32px] font-medium leading-[1.2] text-[#111111] dark:text-white">{t('brands.title')}</h1>
+      <p className="mt-1 text-[14px] font-medium text-[#707072] dark:text-[#9e9ea0]">
+        {brands.length.toLocaleString('fa-IR')} {t('common.brands')}
+      </p>
 
       {brands.length === 0 ? (
-        <div className="mt-8 rounded-[30px] bg-[#f5f5f5] p-12 text-center">
-          {/* {colors.soft-cloud} #f5f5f5, {rounded.lg} 30px */}
-          <p className="text-[16px] font-medium text-[#111111]">No brands yet</p>
+        <div className="mt-8 rounded-[30px] bg-[#f5f5f5] p-12 text-center dark:bg-[#1a1a1a]">
+          <p className="text-[16px] font-medium text-[#111111] dark:text-white">{t('brands.noBrands')}</p>
         </div>
       ) : (
         <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
@@ -48,29 +50,20 @@ export default async function BrandsPage() {
             const iconUrl = getMediaUrl(brand.icon as Media | number | null | undefined)
             return (
               <Link key={brand.id} href={`/brands/${brand.slug}`} className="group">
-                <Card className="overflow-hidden rounded-[30px] border border-[#e5e5e5] p-0 hover:border-[#cacacb] transition-colors">
-                  {/* icon+name {rounded.lg} 30px — stage {colors.soft-cloud} #f5f5f5 where icon sits */}
-                  <div className="flex flex-col items-center gap-3 bg-[#f5f5f5] p-6 aspect-[4/3] justify-center">
+                <Card className="overflow-hidden rounded-[30px] border border-[#e5e5e5] dark:border-[#39393b] dark:bg-[#1a1a1a] p-0 hover:border-[#cacacb] transition-colors">
+                  <div className="flex flex-col items-center gap-3 bg-[#f5f5f5] dark:bg-[#111111] p-6 aspect-[4/3] justify-center">
                     {iconUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={iconUrl}
-                        alt={brand.name}
-                        className="size-16 rounded-full object-cover bg-white ring-1 ring-[#e5e5e5]"
-                      />
+                      <img src={iconUrl} alt={brand.name} className="size-16 rounded-full object-cover bg-white ring-1 ring-[#e5e5e5]" />
                     ) : (
                       <div className="flex size-16 items-center justify-center rounded-full bg-white text-[20px] font-medium text-[#111111] ring-1 ring-[#e5e5e5]">
                         {brand.name.charAt(0).toUpperCase()}
                       </div>
                     )}
-                    <span className="text-center text-[16px] font-medium leading-[1.5] text-[#111111] line-clamp-2">
-                      {brand.name}
-                    </span>
+                    <span className="text-center text-[16px] font-medium leading-[1.5] text-[#111111] dark:text-white line-clamp-2">{brand.name}</span>
                   </div>
                   <CardContent className="p-3 text-center">
-                    <span className="text-[12px] font-medium text-[#707072] group-hover:text-[#111111]">
-                      View products →
-                    </span>
+                    <span className="text-[12px] font-medium text-[#707072] group-hover:text-[#111111] dark:text-[#9e9ea0] dark:group-hover:text-white">{t('brands.viewProducts')}</span>
                   </CardContent>
                 </Card>
               </Link>

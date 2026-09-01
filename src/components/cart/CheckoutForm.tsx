@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useTransition } from 'react'
 import Link from 'next/link'
+import { t, tFmt } from '@/lib/t'
 import { useRouter } from 'next/navigation'
 import { ShoppingBag } from 'lucide-react'
 
@@ -51,12 +52,12 @@ export function CheckoutForm({
     return (
       <div className="flex flex-col items-center justify-center gap-3 rounded-[18px] bg-[#f5f5f5] py-16 text-center">
         <ShoppingBag className="h-10 w-10 text-[#9e9ea0]" />
-        <p className="text-[16px] font-medium text-[#111111]">Your cart is empty</p>
+        <p className="text-[16px] font-medium text-[#111111]">{t('cart.empty')}</p>
         <Link
           href="/products"
           className="mt-2 inline-flex h-10 items-center justify-center rounded-full bg-[#111111] px-6 text-[14px] font-medium text-white hover:opacity-90"
         >
-          Browse Products
+          {t('cart.browseProducts')}
         </Link>
       </div>
     )
