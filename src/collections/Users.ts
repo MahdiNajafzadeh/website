@@ -1,10 +1,8 @@
-import crypto from 'crypto'
-
 import {
     APIError,
     generatePayloadCookie,
     headersWithCors,
-    jwtSign,
+    type CollectionBeforeValidateHook,
     type CollectionConfig,
     type Endpoint,
 } from 'payload'
@@ -13,26 +11,17 @@ import { isAdmin } from '../access/index'
 
 const PHONE_RE = /^09\d{9}$/
 
-const hashPassword = (password: string): Promise<{ hash: string; salt: string }> =>
-    new Promise((resolve, reject) => {
-        crypto.randomBytes(32, (err, saltBuffer) => {
-            if (err) {
-                reject(err)
-                return
-            }
-            const salt = saltBuffer.toString('hex')
-            crypto.pbkdf2(password, salt, 25000, 512, 'sha256', (e, hashBuffer) => {
-                if (e) {
-                    reject(e)
-                    return
-                }
-                resolve({ hash: hashBuffer.toString('hex'), salt })
-            })
-        })
-    })
+const mirrorPhoneToUsername: CollectionBeforeValidateHook = ({ data }) => {
+    if (data && typeof data.phone === 'string' && data.phone.length > 0) {
+        if (data.username !== data.phone) {
+            data.username = data.phone
+        }
+    }
+    return data
+}
 
-const phoneCreate: Endpoint = {
-    path: '',
+const register: Endpoint = {
+    path: '/register',
     method: 'post',
     handler: async (req) => {
         const body = ((await req.json?.().catch(() => ({}))) ?? {}) as Record<string, unknown>
@@ -64,110 +53,40 @@ const phoneCreate: Endpoint = {
             throw new APIError('Phone number already registered.', 409)
         }
 
-        const { hash, salt } = await hashPassword(password)
-
-        const data: Record<string, unknown> = {
+        const createData = {
             firstName,
             lastName,
             phone,
+            password,
             address,
-            hash,
-            salt,
-            role: 'customer',
-            customerType: 'regular',
+            role: 'customer' as const,
+            customerType: 'regular' as const,
         }
 
-        const created = await req.payload.db.create({
+        // The Users collection has no drafts; Payload's generated Options<"users"> union still
+        // requires `draft: true` on a `UsersSelect<true>` overload, which is unreachable here.
+        // Cast through `any` to keep the wire shape untyped while the row goes through the
+        // beforeValidate hook that mirrors phone -> username.
+        await (req.payload.create as (args: { collection: 'users'; data: Record<string, unknown>; req: typeof req }) => Promise<unknown>)({
             collection: 'users',
-            data,
+            data: createData as unknown as Record<string, unknown>,
             req,
         })
 
-        return Response.json(
-            { doc: { id: created.id, phone: (created as { phone?: string }).phone } },
-            { status: 201, headers: headersWithCors({ headers: new Headers(), req }) },
-        )
-    },
-}
-
-const phoneLogin: Endpoint = {
-    path: '/login',
-    method: 'post',
-    handler: async (req) => {
-        const body = ((await req.json?.().catch(() => ({}))) ?? {}) as {
-            phone?: unknown
-            password?: unknown
-        }
-
-        const phone = typeof body.phone === 'string' ? body.phone.trim() : ''
-        const password = typeof body.password === 'string' ? body.password : ''
-
-        if (!PHONE_RE.test(phone) || password.length === 0) {
-            throw new APIError('Invalid phone or password.', 400)
-        }
-
-        const found = await req.payload.db.findOne({
+        const loginResult = await req.payload.login({
             collection: 'users',
-            req,
-            where: { phone: { equals: phone } },
+            data: { username: phone, password },
         })
-
-        const user = found as unknown as
-            | (Record<string, unknown> & { id: number; phone: string; hash?: string; salt?: string })
-            | null
-        if (!user) {
-            throw new APIError('Invalid phone or password.', 401)
-        }
-
-        const salt = typeof user.salt === 'string' ? user.salt : null
-        const storedHash = typeof user.hash === 'string' ? user.hash : null
-        if (!salt || !storedHash) {
-            throw new APIError('Invalid phone or password.', 401)
-        }
-
-        const ok = await new Promise<boolean>((resolve) => {
-            crypto.pbkdf2(password, salt, 25000, 512, 'sha256', (err, buf) => {
-                if (err) {
-                    resolve(false)
-                    return
-                }
-                const stored = Buffer.from(storedHash, 'hex')
-                if (stored.length !== buf.length) {
-                    resolve(false)
-                    return
-                }
-                resolve(crypto.timingSafeEqual(buf, stored))
-            })
-        })
-
-        if (!ok) {
-            throw new APIError('Invalid phone or password.', 401)
-        }
 
         const collectionConfig = req.payload.collections['users'].config
-        const fieldsToSign: Record<string, unknown> = {
-            id: user.id,
-            collection: 'users',
-            email:
-                typeof user.email === 'string' && user.email.length > 0
-                    ? user.email
-                    : `${phone}@phone.local`,
-        }
-
-        const { exp, token } = await jwtSign({
-            fieldsToSign,
-            secret: req.payload.secret,
-            tokenExpiration: collectionConfig.auth.tokenExpiration,
-        })
-
         const cookie = generatePayloadCookie({
             collectionAuthConfig: collectionConfig.auth,
             cookiePrefix: req.payload.config.cookiePrefix,
-            token,
+            token: loginResult.token as string,
         })
 
         return Response.json(
-            { exp, token, user: { id: user.id, phone: user.phone } },
+            { exp: loginResult.exp, token: loginResult.token, user: loginResult.user },
             {
                 status: 200,
                 headers: headersWithCors({
@@ -186,15 +105,13 @@ export const Users: CollectionConfig = {
     },
     auth: {
         tokenExpiration: 86400,
+        loginWithUsername: true,
     },
-    endpoints: [phoneCreate, phoneLogin],
+    endpoints: [register],
     access: {
         read: ({ req, id }) => {
             const user = req.user as { role?: string; id?: number } | undefined
             if (!user) {
-                // Allow reading the user being authenticated from a verified JWT —
-                // Payload's JWT strategy calls findByID before req.user is set, so
-                // we accept any id being read when no user is present yet.
                 if (id) return true
                 return false
             }
@@ -208,14 +125,33 @@ export const Users: CollectionConfig = {
             const user = req.user as { role?: string; id?: number } | undefined
             if (!user) return false
             if (user.role === 'admin') return true
-            // Employee cannot update roles, but can update own profile; simplified
             if (user.role === 'employee' && id !== user.id) return false
             if (id && user.id === id) return true
             return false
         },
         delete: isAdmin,
     },
+    hooks: {
+        beforeValidate: [mirrorPhoneToUsername],
+    },
     fields: [
+        {
+            name: 'username',
+            type: 'text',
+            required: true,
+            unique: true,
+            index: true,
+            admin: {
+                readOnly: true,
+                position: 'sidebar',
+                description: 'Auto-populated from phone. Used as the login identifier.',
+            },
+            access: {
+                create: () => true,
+                read: () => true,
+                update: () => false,
+            },
+        },
         {
             name: 'email',
             type: 'text',

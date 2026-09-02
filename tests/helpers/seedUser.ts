@@ -2,7 +2,6 @@ import { getPayload } from 'payload'
 import config from '../../src/payload.config.js'
 
 export const testUser = {
-  email: 'dev@payloadcms.com',
   password: 'test',
   firstName: 'Test',
   lastName: 'User',
@@ -21,13 +20,14 @@ export async function seedTestUser(): Promise<void> {
   await payload.delete({
     collection: 'users',
     where: {
-      email: {
-        equals: testUser.email,
+      phone: {
+        equals: testUser.phone,
       },
     },
   })
 
-  // Create fresh test user
+  // Create fresh test user (the `username` field is auto-populated from `phone`
+  // by the Users collection's beforeValidate hook).
   await payload.create({
     collection: 'users',
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -45,8 +45,8 @@ export async function cleanupTestUser(): Promise<void> {
   await payload.delete({
     collection: 'users',
     where: {
-      email: {
-        equals: testUser.email,
+      phone: {
+        equals: testUser.phone,
       },
     },
   })

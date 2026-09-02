@@ -38,7 +38,7 @@ function RegisterForm() {
     }
     setLoading(true)
     try {
-      const createRes = await fetch('/api/users', {
+      const createRes = await fetch('/api/users/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -48,16 +48,6 @@ function RegisterForm() {
         const data = await createRes.json().catch(() => ({}))
         const msg = (data?.errors?.[0]?.message as string) || (data?.message as string) || t('auth.registrationFailed')
         throw new Error(msg)
-      }
-      const loginRes = await fetch('/api/users/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ phone: trimmedPhone, password }),
-      })
-      if (!loginRes.ok) {
-        router.push(`/login?next=${encodeURIComponent(nextParam)}`)
-        return
       }
       router.push(nextParam)
       router.refresh()
