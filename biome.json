@@ -23,5 +23,13 @@
 		"parser": {
 			"tailwindDirectives": true
 		}
+	},
+	"assist": {
+		"enabled": false,
+		"actions": {
+			"source": {
+				"organizeImports": "on"
+			}
+		}
 	}
 }
