@@ -1,11 +1,13 @@
 import { sqliteAdapter } from "@payloadcms/db-sqlite";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
-import path from "path";
+import { phoneNumberPlugin } from "payload-phone-number-plugin";
 import { buildConfig } from "payload";
-import { fileURLToPath } from "url";
 import sharp from "sharp";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-import { Users } from "./collections/Users";
+// import { Users } from "./collections/Users.ts.old";
+import { Users } from "./collections/Users.ts";
 import { Media } from "./collections/Media";
 import { Brands } from "./collections/Brands";
 import { Categories } from "./collections/Categories";
@@ -38,5 +40,10 @@ export default buildConfig({
 		},
 	}),
 	sharp,
-	plugins: [],
+	plugins: [
+		phoneNumberPlugin({
+			allowedCountries: ["IR"],
+			defaultCountry: "IR",
+		}),
+	],
 });
