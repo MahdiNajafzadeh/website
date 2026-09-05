@@ -69,11 +69,11 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 				<Link href="/" className="hover:text-[#111111] dark:hover:text-white">
 					{t("common.home")}
 				</Link>
-				<span aria-hidden>/</span>
+				<span aria-hidden>{t("common.breadcrumbSeparatorSlash")}</span>
 				<Link href="/products" className="hover:text-[#111111] dark:hover:text-white">
 					{t("common.products")}
 				</Link>
-				<span aria-hidden>/</span>
+				<span aria-hidden>{t("common.breadcrumbSeparatorSlash")}</span>
 				<span className="font-medium text-[#111111] dark:text-white line-clamp-1">{product.name}</span>
 			</nav>
 
@@ -103,7 +103,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 								/>
 							</div>
 							<CardContent className="p-3">
-								<p className="text-[12px] font-medium text-[#707072] dark:text-[#9e9ea0]">Showcase</p>
+								<p className="text-[12px] font-medium text-[#707072] dark:text-[#9e9ea0]">{t("product.showcase")}</p>
 							</CardContent>
 						</Card>
 					)}
@@ -196,7 +196,11 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 							</Badge>
 						) : (
 							<Badge className="rounded-full bg-[#007d48] px-3 py-1 text-[14px] font-medium text-white hover:bg-[#007d48]">
-								{inventory.toLocaleString("fa-IR")} {t("common.productsCount")} · {t("common.browse")}
+								{t("product.inventoryWithBrowse", {
+									count: inventory.toLocaleString("fa-IR"),
+									label: t("common.productsCount"),
+									browse: t("common.browse"),
+								})}
 							</Badge>
 						)}
 						{isLowStock && !isOutOfStock && (
@@ -205,7 +209,10 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 								className="rounded-full border-[#d30005]/30 bg-[#d30005]/10 px-3 py-1 text-[14px] font-medium text-[#d30005]"
 							>
 								<AlertTriangle className="size-3.5" />
-								{t("common.lowStock")} — {inventory.toLocaleString("fa-IR")}
+								{t("product.lowStockWithCount", {
+									label: t("common.lowStock"),
+									count: inventory.toLocaleString("fa-IR"),
+								})}
 							</Badge>
 						)}
 					</div>
@@ -237,19 +244,22 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 								{t("common.products")}
 							</p>
 							<div className="flex flex-col gap-1 text-[14px] font-medium text-[#707072] dark:text-[#9e9ea0]">
-								<span>SKU: {product.slug}</span>
+								<span>{t("product.skuLabel", { sku: product.slug })}</span>
 								{brandObj && (
 									<span>
-										{t("common.brands")}: {brandObj.name}
+										{t("common.labelColonValue", { label: t("common.brands"), value: brandObj.name })}
 									</span>
 								)}
 								{categoryObj && (
 									<span>
-										{t("common.categories")}: {categoryObj.name}
+										{t("common.labelColonValue", { label: t("common.categories"), value: categoryObj.name })}
 									</span>
 								)}
 								<span>
-									{t("home.utility.stock")}: {inventory.toLocaleString("fa-IR")}
+									{t("common.labelColonValue", {
+										label: t("home.utility.stock"),
+										value: inventory.toLocaleString("fa-IR"),
+									})}
 								</span>
 							</div>
 						</CardContent>

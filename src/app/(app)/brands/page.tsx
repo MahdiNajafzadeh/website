@@ -34,7 +34,7 @@ export default async function BrandsPage() {
 				<Link href="/" className="hover:text-[#111111] dark:hover:text-white">
 					{t("common.home")}
 				</Link>
-				<span aria-hidden>/</span>
+				<span aria-hidden>{t("common.breadcrumbSeparatorSlash")}</span>
 				<span className="font-medium text-[#111111] dark:text-white">{t("brands.title")}</span>
 			</nav>
 
@@ -42,7 +42,10 @@ export default async function BrandsPage() {
 				{t("brands.title")}
 			</h1>
 			<p className="mt-1 text-[14px] font-medium text-[#707072] dark:text-[#9e9ea0]">
-				{brands.length.toLocaleString("fa-IR")} {t("common.brands")}
+				{t("common.countWithLabel", {
+					count: brands.length.toLocaleString("fa-IR"),
+					label: t("common.brands"),
+				})}
 			</p>
 
 			{brands.length === 0 ? (

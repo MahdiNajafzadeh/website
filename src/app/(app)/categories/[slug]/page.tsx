@@ -60,11 +60,11 @@ export default async function CategoryDetailPage({ params }: { params: Promise<{
 				<Link href="/" className="hover:text-[#111111] dark:hover:text-white">
 					{t("common.home")}
 				</Link>
-				<span aria-hidden>/</span>
+				<span aria-hidden>{t("common.breadcrumbSeparatorSlash")}</span>
 				<Link href="/products" className="hover:text-[#111111] dark:hover:text-white">
 					{t("common.products")}
 				</Link>
-				<span aria-hidden>/</span>
+				<span aria-hidden>{t("common.breadcrumbSeparatorSlash")}</span>
 				<span className="font-medium text-[#111111] dark:text-white">{category.name}</span>
 			</nav>
 
@@ -78,18 +78,21 @@ export default async function CategoryDetailPage({ params }: { params: Promise<{
 					</p>
 				)}
 				<p className="mt-1 text-[12px] font-medium text-[#707072] dark:text-[#9e9ea0]">
-					{productsRes.totalDocs.toLocaleString("fa-IR")} {t("common.productsCount")}
+					{t("common.countWithLabel", {
+						count: productsRes.totalDocs.toLocaleString("fa-IR"),
+						label: t("common.productsCount"),
+					})}
 				</p>
 			</div>
 
 			{/* Filter pills — pills use {colors.soft-cloud} #f5f5f5, {rounded.full} 9999px, {typography.caption-md} 14px/500 */}
 			<div className="mt-6 flex flex-wrap items-center gap-2">
-				<span className="text-[14px] font-medium text-[#111111] mr-1">Brands:</span>
+				<span className="text-[14px] font-medium text-[#111111] mr-1">{t("categories.brandsLabel")}</span>
 				<Link
 					href={`/products?category=${category.slug}`}
 					className="rounded-full bg-[#111111] px-4 py-1.5 text-[14px] font-medium text-white"
 				>
-					All brands in {category.name}
+					{t("categories.allBrandsIn", { name: category.name })}
 				</Link>
 				{brands.slice(0, 8).map((b) => (
 					<Link
@@ -105,7 +108,7 @@ export default async function CategoryDetailPage({ params }: { params: Promise<{
 					href="/products"
 					className="rounded-full bg-white px-4 py-1.5 text-[14px] font-medium text-[#111111] ring-1 ring-[#cacacb] hover:bg-[#f5f5f5]"
 				>
-					All products
+					{t("categories.allProducts")}
 				</Link>
 			</div>
 
@@ -115,13 +118,13 @@ export default async function CategoryDetailPage({ params }: { params: Promise<{
 					href={`/products?category=${category.slug}`}
 					className="rounded-full bg-[#111111] px-4 py-1.5 text-[14px] font-medium text-white"
 				>
-					{category.name} only
+					{t("categories.categoryOnly", { name: category.name })}
 				</Link>
 				<Link
 					href="/products"
 					className="rounded-full bg-[#f5f5f5] px-4 py-1.5 text-[14px] font-medium text-[#111111] ring-1 ring-[#e5e5e5] hover:bg-[#e5e5e5]"
 				>
-					Clear category
+					{t("categories.clearCategory")}
 				</Link>
 			</div>
 
@@ -133,7 +136,7 @@ export default async function CategoryDetailPage({ params }: { params: Promise<{
 						href="/products"
 						className="mt-4 inline-flex rounded-full bg-[#111111] px-6 py-2 text-[14px] font-medium text-white"
 					>
-						Browse products
+						{t("common.browseProducts")}
 					</Link>
 				</div>
 			) : (
@@ -176,7 +179,7 @@ export default async function CategoryDetailPage({ params }: { params: Promise<{
 													variant="outline"
 													className="rounded-full border-[#cacacb] bg-white text-[#707072] text-xs"
 												>
-													ناموجود
+													{t("common.outOfStock")}
 												</Badge>
 											)}
 											<Badge

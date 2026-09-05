@@ -83,11 +83,11 @@ export default async function OrdersPage() {
                 <Link href="/" className="hover:text-[#111111] dark:hover:text-white">
                     {t("common.home")}
                 </Link>
-                <span aria-hidden>›</span>
+                <span aria-hidden>{t("common.breadcrumbSeparator")}</span>
                 <Link href="/account" className="hover:text-[#111111] dark:hover:text-white">
                     {t("account.title")}
                 </Link>
-                <span aria-hidden>›</span>
+                <span aria-hidden>{t("common.breadcrumbSeparator")}</span>
                 <span className="font-medium text-[#111111] dark:text-white">{t("orders.title")}</span>
             </nav>
 
@@ -95,7 +95,10 @@ export default async function OrdersPage() {
                 {t("orders.title")}
             </h1>
             <p className="mt-1 text-[14px] font-medium text-[#707072] dark:text-[#9e9ea0]">
-                {totalOrders.toLocaleString("fa-IR")} {t("common.productsCount")}
+                {t("common.countWithLabel", {
+                    count: totalOrders.toLocaleString("fa-IR"),
+                    label: t("common.productsCount"),
+                })}
             </p>
 
             {orders.length === 0 ? (
@@ -109,7 +112,7 @@ export default async function OrdersPage() {
                         href="/products"
                         className="mt-4 inline-flex rounded-full bg-[#111111] px-6 py-2 text-[14px] font-medium text-white hover:bg-[#111111]/90"
                     >
-                        Browse Products
+                        {t("orders.browseProducts")}
                     </Link>
                 </div>
             ) : (
@@ -124,7 +127,7 @@ export default async function OrdersPage() {
                                         <CardContent className="flex flex-col gap-2 p-4">
                                             <div className="flex items-center justify-between">
                                                 <span className="text-[12px] font-medium uppercase tracking-wide text-[#707072]">
-                                                    Order #{order.id}
+                                                    {t("orders.orderNumber", { id: String(order.id) })}
                                                 </span>
                                                 <Badge
                                                     variant="outline"
@@ -134,15 +137,25 @@ export default async function OrdersPage() {
                                                 </Badge>
                                             </div>
                                             <p className="text-[14px] font-medium text-[#111111]">
-                                                {formatPriceNumber(order.total ?? 0, "fa-IR")} تومان
+                                                {t("orders.priceWithToman", {
+                                                    price: formatPriceNumber(order.total ?? 0, "fa-IR"),
+                                                    toman: t("common.toman"),
+                                                })}
                                             </p>
                                             <p className="text-[12px] font-medium text-[#707072]">
-                                                {formatDate(order.createdAt)} · {order.items?.length ?? 0}{" "}
-                                                {(order.items?.length ?? 0) === 1 ? "item" : "items"}
+                                                {t("orders.dateWithItems", {
+                                                    date: formatDate(order.createdAt),
+                                                    count: String(order.items?.length ?? 0),
+                                                    label: t(
+                                                        (order.items?.length ?? 0) === 1
+                                                            ? "orders.itemSingular"
+                                                            : "orders.itemPlural",
+                                                    ),
+                                                })}
                                             </p>
                                             {order.hasZeroPrice ? (
                                                 <span className="text-[12px] font-medium text-[#d30005]">
-                                                    {t("cart.partnerDiscountApplied")}
+                                                    {t("cart.partnerDiscountApplied", { discount: 0 })}
                                                 </span>
                                             ) : null}
                                         </CardContent>
@@ -158,19 +171,19 @@ export default async function OrdersPage() {
                             <TableHeader>
                                 <TableRow>
                                     <TableHead className="text-[12px] font-medium uppercase tracking-wide text-[#707072]">
-                                        Order
+                                        {t("orders.tableOrder")}
                                     </TableHead>
                                     <TableHead className="text-[12px] font-medium uppercase tracking-wide text-[#707072]">
-                                        Date
+                                        {t("orders.tableDate")}
                                     </TableHead>
                                     <TableHead className="text-[12px] font-medium uppercase tracking-wide text-[#707072]">
-                                        Status
+                                        {t("orders.tableStatus")}
                                     </TableHead>
                                     <TableHead className="text-right text-[12px] font-medium uppercase tracking-wide text-[#707072]">
-                                        Items
+                                        {t("orders.tableItems")}
                                     </TableHead>
                                     <TableHead className="text-right text-[12px] font-medium uppercase tracking-wide text-[#707072]">
-                                        Total
+                                        {t("orders.tableTotal")}
                                     </TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -184,7 +197,7 @@ export default async function OrdersPage() {
                                                     href={`/orders/${order.id}`}
                                                     className="text-[14px] font-medium text-[#111111] hover:underline"
                                                 >
-                                                    #{order.id}
+                                                    {t("orders.orderHash", { id: String(order.id) })}
                                                 </Link>
                                             </TableCell>
                                             <TableCell className="text-[14px] text-[#707072]">
@@ -205,7 +218,10 @@ export default async function OrdersPage() {
                                                 <span
                                                     className={`text-[14px] font-medium ${order.hasZeroPrice ? "text-[#d30005]" : "text-[#111111]"}`}
                                                 >
-                                                    {formatPriceNumber(order.total ?? 0, "fa-IR")} تومان
+                                                    {t("orders.priceWithToman", {
+                                                        price: formatPriceNumber(order.total ?? 0, "fa-IR"),
+                                                        toman: t("common.toman"),
+                                                    })}
                                                 </span>
                                                 {order.hasZeroPrice ? (
                                                     <span className="ml-2 text-[12px] font-medium text-[#d30005]">

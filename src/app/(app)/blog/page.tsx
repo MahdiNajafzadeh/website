@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getPayload } from "payload";
 import type { Metadata } from "next";
 import config from "@/payload.config";
-import { t, tFmt } from "@/lib/t";
+import { t } from "@/lib/t";
 import { Card, CardContent } from "@/components/ui/card";
 import {
 	Pagination,
@@ -91,35 +91,38 @@ export default async function BlogPage({ searchParams }: { searchParams: Promise
 			{/* Breadcrumb — {typography.caption-md} 14px/500, {colors.mute} #707072 */}
 			<nav className="mb-6 flex items-center gap-1.5 text-sm text-[#707072]" aria-label="Breadcrumb">
 				<Link href="/" className="hover:text-[#111111]">
-					Home
+					{t("common.home")}
 				</Link>
-				<span aria-hidden>/</span>
-				<span className="font-medium text-[#111111]">Blog</span>
+				<span aria-hidden>{t("common.breadcrumbSeparatorSlash")}</span>
+				<span className="font-medium text-[#111111]">{t("blog.title")}</span>
 			</nav>
 
 			<h1
 				className="text-[32px] font-medium leading-[1.2] text-[#111111]"
 				/* {typography.heading-xl} 32px/500/1.2, {colors.ink} #111111 */
 			>
-				Blog
+				{t("blog.title")}
 			</h1>
 			<p className="mt-1 text-[14px] font-medium text-[#707072]">
 				{/* {typography.caption-md} 14px/500, {colors.mute} #707072 */}
-				{totalDocs} {totalDocs === 1 ? "article" : "articles"}
+				{t("common.countWithLabel", {
+					count: totalDocs.toLocaleString("fa-IR"),
+					label: t(totalDocs === 1 ? "blog.articleSingular" : "blog.articlePlural"),
+				})}
 			</p>
 
 			{posts.length === 0 ? (
 				<div className="mt-8 rounded-[30px] bg-[#f5f5f5] p-12 text-center">
 					{/* Empty state — {colors.soft-cloud} #f5f5f5, {rounded.lg} 30px, {typography.body-md} */}
-					<p className="text-[16px] font-medium leading-[1.5] text-[#111111]">No articles yet</p>
+					<p className="text-[16px] font-medium leading-[1.5] text-[#111111]">{t("blog.emptyTitle")}</p>
 					<p className="mt-1 text-[14px] font-medium leading-[1.5] text-[#707072]">
-						Check back soon for new stories.
+						{t("blog.emptyHint")}
 					</p>
 					<Link
 						href="/"
 						className="mt-4 inline-flex rounded-full bg-[#111111] px-6 py-2 text-[14px] font-medium text-white hover:bg-[#111111]/90"
 					>
-						Back to home
+						{t("blog.backToHome")}
 					</Link>
 				</div>
 			) : (
@@ -219,7 +222,11 @@ export default async function BlogPage({ searchParams }: { searchParams: Promise
 								</PaginationContent>
 							</Pagination>
 							<p className="mt-3 text-center text-[12px] font-medium text-[#707072]">
-								Page {page} of {totalPages} · {totalDocs} articles
+								{t("blog.pagination", {
+									page: String(page),
+									totalPages: String(totalPages),
+									totalDocs: String(totalDocs),
+								})}
 							</p>
 						</div>
 					)}

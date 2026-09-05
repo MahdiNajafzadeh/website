@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import config from "@/payload.config";
 import type { Media, Post, SiteSetting } from "@/payload-types";
 import { RichText } from "@payloadcms/richtext-lexical/react";
+import { t } from "@/lib/t";
 
 export const revalidate = 300;
 
@@ -139,13 +140,13 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
 			{/* Breadcrumb — Home › Blog › {post.name} — {typography.caption-md} 14px/500 */}
 			<nav className="mb-6 flex items-center gap-1.5 text-sm text-[#707072]" aria-label="Breadcrumb">
 				<Link href="/" className="hover:text-[#111111]">
-					Home
+					{t("common.home")}
 				</Link>
-				<span aria-hidden>›</span>
+				<span aria-hidden>{t("common.breadcrumbSeparator")}</span>
 				<Link href="/blog" className="hover:text-[#111111]">
-					Blog
+					{t("blog.title")}
 				</Link>
-				<span aria-hidden>›</span>
+				<span aria-hidden>{t("common.breadcrumbSeparator")}</span>
 				<span className="font-medium text-[#111111] line-clamp-1">{post.name}</span>
 			</nav>
 
@@ -173,7 +174,7 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
 
 				{/* RichText Lexical rendering — headings/lists/links/media with alt — {typography.body-md} 16px/400 */}
 				<div className="prose prose-neutral mt-8 max-w-none text-[16px] font-normal leading-[1.5] text-[#111111] prose-headings:font-medium prose-headings:text-[#111111] prose-a:text-[#111111] prose-a:underline prose-img:rounded-[18px] prose-img:bg-[#f5f5f5] dark:prose-invert">
-					{post.content ? <RichText data={post.content} /> : <p className="text-[#707072]">No content.</p>}
+					{post.content ? <RichText data={post.content} /> : <p className="text-[#707072]">{t("blog.noContent")}</p>}
 				</div>
 			</article>
 		</div>

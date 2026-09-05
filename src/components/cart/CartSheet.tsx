@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { t, tFmt } from "@/lib/t";
+import { t } from "@/lib/t";
 import { useEffect, useState } from "react";
 import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { toast } from "sonner";

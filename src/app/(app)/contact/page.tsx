@@ -42,7 +42,7 @@ export default async function ContactPage() {
                 <Link href="/" className="hover:text-[#111111] dark:hover:text-white">
                     {t("common.home")}
                 </Link>
-                <span aria-hidden>›</span>
+                <span aria-hidden>{t("common.breadcrumbSeparator")}</span>
                 <span className="font-medium text-[#111111] dark:text-white">{t("contact.title")}</span>
             </nav>
 
@@ -50,7 +50,7 @@ export default async function ContactPage() {
                 {t("contact.title")}
             </h1>
             <p className="mt-1 text-[14px] font-medium text-[#707072] dark:text-[#9e9ea0]">
-                {t("contact.title")} — {siteName}
+                {t("contact.titleWithSite", { title: t("contact.title"), siteName })}
             </p>
 
             {!hasAnyChannel ? (
@@ -74,7 +74,10 @@ export default async function ContactPage() {
                                         <li key={p.id ?? idx} className="flex items-start justify-between gap-3">
                                             <div className="min-w-0">
                                                 <p className="text-[12px] font-medium uppercase tracking-wide text-[#707072] dark:text-[#9e9ea0]">
-                                                    {p.label || t("contact.phones")} {p.isPrimary ? " · Primary" : ""}
+                                                    {t("contact.labelWithSuffix", {
+                                                        label: p.label || t("contact.phones"),
+                                                        suffix: p.isPrimary ? t("contact.primarySuffix") : "",
+                                                    })}
                                                 </p>
                                                 {p.number ? (
                                                     <a
@@ -85,7 +88,7 @@ export default async function ContactPage() {
                                                     </a>
                                                 ) : (
                                                     <span className="mt-0.5 inline-block text-[14px] font-medium text-[#707072]">
-                                                        —
+                                                        {t("common.dash")}
                                                     </span>
                                                 )}
                                             </div>
@@ -107,7 +110,10 @@ export default async function ContactPage() {
                                     {emails.map((e, idx) => (
                                         <li key={e.id ?? idx}>
                                             <p className="text-[12px] font-medium uppercase tracking-wide text-[#707072] dark:text-[#9e9ea0]">
-                                                {e.label || t("contact.emails")} {e.isPrimary ? " · Primary" : ""}
+                                                {t("contact.labelWithSuffix", {
+                                                    label: e.label || t("contact.emails"),
+                                                    suffix: e.isPrimary ? t("contact.primarySuffix") : "",
+                                                })}
                                             </p>
                                             {e.email ? (
                                                 <a
@@ -118,7 +124,7 @@ export default async function ContactPage() {
                                                 </a>
                                             ) : (
                                                 <span className="mt-0.5 inline-block text-[14px] font-medium text-[#707072]">
-                                                    —
+                                                    {t("common.dash")}
                                                 </span>
                                             )}
                                         </li>
@@ -139,10 +145,13 @@ export default async function ContactPage() {
                                     {addresses.map((a, idx) => (
                                         <li key={a.id ?? idx}>
                                             <p className="text-[12px] font-medium uppercase tracking-wide text-[#707072] dark:text-[#9e9ea0]">
-                                                {a.label || t("contact.addresses")} {a.isPrimary ? " · Primary" : ""}
+                                                {t("contact.labelWithSuffix", {
+                                                    label: a.label || t("contact.addresses"),
+                                                    suffix: a.isPrimary ? t("contact.primarySuffix") : "",
+                                                })}
                                             </p>
                                             <p className="mt-0.5 whitespace-pre-line text-[14px] leading-[1.5] text-[#111111] dark:text-white">
-                                                {a.address ?? "—"}
+                                                {a.address ?? t("common.dash")}
                                             </p>
                                         </li>
                                     ))}
@@ -199,7 +208,7 @@ export default async function ContactPage() {
             )}
 
             <p className="mt-8 rounded-[18px] border border-[#e5e5e5] dark:border-[#39393b] bg-[#f5f5f5] dark:bg-[#1a1a1a] px-4 py-3 text-[14px] font-medium leading-[1.5] text-[#707072] dark:text-[#9e9ea0]">
-                {siteName} — {t("contact.social")}
+                {t("contact.titleWithSite", { title: siteName, siteName: t("contact.social") })}
             </p>
         </div>
     );

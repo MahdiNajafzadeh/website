@@ -53,11 +53,11 @@ export default async function BrandDetailPage({ params }: { params: Promise<{ sl
 				<Link href="/" className="hover:text-[#111111] dark:hover:text-white">
 					{t("common.home")}
 				</Link>
-				<span aria-hidden>/</span>
+				<span aria-hidden>{t("common.breadcrumbSeparatorSlash")}</span>
 				<Link href="/brands" className="hover:text-[#111111] dark:hover:text-white">
 					{t("common.brands")}
 				</Link>
-				<span aria-hidden>/</span>
+				<span aria-hidden>{t("common.breadcrumbSeparatorSlash")}</span>
 				<span className="font-medium text-[#111111] dark:text-white">{brand.name}</span>
 			</nav>
 
@@ -84,7 +84,10 @@ export default async function BrandDetailPage({ params }: { params: Promise<{ sl
 						</p>
 					)}
 					<p className="mt-1 text-[12px] font-medium text-[#707072] dark:text-[#9e9ea0]">
-						{productsRes.totalDocs.toLocaleString("fa-IR")} {t("common.productsCount")}
+						{t("common.countWithLabel", {
+							count: productsRes.totalDocs.toLocaleString("fa-IR"),
+							label: t("common.productsCount"),
+						})}
 					</p>
 				</div>
 			</div>
@@ -94,7 +97,7 @@ export default async function BrandDetailPage({ params }: { params: Promise<{ sl
 					href={`/products?brand=${brand.slug}`}
 					className="rounded-full bg-[#111111] px-4 py-1.5 text-[14px] font-medium text-white hover:bg-[#111111]/90 dark:bg-white dark:text-[#111111]"
 				>
-					{t("common.productsCount")} {brand.name}
+					{t("common.countWithLabel", { count: t("common.productsCount"), label: brand.name })}
 				</Link>
 				<Link
 					href="/brands"

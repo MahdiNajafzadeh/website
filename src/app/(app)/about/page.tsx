@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import config from "@/payload.config";
 import { RichText } from "@payloadcms/richtext-lexical/react";
 import { getSiteSettings } from "@/lib/site-settings";
-import { t, tFmt } from "@/lib/t";
+import { t } from "@/lib/t";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
     const settings = await getSiteSettings();
     return {
         title: `${t("about.title")} | ${settings.name}`,
-        description: tFmt("about.subtitle", { siteName: settings.name }),
+        description: t("about.subtitle", { siteName: settings.name }),
     };
 }
 
@@ -39,7 +39,7 @@ export default async function AboutPage() {
                     <Link href="/" className="hover:text-[#111111] dark:hover:text-white">
                         {t("common.home")}
                     </Link>
-                    <span aria-hidden>›</span>
+                    <span aria-hidden>{t("common.breadcrumbSeparator")}</span>
                     <span className="font-medium text-[#111111] dark:text-white">{t("about.breadcrumb")}</span>
                 </nav>
 
@@ -47,7 +47,7 @@ export default async function AboutPage() {
                     {t("about.title")}
                 </h1>
                 <p className="mt-1 text-[14px] font-medium text-[#707072] dark:text-[#9e9ea0]">
-                    {tFmt("about.subtitle", { siteName: settings.name })}
+                    {t("about.subtitle", { siteName: settings.name })}
                 </p>
 
                 {settings.about ? (

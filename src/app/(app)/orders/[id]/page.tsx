@@ -9,6 +9,7 @@ import { getCurrentUser } from "@/lib/current-user";
 import { getSiteSettings } from "@/lib/site-settings";
 import { formatPriceNumber } from "@/lib/pricing";
 import type { Order, User } from "@/payload-types";
+import { t } from "@/lib/t";
 
 export const dynamic = "force-dynamic";
 
@@ -119,23 +120,23 @@ export default async function OrderDetailPage({ params }: { params: Promise<Rout
             {/* Breadcrumb — {typography.caption-md} 14px/500, {colors.mute} #707072 */}
             <nav className="mb-6 flex items-center gap-1.5 text-sm text-[#707072]" aria-label="Breadcrumb">
                 <Link href="/" className="hover:text-[#111111]">
-                    Home
+                    {t("common.home")}
                 </Link>
-                <span aria-hidden>›</span>
+                <span aria-hidden>{t("common.breadcrumbSeparator")}</span>
                 <Link href="/account" className="hover:text-[#111111]">
-                    Account
+                    {t("account.title")}
                 </Link>
-                <span aria-hidden>›</span>
+                <span aria-hidden>{t("common.breadcrumbSeparator")}</span>
                 <Link href="/orders" className="hover:text-[#111111]">
-                    Orders
+                    {t("orders.title")}
                 </Link>
-                <span aria-hidden>›</span>
-                <span className="font-medium text-[#111111]">#{order.id}</span>
+                <span aria-hidden>{t("common.breadcrumbSeparator")}</span>
+                <span className="font-medium text-[#111111]">{t("orders.orderHash", { id: String(order.id) })}</span>
             </nav>
 
             <div className="flex flex-wrap items-center justify-between gap-3">
                 {/* Title — {typography.heading-xl} 32px/500, {colors.ink} #111111 */}
-                <h1 className="text-[32px] font-medium leading-[1.2] text-[#111111]">Order #{order.id}</h1>
+                <h1 className="text-[32px] font-medium leading-[1.2] text-[#111111]">{t("orders.orderNumber", { id: String(order.id) })}</h1>
                 <Badge
                     variant="outline"
                     className={`${tone.bg} ${tone.text} ${tone.border} rounded-full border px-3 py-0.5 text-[12px] font-medium`}
@@ -143,11 +144,11 @@ export default async function OrderDetailPage({ params }: { params: Promise<Rout
                     {STATUS_LABELS[order.status]}
                 </Badge>
             </div>
-            <p className="mt-1 text-[14px] font-medium text-[#707072]">Placed {formatDate(order.createdAt)}</p>
+            <p className="mt-1 text-[14px] font-medium text-[#707072]">{t("orders.placedWithDate", { date: formatDate(order.createdAt) })}</p>
 
             {order.hasZeroPrice ? (
                 <div className="mt-4 rounded-[18px] border border-[#d30005]/30 bg-[#d30005]/5 p-4 text-[14px] font-medium text-[#d30005]">
-                    This order includes zero-price items and is awaiting admin review.
+                    {t("orders.zeroPriceNote")}
                 </div>
             ) : null}
 
@@ -157,7 +158,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<Rout
                     {/* Items — {component.product-card} inspired, {colors.soft-cloud} stage */}
                     <Card className="rounded-[18px] border border-[#cacacb] bg-white p-0 gap-0">
                         <CardContent className="p-6">
-                            <h2 className="text-[16px] font-medium text-[#111111]">Items</h2>
+                            <h2 className="text-[16px] font-medium text-[#111111]">{t("orders.tableItems")}</h2>
                             <ul className="mt-4 divide-y divide-[#e5e5e5]">
                                 {(order.items ?? []).map((item, idx) => {
                                     const isZero = item.price === 0;
@@ -168,33 +169,39 @@ export default async function OrderDetailPage({ params }: { params: Promise<Rout
                                         >
                                             <div className="min-w-0 flex-1">
                                                 <p className="truncate text-[14px] font-medium text-[#111111]">
-                                                    {item.name ?? `Product #${item.product ?? "—"}`}
+                                                    {item.name ?? t("orders.orderNumber", { id: String(item.product ?? t("common.dash")) })}
                                                 </p>
                                                 <p className="mt-0.5 text-[12px] font-medium text-[#707072]">
-                                                    Qty {item.quantity} ·{" "}
-                                                    <span className={isZero ? "text-[#d30005]" : "text-[#707072]"}>
-                                                        {formatPriceNumber(item.price, "en-US")} تومان
-                                                    </span>{" "}
-                                                    each
+                                                    {t("orders.qtyLine", {
+                                                        qty: String(item.quantity),
+                                                        price: formatPriceNumber(item.price, "en-US"),
+                                                        toman: t("common.toman"),
+                                                    })}
                                                 </p>
                                             </div>
                                             <span
                                                 className={`shrink-0 text-[14px] font-medium ${isZero ? "text-[#d30005]" : "text-[#111111]"
                                                     }`}
                                             >
-                                                {formatPriceNumber(item.price * item.quantity, "en-US")} تومان
+                                                {t("orders.priceWithToman", {
+                                                    price: formatPriceNumber(item.price * item.quantity, "en-US"),
+                                                    toman: t("common.toman"),
+                                                })}
                                             </span>
                                         </li>
                                     );
                                 })}
                             </ul>
                             <div className="mt-4 flex items-center justify-between border-t border-[#e5e5e5] pt-4">
-                                <span className="text-[16px] font-medium text-[#111111]">Total</span>
+                                <span className="text-[16px] font-medium text-[#111111]">{t("orders.tableTotal")}</span>
                                 <span
                                     className={`text-[16px] font-medium ${order.hasZeroPrice ? "text-[#d30005]" : "text-[#111111]"
                                         }`}
                                 >
-                                    {formatPriceNumber(order.total ?? 0, "en-US")} تومان
+                                    {t("orders.priceWithToman", {
+                                        price: formatPriceNumber(order.total ?? 0, "en-US"),
+                                        toman: t("common.toman"),
+                                    })}
                                 </span>
                             </div>
                         </CardContent>
@@ -203,7 +210,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<Rout
                     {/* Status history — linear progression, marked current/cancelled */}
                     <Card className="rounded-[18px] border border-[#cacacb] bg-white p-0 gap-0">
                         <CardContent className="p-6">
-                            <h2 className="text-[16px] font-medium text-[#111111]">Status</h2>
+                            <h2 className="text-[16px] font-medium text-[#111111]">{t("orders.statusLabel")}</h2>
                             <ol className="mt-4 flex flex-wrap items-center gap-2">
                                 {STATUS_HISTORY.map((s, idx) => {
                                     const isReached = !isCancelled && idx <= reachedIndex;
@@ -217,11 +224,11 @@ export default async function OrderDetailPage({ params }: { params: Promise<Rout
                                                     }`}
                                             >
                                                 {STATUS_LABELS[s]}
-                                                {isCurrent ? " · current" : ""}
+                                                {isCurrent ? t("orders.currentSuffix") : ""}
                                             </span>
                                             {idx < STATUS_HISTORY.length - 1 ? (
                                                 <span aria-hidden className="text-[#9e9ea0]">
-                                                    ›
+                                                    {t("common.breadcrumbSeparator")}
                                                 </span>
                                             ) : null}
                                         </li>
@@ -229,9 +236,9 @@ export default async function OrderDetailPage({ params }: { params: Promise<Rout
                                 })}
                                 {isCancelled ? (
                                     <li className="flex items-center gap-2">
-                                        <span className="text-[#9e9ea0]">·</span>
+                                        <span className="text-[#9e9ea0]">{t("common.dot")}</span>
                                         <span className="inline-flex h-7 items-center rounded-full border border-[#d30005]/30 bg-[#d30005]/10 px-3 text-[12px] font-medium text-[#d30005]">
-                                            Cancelled
+                                            {t("orders.status.cancelled")}
                                         </span>
                                     </li>
                                 ) : null}
@@ -243,7 +250,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<Rout
                     {order.notes && order.notes.length > 0 ? (
                         <Card className="rounded-[18px] border border-[#cacacb] bg-white p-0 gap-0">
                             <CardContent className="p-6">
-                                <h2 className="text-[16px] font-medium text-[#111111]">Updates</h2>
+                                <h2 className="text-[16px] font-medium text-[#111111]">{t("orders.updates")}</h2>
                                 <ul className="mt-4 space-y-3">
                                     {order.notes.map((n, idx) => (
                                         <li
@@ -251,7 +258,11 @@ export default async function OrderDetailPage({ params }: { params: Promise<Rout
                                             className="rounded-[18px] border border-[#e5e5e5] bg-[#f5f5f5] p-3"
                                         >
                                             <p className="text-[12px] font-medium text-[#707072]">
-                                                {noteAuthor(n.createdBy)} · {formatDate(n.createdAt ?? order.updatedAt)}
+                                                {t("orders.dateWithItems", {
+                                                    date: noteAuthor(n.createdBy),
+                                                    count: formatDate(n.createdAt ?? order.updatedAt),
+                                                    label: "",
+                                                })}
                                             </p>
                                             <p className="mt-1 whitespace-pre-line text-[14px] leading-[1.5] text-[#111111]">
                                                 {n.note}
@@ -268,29 +279,29 @@ export default async function OrderDetailPage({ params }: { params: Promise<Rout
                 <aside className="space-y-6">
                     <Card className="rounded-[18px] border border-[#cacacb] bg-white p-0 gap-0">
                         <CardContent className="p-6">
-                            <h2 className="text-[16px] font-medium text-[#111111]">Details</h2>
+                            <h2 className="text-[16px] font-medium text-[#111111]">{t("orders.details")}</h2>
                             <dl className="mt-4 space-y-3 text-[14px]">
                                 <div>
                                     <dt className="text-[12px] font-medium uppercase tracking-wide text-[#707072]">
-                                        Customer
+                                        {t("orders.customer")}
                                     </dt>
                                     <dd className="mt-0.5 text-[#111111]">{customerLabel(order.customer)}</dd>
                                 </div>
                                 <div>
                                     <dt className="text-[12px] font-medium uppercase tracking-wide text-[#707072]">
-                                        Order ID
+                                        {t("orders.orderId")}
                                     </dt>
-                                    <dd className="mt-0.5 text-[#111111]">#{order.id}</dd>
+                                    <dd className="mt-0.5 text-[#111111]">{t("orders.orderHash", { id: String(order.id) })}</dd>
                                 </div>
                                 <div>
                                     <dt className="text-[12px] font-medium uppercase tracking-wide text-[#707072]">
-                                        Placed
+                                        {t("orders.placedLabel")}
                                     </dt>
                                     <dd className="mt-0.5 text-[#111111]">{formatDate(order.createdAt)}</dd>
                                 </div>
                                 <div>
                                     <dt className="text-[12px] font-medium uppercase tracking-wide text-[#707072]">
-                                        Last update
+                                        {t("orders.lastUpdate")}
                                     </dt>
                                     <dd className="mt-0.5 text-[#111111]">{formatDate(order.updatedAt)}</dd>
                                 </div>
@@ -301,7 +312,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<Rout
                     {order.shippingAddress ? (
                         <Card className="rounded-[18px] border border-[#cacacb] bg-white p-0 gap-0">
                             <CardContent className="p-6">
-                                <h2 className="text-[16px] font-medium text-[#111111]">Shipping address</h2>
+                                <h2 className="text-[16px] font-medium text-[#111111]">{t("orders.shippingAddress")}</h2>
                                 <p className="mt-3 whitespace-pre-line text-[14px] leading-[1.5] text-[#111111]">
                                     {order.shippingAddress}
                                 </p>

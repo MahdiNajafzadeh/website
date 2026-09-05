@@ -5,7 +5,7 @@ import Link from "next/link";
 import config from "@/payload.config";
 import type { Brand, Category, Media, Product, SiteSetting } from "@/payload-types";
 import { getCurrentUser } from "@/lib/current-user";
-import { t, tFmt } from "@/lib/t";
+import { t } from "@/lib/t";
 
 import { SectionHead } from "@/components/home/SectionHead";
 import { CategoryCard } from "@/components/home/CategoryCard";
@@ -180,10 +180,16 @@ export default async function HomePage() {
                     </div>
                     <div className="mt-6 flex flex-wrap items-center gap-2 text-[12px] font-medium text-white/80">
                         <span className="rounded-full bg-white/15 px-3 py-1 backdrop-blur">
-                            {productsTotal.toLocaleString("fa-IR")} {t("common.productsCount")}
+                            {t("common.countWithLabel", {
+                                count: productsTotal.toLocaleString("fa-IR"),
+                                label: t("common.productsCount"),
+                            })}
                         </span>
                         <span className="rounded-full bg-white/15 px-3 py-1 backdrop-blur">
-                            {categories.length.toLocaleString("fa-IR")} {t("home.proof.categoriesLabel")}
+                            {t("common.countWithLabel", {
+                                count: categories.length.toLocaleString("fa-IR"),
+                                label: t("home.proof.categoriesLabel"),
+                            })}
                         </span>
                     </div>
                 </div>
@@ -193,10 +199,16 @@ export default async function HomePage() {
             <div className="sticky top-14 z-40 border-y border-[#e5e5e5] bg-[#f5f5f5] dark:border-[#39393b] dark:bg-[#1a1a1a]">
                 <div className="mx-auto flex max-w-[1440px] items-center gap-2 overflow-x-auto px-4 py-2 text-[12px] font-medium text-[#111111] dark:text-white sm:px-6 lg:px-8">
                     <span className="whitespace-nowrap rounded-full bg-white px-3 py-1 text-[#111111] dark:bg-[#39393b] dark:text-white">
-                        ● {productsTotal.toLocaleString("fa-IR")} {t("home.utility.activeSkus")}
+                        {t("common.bulletWithCount", {
+                            count: productsTotal.toLocaleString("fa-IR"),
+                            label: t("home.utility.activeSkus"),
+                        })}
                     </span>
                     <span className="whitespace-nowrap rounded-full bg-white px-3 py-1 dark:bg-[#39393b]">
-                        {t("home.utility.stock")}: {totalInventory.toLocaleString("fa-IR")}
+                        {t("common.labelColonValue", {
+                            label: t("home.utility.stock"),
+                            value: totalInventory.toLocaleString("fa-IR"),
+                        })}
                     </span>
                     {primaryPhone ? (
                         <a
@@ -208,11 +220,10 @@ export default async function HomePage() {
                     ) : null}
                     {partnerDiscount > 0 ? (
                         <span className="whitespace-nowrap rounded-full bg-[#111111] px-3 py-1 text-white dark:bg-white dark:text-[#111111]">
-                            {tFmt("home.utility.partnerDiscount", { discount: partnerDiscount })}
+                            {t("home.utility.partnerDiscount", { discount: partnerDiscount })}
                         </span>
                     ) : null}
                     <span className="ml-auto hidden whitespace-nowrap text-[#707072] dark:text-[#9e9ea0] sm:inline">
-                        {" "}
                         {siteName}
                     </span>
                 </div>
@@ -346,14 +357,14 @@ export default async function HomePage() {
                         </p>
                         <p className="text-[14px] font-medium leading-[1.5] text-[#111111] dark:text-white">
                             {partnerDiscount > 0
-                                ? tFmt("home.proof.procedure", { discount: partnerDiscount })
+                                ? t("home.proof.procedure", { discount: partnerDiscount })
                                 : "قیمت صفر = استعلام. افزودن به سبد → بررسی → تایید → آماده‌سازی → تحویل."}
                         </p>
                         <Link
                             href="/about"
                             className="inline-flex text-[14px] font-medium text-[#111111] underline hover:text-[#707072] dark:text-white dark:hover:text-[#9e9ea0]"
                         >
-                            {t("home.proof.howToOrder")} →
+                            {t("common.countWithLabel", { count: t("home.proof.howToOrder"), label: t("common.arrow") })}
                         </Link>
                     </div>
                 </div>
@@ -424,7 +435,7 @@ export default async function HomePage() {
                             href="/contact"
                             className="text-[14px] font-medium text-white/80 underline hover:text-white"
                         >
-                            {t("home.ctaBand.secondary")} →
+                            {t("common.countWithLabel", { count: t("home.ctaBand.secondary"), label: t("common.arrow") })}
                         </Link>
                     </div>
                 </div>

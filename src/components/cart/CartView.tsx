@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/lib/cart-store";
 import { getPrice, type CustomerType } from "@/lib/pricing";
-import { t, tFmt } from "@/lib/t";
+import { t } from "@/lib/t";
 
 type Props = {
 	partnerDiscount?: number;
@@ -64,7 +64,7 @@ export function CartView({ partnerDiscount = 0, customerType = "regular" }: Prop
 
 	const handleRemove = (id: string, name: string) => {
 		removeItem(id);
-		toast(tFmt("cart.removed", { name }), {
+		toast(t("cart.removed", { name }), {
 			duration: 3000,
 			action: { label: t("cart.undo"), onClick: () => undoRemove() },
 		});
@@ -177,7 +177,7 @@ export function CartView({ partnerDiscount = 0, customerType = "regular" }: Prop
 				</div>
 				{customerType === "partner" && partnerDiscount > 0 && (
 					<p className="text-[12px] font-medium text-[#007d48]">
-						{tFmt("cart.partnerDiscountApplied", { discount: partnerDiscount })}
+						{t("cart.partnerDiscountApplied", { discount: partnerDiscount })}
 					</p>
 				)}
 			</aside>

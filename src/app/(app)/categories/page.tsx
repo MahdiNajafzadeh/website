@@ -13,7 +13,7 @@ import {
 	PaginationPrevious,
 } from "@/components/ui/pagination";
 import type { Category } from "@/payload-types";
-import { t, tFmt } from "@/lib/t";
+import { t } from "@/lib/t";
 
 export const dynamic = "force-dynamic";
 
@@ -73,7 +73,7 @@ export default async function CategoriesPage({ searchParams }: { searchParams: P
 				<Link href="/" className="hover:text-[#111111] dark:hover:text-white">
 					{t("common.home")}
 				</Link>
-				<span aria-hidden>/</span>
+				<span aria-hidden>{t("common.breadcrumbSeparatorSlash")}</span>
 				<span className="font-medium text-[#111111] dark:text-white">{t("categories.title")}</span>
 			</nav>
 
@@ -81,7 +81,10 @@ export default async function CategoriesPage({ searchParams }: { searchParams: P
 				{t("categories.title")}
 			</h1>
 			<p className="mt-1 text-[14px] font-medium text-[#707072] dark:text-[#9e9ea0]">
-				{totalDocs.toLocaleString("fa-IR")} {t("common.categories")}
+				{t("common.countWithLabel", {
+					count: totalDocs.toLocaleString("fa-IR"),
+					label: t("common.categories"),
+				})}
 			</p>
 
 			<form action="/categories" method="get" className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -211,7 +214,7 @@ export default async function CategoriesPage({ searchParams }: { searchParams: P
 						</PaginationContent>
 					</Pagination>
 					<p className="mt-3 text-center text-[12px] font-medium text-[#707072] dark:text-[#9e9ea0]">
-						{tFmt("categories.pagination", {
+						{t("categories.pagination", {
 							page: page.toLocaleString("fa-IR"),
 							totalPages: totalPages.toLocaleString("fa-IR"),
 							count: totalDocs.toLocaleString("fa-IR"),

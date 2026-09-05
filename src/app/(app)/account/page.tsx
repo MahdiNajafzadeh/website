@@ -55,7 +55,7 @@ export default async function AccountPage() {
                 <Link href="/" className="hover:text-[#111111] dark:hover:text-white">
                     {t("common.home")}
                 </Link>
-                <span aria-hidden>›</span>
+                <span aria-hidden>{t("common.breadcrumbSeparator")}</span>
                 <span className="font-medium text-[#111111] dark:text-white">{t("account.title")}</span>
             </nav>
 
@@ -74,7 +74,11 @@ export default async function AccountPage() {
                 </div>
             </div>
             <p className="mt-1 text-[14px] font-medium text-[#707072] dark:text-[#9e9ea0]">
-                {user.firstName} {user.lastName} · {phoneFormatted}
+                {t("account.userMeta", {
+                    firstName: user.firstName ?? "",
+                    lastName: user.lastName ?? "",
+                    phone: phoneFormatted,
+                })}
             </p>
 
             <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_320px]">
@@ -85,7 +89,7 @@ export default async function AccountPage() {
                                 {t("account.profile")}
                             </h2>
                             <p className="mt-1 text-[14px] font-medium text-[#707072] dark:text-[#9e9ea0]">
-                                {t("account.profile")} — {phoneFormatted}
+                                {t("account.profileWithPhone", { profile: t("account.profile"), phone: phoneFormatted })}
                             </p>
                             <div className="mt-5">
                                 <AccountForm

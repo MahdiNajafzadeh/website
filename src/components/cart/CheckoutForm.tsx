@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
-import { t, tFmt } from "@/lib/t";
+import { t } from "@/lib/t";
 import { useRouter } from "next/navigation";
 import { ShoppingBag } from "lucide-react";
 

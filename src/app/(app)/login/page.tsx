@@ -116,7 +116,7 @@ function LoginForm() {
                     </button>
 
                     <p className="text-center text-sm font-medium text-[#707072] dark:text-[#9e9ea0]">
-                        {t("auth.noAccount")}{" "}
+                        {t("auth.noAccount") + " "}
                         <Link
                             href={nextParam !== "/" ? `/register?next=${encodeURIComponent(nextParam)}` : "/register"}
                             className="font-medium text-[#111111] dark:text-white underline underline-offset-4"

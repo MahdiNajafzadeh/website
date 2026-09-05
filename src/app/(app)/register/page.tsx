@@ -83,7 +83,7 @@ function RegisterForm() {
                     <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                         <div className="space-y-2">
                             <label htmlFor="firstName" className={labelClass}>
-                                {t("auth.firstName")} <span className="text-[#d30005]">*</span>
+                                {t("auth.firstName")}<span className="ml-1 text-[#d30005]">{t("common.requiredMark")}</span>
                             </label>
                             <input
                                 id="firstName"
@@ -98,7 +98,7 @@ function RegisterForm() {
                         </div>
                         <div className="space-y-2">
                             <label htmlFor="lastName" className={labelClass}>
-                                {t("auth.lastName")} <span className="text-[#d30005]">*</span>
+                                {t("auth.lastName")}<span className="ml-1 text-[#d30005]">{t("common.requiredMark")}</span>
                             </label>
                             <input
                                 id="lastName"
@@ -115,7 +115,7 @@ function RegisterForm() {
 
                     <div className="space-y-2">
                         <label htmlFor="phone" className={labelClass}>
-                            {t("auth.phone")} <span className="text-[#d30005]">*</span>
+                            {t("auth.phone")}<span className="ml-1 text-[#d30005]">{t("common.requiredMark")}</span>
                         </label>
                         <input
                             id="phone"
@@ -136,7 +136,7 @@ function RegisterForm() {
 
                     <div className="space-y-2">
                         <label htmlFor="password" className={labelClass}>
-                            {t("auth.password")} <span className="text-[#d30005]">*</span>
+                            {t("auth.password")}<span className="ml-1 text-[#d30005]">{t("common.requiredMark")}</span>
                         </label>
                         <input
                             id="password"
@@ -184,7 +184,7 @@ function RegisterForm() {
                     </button>
 
                     <p className="text-center text-sm font-medium text-[#707072] dark:text-[#9e9ea0]">
-                        {t("auth.alreadyHaveAccount")}{" "}
+                        {t("auth.alreadyHaveAccount") + " "}
                         <Link
                             href={nextParam !== "/" ? `/login?next=${encodeURIComponent(nextParam)}` : "/login"}
                             className="font-medium text-[#111111] dark:text-white underline underline-offset-4"

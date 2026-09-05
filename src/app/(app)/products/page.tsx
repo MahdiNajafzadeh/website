@@ -14,7 +14,7 @@ import {
 	PaginationEllipsis,
 } from "@/components/ui/pagination";
 import type { Brand, Category, Media, Product } from "@/payload-types";
-import { t, tFmt } from "@/lib/t";
+import { t } from "@/lib/t";
 
 export const dynamic = "force-dynamic";
 
@@ -124,7 +124,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 				<Link href="/" className="hover:text-[#111111] dark:hover:text-white">
 					{t("common.home")}
 				</Link>
-				<span aria-hidden>/</span>
+				<span aria-hidden>{t("common.breadcrumbSeparatorSlash")}</span>
 				<span className="font-medium text-[#111111] dark:text-white">{t("products.title")}</span>
 			</nav>
 
@@ -132,8 +132,16 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 				{t("products.title")}
 			</h1>
 			<p className="mb-6 text-[14px] font-medium text-[#707072] dark:text-[#9e9ea0]">
-				{productsRes.totalDocs.toLocaleString("fa-IR")} {t("common.productsCount")}
-				{activeFiltersCount > 0 && ` · ${activeFiltersCount.toLocaleString("fa-IR")} ${t("common.browse")}`}
+				{t("common.countWithLabel", {
+					count: productsRes.totalDocs.toLocaleString("fa-IR"),
+					label: t("common.productsCount"),
+				})}
+				{activeFiltersCount > 0
+					? t("products.filterSuffix", {
+							count: activeFiltersCount.toLocaleString("fa-IR"),
+							label: t("common.browse"),
+						})
+					: ""}
 			</p>
 
 			<form action="/products" method="get" className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -331,7 +339,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 												: `${price.toLocaleString("fa-IR")} ${t("common.toman")}`}
 											{price > 0 && isOutOfStock && (
 												<span className="ml-2 text-xs text-[#707072] dark:text-[#9e9ea0]">
-													— {t("common.outOfStock")}
+													{t("common.dashWithLabel", { label: t("common.outOfStock") })}
 												</span>
 											)}
 										</p>
@@ -410,7 +418,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 						</PaginationContent>
 					</Pagination>
 					<p className="mt-3 text-center text-[12px] font-medium text-[#707072] dark:text-[#9e9ea0]">
-						{tFmt("products.pagination", {
+						{t("products.pagination", {
 							page: page.toLocaleString("fa-IR"),
 							totalPages: totalPages.toLocaleString("fa-IR"),
 							count: productsRes.totalDocs.toLocaleString("fa-IR"),
