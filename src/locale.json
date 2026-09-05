@@ -155,5 +155,7 @@
 	"categories.searchPlaceholder": "جستجوی دسته‌ها…",
 	"categories.viewProducts": "نمایش محصولات →",
 	"categories.noCategories": "هنوز دسته‌ای ثبت نشده",
-	"categories.pagination": "صفحه {page} از {totalPages} · {count} دسته"
+	"categories.pagination": "صفحه {page} از {totalPages} · {count} دسته",
+	"phone": "تلفن",
+	"address": "آدرس"
 }

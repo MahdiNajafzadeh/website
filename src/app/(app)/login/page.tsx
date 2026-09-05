@@ -24,7 +24,7 @@ function LoginForm() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
-                body: JSON.stringify({ phone: phone.trim(), password }),
+                body: JSON.stringify({ username: phone.trim(), password }),
             });
             if (!res.ok) {
                 const data = await res.json().catch(() => ({}));

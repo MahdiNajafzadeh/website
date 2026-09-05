@@ -6,7 +6,10 @@ export const Users: CollectionConfig = {
 	slug: "users",
 	auth: {
 		tokenExpiration: 86400,
-		disableLocalStrategy: true,
+		loginWithUsername: {
+			requireEmail: false,
+			allowEmailLogin: false,
+		},
 	},
 	access: {
 		read: ({ req, id }) => {
@@ -41,14 +44,14 @@ export const Users: CollectionConfig = {
 			required: true,
 		},
 		phoneNumberField({
-			name: "phone",
+			name: "username",
 			label: "Phone",
 			required: true,
 			unique: true,
 			allowedCountries: ["IR"],
-			defaultValue: "IR",
 			admin: {
-				cellDisplayFormat: "international",
+				cellDisplayFormat: "national",
+				countryPrefixDisplayFormat: "flagEmoji",
 			},
 		}),
 		{

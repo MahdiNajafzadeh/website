@@ -10,26 +10,10 @@ export const SiteSettings: GlobalConfig = {
 	},
 	fields: [
 		{
-			name: "siteName",
-			type: "group",
-			fields: [
-				{
-					name: "en",
-					type: "text",
-					required: false,
-					admin: {
-						description: "Site name in English.",
-					},
-				},
-				{
-					name: "fa",
-					type: "text",
-					required: false,
-					admin: {
-						description: "Site name in Persian.",
-					},
-				},
-			],
+			name: "name",
+			type: "text",
+			required: true,
+			defaultValue: "store",
 		},
 		{
 			name: "logo",
@@ -150,6 +134,12 @@ export const SiteSettings: GlobalConfig = {
 			admin: {
 				description: "Partner discount percentage (0–100).",
 			},
+		},
+		{
+			name: "about",
+			label: "About",
+			type: "richText",
+			required: false,
 		},
 	],
 };

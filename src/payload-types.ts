@@ -13,758 +13,751 @@
  * via the `definition` "supportedTimezones".
  */
 export type SupportedTimezones =
-	| "Pacific/Midway"
-	| "Pacific/Niue"
-	| "Pacific/Honolulu"
-	| "Pacific/Rarotonga"
-	| "America/Anchorage"
-	| "Pacific/Gambier"
-	| "America/Los_Angeles"
-	| "America/Tijuana"
-	| "America/Denver"
-	| "America/Phoenix"
-	| "America/Chicago"
-	| "America/Guatemala"
-	| "America/New_York"
-	| "America/Bogota"
-	| "America/Caracas"
-	| "America/Santiago"
-	| "America/Buenos_Aires"
-	| "America/Sao_Paulo"
-	| "Atlantic/South_Georgia"
-	| "Atlantic/Azores"
-	| "Atlantic/Cape_Verde"
-	| "Europe/London"
-	| "Europe/Berlin"
-	| "Africa/Lagos"
-	| "Europe/Athens"
-	| "Africa/Cairo"
-	| "Europe/Moscow"
-	| "Asia/Riyadh"
-	| "Asia/Dubai"
-	| "Asia/Baku"
-	| "Asia/Karachi"
-	| "Asia/Tashkent"
-	| "Asia/Calcutta"
-	| "Asia/Dhaka"
-	| "Asia/Almaty"
-	| "Asia/Jakarta"
-	| "Asia/Bangkok"
-	| "Asia/Shanghai"
-	| "Asia/Singapore"
-	| "Asia/Tokyo"
-	| "Asia/Seoul"
-	| "Australia/Brisbane"
-	| "Australia/Sydney"
-	| "Pacific/Guam"
-	| "Pacific/Noumea"
-	| "Pacific/Auckland"
-	| "Pacific/Fiji";
+  | 'Pacific/Midway'
+  | 'Pacific/Niue'
+  | 'Pacific/Honolulu'
+  | 'Pacific/Rarotonga'
+  | 'America/Anchorage'
+  | 'Pacific/Gambier'
+  | 'America/Los_Angeles'
+  | 'America/Tijuana'
+  | 'America/Denver'
+  | 'America/Phoenix'
+  | 'America/Chicago'
+  | 'America/Guatemala'
+  | 'America/New_York'
+  | 'America/Bogota'
+  | 'America/Caracas'
+  | 'America/Santiago'
+  | 'America/Buenos_Aires'
+  | 'America/Sao_Paulo'
+  | 'Atlantic/South_Georgia'
+  | 'Atlantic/Azores'
+  | 'Atlantic/Cape_Verde'
+  | 'Europe/London'
+  | 'Europe/Berlin'
+  | 'Africa/Lagos'
+  | 'Europe/Athens'
+  | 'Africa/Cairo'
+  | 'Europe/Moscow'
+  | 'Asia/Riyadh'
+  | 'Asia/Dubai'
+  | 'Asia/Baku'
+  | 'Asia/Karachi'
+  | 'Asia/Tashkent'
+  | 'Asia/Calcutta'
+  | 'Asia/Dhaka'
+  | 'Asia/Almaty'
+  | 'Asia/Jakarta'
+  | 'Asia/Bangkok'
+  | 'Asia/Shanghai'
+  | 'Asia/Singapore'
+  | 'Asia/Tokyo'
+  | 'Asia/Seoul'
+  | 'Australia/Brisbane'
+  | 'Australia/Sydney'
+  | 'Pacific/Guam'
+  | 'Pacific/Noumea'
+  | 'Pacific/Auckland'
+  | 'Pacific/Fiji';
 
 export interface Config {
-	auth: {
-		users: UserAuthOperations;
-	};
-	blocks: {};
-	collections: {
-		users: User;
-		media: Media;
-		brands: Brand;
-		categories: Category;
-		products: Product;
-		posts: Post;
-		orders: Order;
-		"payload-kv": PayloadKv;
-		"payload-locked-documents": PayloadLockedDocument;
-		"payload-preferences": PayloadPreference;
-		"payload-migrations": PayloadMigration;
-	};
-	collectionsJoins: {};
-	collectionsSelect: {
-		users: UsersSelect<false> | UsersSelect<true>;
-		media: MediaSelect<false> | MediaSelect<true>;
-		brands: BrandsSelect<false> | BrandsSelect<true>;
-		categories: CategoriesSelect<false> | CategoriesSelect<true>;
-		products: ProductsSelect<false> | ProductsSelect<true>;
-		posts: PostsSelect<false> | PostsSelect<true>;
-		orders: OrdersSelect<false> | OrdersSelect<true>;
-		"payload-kv": PayloadKvSelect<false> | PayloadKvSelect<true>;
-		"payload-locked-documents": PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
-		"payload-preferences": PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
-		"payload-migrations": PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
-	};
-	db: {
-		defaultIDType: number;
-	};
-	fallbackLocale: null;
-	globals: {
-		"site-settings": SiteSetting;
-		"page-about": PageAbout;
-	};
-	globalsSelect: {
-		"site-settings": SiteSettingsSelect<false> | SiteSettingsSelect<true>;
-		"page-about": PageAboutSelect<false> | PageAboutSelect<true>;
-	};
-	locale: null;
-	widgets: {
-		collections: CollectionsWidget;
-	};
-	user: User;
-	jobs: {
-		tasks: unknown;
-		workflows: unknown;
-	};
+  auth: {
+    users: UserAuthOperations;
+  };
+  blocks: {};
+  collections: {
+    users: User;
+    media: Media;
+    brands: Brand;
+    categories: Category;
+    products: Product;
+    posts: Post;
+    orders: Order;
+    'payload-kv': PayloadKv;
+    'payload-locked-documents': PayloadLockedDocument;
+    'payload-preferences': PayloadPreference;
+    'payload-migrations': PayloadMigration;
+  };
+  collectionsJoins: {};
+  collectionsSelect: {
+    users: UsersSelect<false> | UsersSelect<true>;
+    media: MediaSelect<false> | MediaSelect<true>;
+    brands: BrandsSelect<false> | BrandsSelect<true>;
+    categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    products: ProductsSelect<false> | ProductsSelect<true>;
+    posts: PostsSelect<false> | PostsSelect<true>;
+    orders: OrdersSelect<false> | OrdersSelect<true>;
+    'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
+    'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
+    'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
+    'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
+  };
+  db: {
+    defaultIDType: number;
+  };
+  fallbackLocale: null;
+  globals: {
+    'site-settings': SiteSetting;
+  };
+  globalsSelect: {
+    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+  };
+  locale: null;
+  widgets: {
+    collections: CollectionsWidget;
+  };
+  user: User;
+  jobs: {
+    tasks: unknown;
+    workflows: unknown;
+  };
+  'phone-number-plugin': {
+    allowedCountry: 'IR';
+  };
 }
 export interface UserAuthOperations {
-	forgotPassword: {
-		username: string;
-	};
-	login: {
-		password: string;
-		username: string;
-	};
-	registerFirstUser: {
-		password: string;
-		username: string;
-	};
-	unlock: {
-		username: string;
-	};
+  forgotPassword: {
+    username: string;
+  };
+  login: {
+    password: string;
+    username: string;
+  };
+  registerFirstUser: {
+    password: string;
+    username: string;
+  };
+  unlock: {
+    username: string;
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
-	id: number;
-	firstName: string;
-	lastName: string;
-	phone: string;
-	address?: string | null;
-	role: "admin" | "employee" | "customer";
-	customerType: "regular" | "partner";
-	updatedAt: string;
-	createdAt: string;
-	/**
-	 * Optional. Users log in with phone.
-	 */
-	email?: string | null;
-	/**
-	 * Auto-populated from phone. Used as the login identifier.
-	 */
-	username: string;
-	resetPasswordToken?: string | null;
-	resetPasswordExpiration?: string | null;
-	salt?: string | null;
-	hash?: string | null;
-	loginAttempts?: number | null;
-	lockUntil?: string | null;
-	sessions?:
-		| {
-				id: string;
-				createdAt?: string | null;
-				expiresAt: string;
-		  }[]
-		| null;
-	password?: string | null;
-	collection: "users";
+  id: number;
+  firstName: string;
+  lastName: string;
+  address: string;
+  role: 'admin' | 'employee' | 'customer';
+  customerType: 'regular' | 'partner';
+  updatedAt: string;
+  createdAt: string;
+  email?: string | null;
+  username: string | PhoneNumber;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
+  password?: string | null;
+  collection: 'users';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PhoneNumber".
+ */
+export interface PhoneNumber {
+  /**
+   * Phone number in E.164 format. Useful for using in `tel:` links.
+   */
+  e164: string;
+  /**
+   * ISO 3166-1 alpha-2 country code.
+   *
+   * @see https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2.
+   * @example "NO"
+   */
+  regionCode: string;
+  /**
+   * International calling code.
+   *
+   * @example "+47"
+   */
+  callingCode: string;
+  /**
+   * National format of the phone number.
+   */
+  national: string;
+  /**
+   * International format of the phone number.
+   */
+  international: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media".
  */
 export interface Media {
-	id: number;
-	alt: string;
-	updatedAt: string;
-	createdAt: string;
-	url?: string | null;
-	thumbnailURL?: string | null;
-	filename?: string | null;
-	mimeType?: string | null;
-	filesize?: number | null;
-	width?: number | null;
-	height?: number | null;
-	focalX?: number | null;
-	focalY?: number | null;
+  id: number;
+  alt: string;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "brands".
  */
 export interface Brand {
-	id: number;
-	name: string;
-	/**
-	 * When enabled, the slug will auto-generate from the title field on save and autosave.
-	 */
-	generateSlug?: boolean | null;
-	slug: string;
-	icon?: (number | null) | Media;
-	description?: string | null;
-	updatedAt: string;
-	createdAt: string;
+  id: number;
+  name: string;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  icon?: (number | null) | Media;
+  description?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "categories".
  */
 export interface Category {
-	id: number;
-	name: string;
-	/**
-	 * When enabled, the slug will auto-generate from the title field on save and autosave.
-	 */
-	generateSlug?: boolean | null;
-	slug: string;
-	description?: string | null;
-	updatedAt: string;
-	createdAt: string;
+  id: number;
+  name: string;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  description?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "products".
  */
 export interface Product {
-	id: number;
-	name: string;
-	/**
-	 * When enabled, the slug will auto-generate from the title field on save and autosave.
-	 */
-	generateSlug?: boolean | null;
-	slug: string;
-	visible?: boolean | null;
-	price?: number | null;
-	inventory?: number | null;
-	brand?: (number | null) | Brand;
-	category?: (number | null) | Category;
-	images?:
-		| {
-				image: number | Media;
-				id?: string | null;
-		  }[]
-		| null;
-	showcaseImage?: (number | null) | Media;
-	updatedAt: string;
-	createdAt: string;
+  id: number;
+  name: string;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  visible?: boolean | null;
+  price?: number | null;
+  inventory?: number | null;
+  brand?: (number | null) | Brand;
+  category?: (number | null) | Category;
+  images?:
+    | {
+        image: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  showcaseImage?: (number | null) | Media;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "posts".
  */
 export interface Post {
-	id: number;
-	name: string;
-	/**
-	 * When enabled, the slug will auto-generate from the title field on save and autosave.
-	 */
-	generateSlug?: boolean | null;
-	slug: string;
-	content?: {
-		root: {
-			type: string;
-			children: {
-				type: any;
-				version: number;
-				[k: string]: unknown;
-			}[];
-			direction: ("ltr" | "rtl") | null;
-			format: "left" | "start" | "center" | "right" | "end" | "justify" | "";
-			indent: number;
-			version: number;
-		};
-		[k: string]: unknown;
-	} | null;
-	published?: boolean | null;
-	coverImage?: (number | null) | Media;
-	/**
-	 * Max 160 characters.
-	 */
-	excerpt?: string | null;
-	/**
-	 * Auto-set when published transitions from false to true.
-	 */
-	publishedAt?: string | null;
-	updatedAt: string;
-	createdAt: string;
+  id: number;
+  name: string;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  published?: boolean | null;
+  coverImage?: (number | null) | Media;
+  /**
+   * Max 160 characters.
+   */
+  excerpt?: string | null;
+  /**
+   * Auto-set when published transitions from false to true.
+   */
+  publishedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "orders".
  */
 export interface Order {
-	id: number;
-	customer: number | User;
-	items: {
-		product?: (number | null) | Product;
-		/**
-		 * Snapshot of product name at order time.
-		 */
-		name?: string | null;
-		/**
-		 * Snapshot of product price at order time.
-		 */
-		price: number;
-		quantity: number;
-		id?: string | null;
-	}[];
-	/**
-	 * Auto-computed as sum(price * quantity).
-	 */
-	total?: number | null;
-	status: "review" | "approved" | "preparing" | "delivered" | "cancelled";
-	shippingAddress?: string | null;
-	notes?:
-		| {
-				note: string;
-				createdAt?: string | null;
-				createdBy?: (number | null) | User;
-				id?: string | null;
-		  }[]
-		| null;
-	/**
-	 * Auto-set if any item has price 0.
-	 */
-	hasZeroPrice?: boolean | null;
-	updatedAt: string;
-	createdAt: string;
+  id: number;
+  customer: number | User;
+  items: {
+    product?: (number | null) | Product;
+    /**
+     * Snapshot of product name at order time.
+     */
+    name?: string | null;
+    /**
+     * Snapshot of product price at order time.
+     */
+    price: number;
+    quantity: number;
+    id?: string | null;
+  }[];
+  /**
+   * Auto-computed as sum(price * quantity).
+   */
+  total?: number | null;
+  status: 'review' | 'approved' | 'preparing' | 'delivered' | 'cancelled';
+  shippingAddress?: string | null;
+  notes?:
+    | {
+        note: string;
+        createdAt?: string | null;
+        createdBy?: (number | null) | User;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Auto-set if any item has price 0.
+   */
+  hasZeroPrice?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
-	id: number;
-	key: string;
-	data:
-		| {
-				[k: string]: unknown;
-		  }
-		| unknown[]
-		| string
-		| number
-		| boolean
-		| null;
+  id: number;
+  key: string;
+  data:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
-	id: number;
-	document?:
-		| ({
-				relationTo: "users";
-				value: number | User;
-		  } | null)
-		| ({
-				relationTo: "media";
-				value: number | Media;
-		  } | null)
-		| ({
-				relationTo: "brands";
-				value: number | Brand;
-		  } | null)
-		| ({
-				relationTo: "categories";
-				value: number | Category;
-		  } | null)
-		| ({
-				relationTo: "products";
-				value: number | Product;
-		  } | null)
-		| ({
-				relationTo: "posts";
-				value: number | Post;
-		  } | null)
-		| ({
-				relationTo: "orders";
-				value: number | Order;
-		  } | null);
-	globalSlug?: string | null;
-	user: {
-		relationTo: "users";
-		value: number | User;
-	};
-	updatedAt: string;
-	createdAt: string;
+  id: number;
+  document?:
+    | ({
+        relationTo: 'users';
+        value: number | User;
+      } | null)
+    | ({
+        relationTo: 'media';
+        value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'brands';
+        value: number | Brand;
+      } | null)
+    | ({
+        relationTo: 'categories';
+        value: number | Category;
+      } | null)
+    | ({
+        relationTo: 'products';
+        value: number | Product;
+      } | null)
+    | ({
+        relationTo: 'posts';
+        value: number | Post;
+      } | null)
+    | ({
+        relationTo: 'orders';
+        value: number | Order;
+      } | null);
+  globalSlug?: string | null;
+  user: {
+    relationTo: 'users';
+    value: number | User;
+  };
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-preferences".
  */
 export interface PayloadPreference {
-	id: number;
-	user: {
-		relationTo: "users";
-		value: number | User;
-	};
-	key?: string | null;
-	value?:
-		| {
-				[k: string]: unknown;
-		  }
-		| unknown[]
-		| string
-		| number
-		| boolean
-		| null;
-	updatedAt: string;
-	createdAt: string;
+  id: number;
+  user: {
+    relationTo: 'users';
+    value: number | User;
+  };
+  key?: string | null;
+  value?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-migrations".
  */
 export interface PayloadMigration {
-	id: number;
-	name?: string | null;
-	batch?: number | null;
-	updatedAt: string;
-	createdAt: string;
+  id: number;
+  name?: string | null;
+  batch?: number | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
-	firstName?: T;
-	lastName?: T;
-	phone?: T;
-	address?: T;
-	role?: T;
-	customerType?: T;
-	updatedAt?: T;
-	createdAt?: T;
-	email?: T;
-	username?: T;
-	resetPasswordToken?: T;
-	resetPasswordExpiration?: T;
-	salt?: T;
-	hash?: T;
-	loginAttempts?: T;
-	lockUntil?: T;
-	sessions?:
-		| T
-		| {
-				id?: T;
-				createdAt?: T;
-				expiresAt?: T;
-		  };
+  firstName?: T;
+  lastName?: T;
+  address?: T;
+  role?: T;
+  customerType?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  email?: T;
+  username?: T;
+  resetPasswordToken?: T;
+  resetPasswordExpiration?: T;
+  salt?: T;
+  hash?: T;
+  loginAttempts?: T;
+  lockUntil?: T;
+  sessions?:
+    | T
+    | {
+        id?: T;
+        createdAt?: T;
+        expiresAt?: T;
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media_select".
  */
 export interface MediaSelect<T extends boolean = true> {
-	alt?: T;
-	updatedAt?: T;
-	createdAt?: T;
-	url?: T;
-	thumbnailURL?: T;
-	filename?: T;
-	mimeType?: T;
-	filesize?: T;
-	width?: T;
-	height?: T;
-	focalX?: T;
-	focalY?: T;
+  alt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "brands_select".
  */
 export interface BrandsSelect<T extends boolean = true> {
-	name?: T;
-	generateSlug?: T;
-	slug?: T;
-	icon?: T;
-	description?: T;
-	updatedAt?: T;
-	createdAt?: T;
+  name?: T;
+  generateSlug?: T;
+  slug?: T;
+  icon?: T;
+  description?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "categories_select".
  */
 export interface CategoriesSelect<T extends boolean = true> {
-	name?: T;
-	generateSlug?: T;
-	slug?: T;
-	description?: T;
-	updatedAt?: T;
-	createdAt?: T;
+  name?: T;
+  generateSlug?: T;
+  slug?: T;
+  description?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "products_select".
  */
 export interface ProductsSelect<T extends boolean = true> {
-	name?: T;
-	generateSlug?: T;
-	slug?: T;
-	visible?: T;
-	price?: T;
-	inventory?: T;
-	brand?: T;
-	category?: T;
-	images?:
-		| T
-		| {
-				image?: T;
-				id?: T;
-		  };
-	showcaseImage?: T;
-	updatedAt?: T;
-	createdAt?: T;
+  name?: T;
+  generateSlug?: T;
+  slug?: T;
+  visible?: T;
+  price?: T;
+  inventory?: T;
+  brand?: T;
+  category?: T;
+  images?:
+    | T
+    | {
+        image?: T;
+        id?: T;
+      };
+  showcaseImage?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "posts_select".
  */
 export interface PostsSelect<T extends boolean = true> {
-	name?: T;
-	generateSlug?: T;
-	slug?: T;
-	content?: T;
-	published?: T;
-	coverImage?: T;
-	excerpt?: T;
-	publishedAt?: T;
-	updatedAt?: T;
-	createdAt?: T;
+  name?: T;
+  generateSlug?: T;
+  slug?: T;
+  content?: T;
+  published?: T;
+  coverImage?: T;
+  excerpt?: T;
+  publishedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "orders_select".
  */
 export interface OrdersSelect<T extends boolean = true> {
-	customer?: T;
-	items?:
-		| T
-		| {
-				product?: T;
-				name?: T;
-				price?: T;
-				quantity?: T;
-				id?: T;
-		  };
-	total?: T;
-	status?: T;
-	shippingAddress?: T;
-	notes?:
-		| T
-		| {
-				note?: T;
-				createdAt?: T;
-				createdBy?: T;
-				id?: T;
-		  };
-	hasZeroPrice?: T;
-	updatedAt?: T;
-	createdAt?: T;
+  customer?: T;
+  items?:
+    | T
+    | {
+        product?: T;
+        name?: T;
+        price?: T;
+        quantity?: T;
+        id?: T;
+      };
+  total?: T;
+  status?: T;
+  shippingAddress?: T;
+  notes?:
+    | T
+    | {
+        note?: T;
+        createdAt?: T;
+        createdBy?: T;
+        id?: T;
+      };
+  hasZeroPrice?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
-	key?: T;
-	data?: T;
+  key?: T;
+  data?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents_select".
  */
 export interface PayloadLockedDocumentsSelect<T extends boolean = true> {
-	document?: T;
-	globalSlug?: T;
-	user?: T;
-	updatedAt?: T;
-	createdAt?: T;
+  document?: T;
+  globalSlug?: T;
+  user?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-preferences_select".
  */
 export interface PayloadPreferencesSelect<T extends boolean = true> {
-	user?: T;
-	key?: T;
-	value?: T;
-	updatedAt?: T;
-	createdAt?: T;
+  user?: T;
+  key?: T;
+  value?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-migrations_select".
  */
 export interface PayloadMigrationsSelect<T extends boolean = true> {
-	name?: T;
-	batch?: T;
-	updatedAt?: T;
-	createdAt?: T;
+  name?: T;
+  batch?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings".
  */
 export interface SiteSetting {
-	id: number;
-	siteName?: {
-		/**
-		 * Site name in English.
-		 */
-		en?: string | null;
-		/**
-		 * Site name in Persian.
-		 */
-		fa?: string | null;
-	};
-	logo?: (number | null) | Media;
-	favicon?: (number | null) | Media;
-	phones?:
-		| {
-				label?: string | null;
-				number: string;
-				isPrimary?: boolean | null;
-				id?: string | null;
-		  }[]
-		| null;
-	emails?:
-		| {
-				label?: string | null;
-				email: string;
-				isPrimary?: boolean | null;
-				id?: string | null;
-		  }[]
-		| null;
-	addresses?:
-		| {
-				label?: string | null;
-				address: string;
-				isPrimary?: boolean | null;
-				id?: string | null;
-		  }[]
-		| null;
-	socialLinks?:
-		| {
-				icon?: (number | null) | Media;
-				name: string;
-				url: string;
-				description?: string | null;
-				id?: string | null;
-		  }[]
-		| null;
-	/**
-	 * Partner discount percentage (0–100).
-	 */
-	partnerDiscount?: number | null;
-	updatedAt?: string | null;
-	createdAt?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "page-about".
- */
-export interface PageAbout {
-	id: number;
-	content?: {
-		root: {
-			type: string;
-			children: {
-				type: any;
-				version: number;
-				[k: string]: unknown;
-			}[];
-			direction: ("ltr" | "rtl") | null;
-			format: "left" | "start" | "center" | "right" | "end" | "justify" | "";
-			indent: number;
-			version: number;
-		};
-		[k: string]: unknown;
-	} | null;
-	updatedAt?: string | null;
-	createdAt?: string | null;
+  id: number;
+  name: string;
+  logo?: (number | null) | Media;
+  favicon?: (number | null) | Media;
+  phones?:
+    | {
+        label?: string | null;
+        number: string;
+        isPrimary?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  emails?:
+    | {
+        label?: string | null;
+        email: string;
+        isPrimary?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  addresses?:
+    | {
+        label?: string | null;
+        address: string;
+        isPrimary?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  socialLinks?:
+    | {
+        icon?: (number | null) | Media;
+        name: string;
+        url: string;
+        description?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Partner discount percentage (0–100).
+   */
+  partnerDiscount?: number | null;
+  about?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings_select".
  */
 export interface SiteSettingsSelect<T extends boolean = true> {
-	siteName?:
-		| T
-		| {
-				en?: T;
-				fa?: T;
-		  };
-	logo?: T;
-	favicon?: T;
-	phones?:
-		| T
-		| {
-				label?: T;
-				number?: T;
-				isPrimary?: T;
-				id?: T;
-		  };
-	emails?:
-		| T
-		| {
-				label?: T;
-				email?: T;
-				isPrimary?: T;
-				id?: T;
-		  };
-	addresses?:
-		| T
-		| {
-				label?: T;
-				address?: T;
-				isPrimary?: T;
-				id?: T;
-		  };
-	socialLinks?:
-		| T
-		| {
-				icon?: T;
-				name?: T;
-				url?: T;
-				description?: T;
-				id?: T;
-		  };
-	partnerDiscount?: T;
-	updatedAt?: T;
-	createdAt?: T;
-	globalType?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "page-about_select".
- */
-export interface PageAboutSelect<T extends boolean = true> {
-	content?: T;
-	updatedAt?: T;
-	createdAt?: T;
-	globalType?: T;
+  name?: T;
+  logo?: T;
+  favicon?: T;
+  phones?:
+    | T
+    | {
+        label?: T;
+        number?: T;
+        isPrimary?: T;
+        id?: T;
+      };
+  emails?:
+    | T
+    | {
+        label?: T;
+        email?: T;
+        isPrimary?: T;
+        id?: T;
+      };
+  addresses?:
+    | T
+    | {
+        label?: T;
+        address?: T;
+        isPrimary?: T;
+        id?: T;
+      };
+  socialLinks?:
+    | T
+    | {
+        icon?: T;
+        name?: T;
+        url?: T;
+        description?: T;
+        id?: T;
+      };
+  partnerDiscount?: T;
+  about?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "collections_widget".
  */
 export interface CollectionsWidget {
-	data?: {
-		[k: string]: unknown;
-	};
-	width: "full";
+  data?: {
+    [k: string]: unknown;
+  };
+  width: 'full';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "auth".
  */
 export interface Auth {
-	[k: string]: unknown;
+  [k: string]: unknown;
 }
 
-declare module "payload" {
-	export interface GeneratedTypes extends Config {}
+
+declare module 'payload' {
+  export interface GeneratedTypes extends Config {}
 }

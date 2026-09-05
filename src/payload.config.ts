@@ -6,8 +6,7 @@ import sharp from "sharp";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-// import { Users } from "./collections/Users.ts.old";
-import { Users } from "./collections/Users.ts";
+import { Users } from "./collections/Users";
 import { Media } from "./collections/Media";
 import { Brands } from "./collections/Brands";
 import { Categories } from "./collections/Categories";
@@ -15,7 +14,8 @@ import { Products } from "./collections/Products";
 import { Posts } from "./collections/Posts";
 import { Orders } from "./collections/Orders";
 import { SiteSettings } from "./globals/SiteSettings";
-import { PageAbout } from "./globals/PageAbout";
+import { fa } from "payload/i18n/fa";
+import { en } from "payload/i18n/en";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -28,8 +28,13 @@ export default buildConfig({
 		},
 	},
 	collections: [Users, Media, Brands, Categories, Products, Posts, Orders],
-	globals: [SiteSettings, PageAbout],
-	editor: lexicalEditor(),
+	globals: [SiteSettings],
+	i18n: {
+		translations: { fa, en },
+		supportedLanguages: { fa, en },
+		fallbackLanguage: "fa",
+	},
+	editor: lexicalEditor({}),
 	secret: process.env.PAYLOAD_SECRET || "",
 	typescript: {
 		outputFile: path.resolve(dirname, "payload-types.ts"),
@@ -44,6 +49,10 @@ export default buildConfig({
 		phoneNumberPlugin({
 			allowedCountries: ["IR"],
 			defaultCountry: "IR",
+			admin: {
+				countryPrefixDisplayFormat: "flagEmoji",
+				cellDisplayFormat: "national",
+			},
 		}),
 	],
 });
