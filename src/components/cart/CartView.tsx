@@ -2,22 +2,18 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
+import { QuantityStepper } from "@/components/cart/QuantityStepper";
 import { useCartStore } from "@/lib/cart-store";
-import { getPrice, type CustomerType } from "@/lib/pricing";
+import { formatToman, priceCartItems, cartGrandTotal, type CustomerType } from "@/lib/pricing";
 import { t } from "@/lib/t";
 
 type Props = {
 	partnerDiscount?: number;
 	customerType?: CustomerType;
 };
-
-function formatToman(n: number): string {
-	return `${Math.round(n).toLocaleString("fa-IR")} ${t("common.toman")}`;
-}
 
 export function CartView({ partnerDiscount = 0, customerType = "regular" }: Props) {
 	const [mounted, setMounted] = useState(false);
@@ -54,13 +50,8 @@ export function CartView({ partnerDiscount = 0, customerType = "regular" }: Prop
 		);
 	}
 
-	const priced = items.map((item) => {
-		const discounted = getPrice({ price: item.price }, customerType, partnerDiscount);
-		const hasDiscount = discounted !== item.price && customerType === "partner" && partnerDiscount > 0;
-		return { ...item, discounted, hasDiscount };
-	});
-
-	const grandTotal = priced.reduce((sum, i) => sum + i.discounted * i.quantity, 0);
+	const priced = priceCartItems(items, customerType, partnerDiscount);
+	const grandTotal = cartGrandTotal(priced);
 
 	const handleRemove = (id: string, name: string) => {
 		removeItem(id);
@@ -112,36 +103,18 @@ export function CartView({ partnerDiscount = 0, customerType = "regular" }: Prop
 							</div>
 
 							<div className="flex items-center gap-2">
-								<Button
-									variant="outline"
-									size="icon-sm"
-									aria-label={`${t("cart.total")} - ${item.name}`}
-									className="h-8 w-8 rounded-full border-[#cacacb] dark:border-[#39393b]"
-									onClick={() => updateQuantity(item.id, item.quantity - 1)}
-								>
-									<Minus className="h-4 w-4" />
-								</Button>
-								<span className="w-10 text-center text-[16px] font-medium text-[#111111] dark:text-white">
-									{item.quantity.toLocaleString("fa-IR")}
-								</span>
-								<Button
-									variant="outline"
-									size="icon-sm"
-									aria-label={`${t("cart.total")} + ${item.name}`}
-									className="h-8 w-8 rounded-full border-[#cacacb] dark:border-[#39393b]"
-									onClick={() => updateQuantity(item.id, item.quantity + 1)}
-								>
-									<Plus className="h-4 w-4" />
-								</Button>
-								<Button
-									variant="ghost"
-									size="icon-sm"
-									aria-label={`${t("cart.undo")} ${item.name}`}
-									className="ml-auto h-8 w-8 rounded-full text-[#d30005] hover:bg-[#d30005]/10"
-									onClick={() => handleRemove(item.id, item.name)}
-								>
-									<Trash2 className="h-4 w-4" />
-								</Button>
+								<QuantityStepper
+									id={item.id}
+									quantity={item.quantity}
+									onDecrement={() => updateQuantity(item.id, item.quantity - 1)}
+									onIncrement={() => updateQuantity(item.id, item.quantity + 1)}
+									onRemove={() => handleRemove(item.id, item.name)}
+									labels={{
+										decrement: `${t("cart.total")} - ${item.name}`,
+										increment: `${t("cart.total")} + ${item.name}`,
+										remove: `${t("cart.undo")} ${item.name}`,
+									}}
+								/>
 							</div>
 						</div>
 

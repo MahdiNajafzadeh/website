@@ -1,5 +1,7 @@
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
+import { persist } from "zustand/middleware";
+
+import { ssrSafeLocalStorage } from "@/lib/storage";
 
 /**
  * Client-only persisted wishlist store.
@@ -53,12 +55,7 @@ export const useWishlistStore = create<WishlistState>()(
 		}),
 		{
 			name: "wishlist-storage",
-			storage: createJSONStorage(() => {
-				if (typeof window !== "undefined" && typeof window.localStorage !== "undefined") {
-					return window.localStorage;
-				}
-				return undefined as unknown as Storage;
-			}),
+			storage: ssrSafeLocalStorage,
 			partialize: (state) => ({ items: state.items }),
 		},
 	),

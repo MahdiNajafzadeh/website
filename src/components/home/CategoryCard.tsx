@@ -54,7 +54,3 @@ export function CategoryCard({ category, count, imageUrl }: CategoryCardProps) {
 		</Link>
 	);
 }
-
-export function getCategoryImageFallback(): null {
-	return null;
-}

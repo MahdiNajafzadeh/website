@@ -1,24 +1,14 @@
 import type { MetadataRoute } from "next";
 export const dynamic = "force-dynamic";
-import { getPayload } from "payload";
-import config from "@/payload.config";
 import type { Post } from "@/payload-types";
+import { getBaseUrl } from "@/lib/env";
+import { getPayloadClient } from "@/lib/payload";
 
 export const revalidate = 300;
 
-function getBaseUrl(): string {
-	const raw =
-		process.env.NEXT_PUBLIC_SITE_URL ||
-		process.env.NEXT_PUBLIC_SERVER_URL ||
-		process.env.SITE_URL ||
-		"https://example.com";
-	return raw.replace(/\/$/, "");
-}
-
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 	const baseUrl = getBaseUrl();
-	const payloadConfig = await config;
-	const payload = await getPayload({ config: payloadConfig });
+	const payload = await getPayloadClient();
 
 	const res = await payload.find({
 		collection: "posts",

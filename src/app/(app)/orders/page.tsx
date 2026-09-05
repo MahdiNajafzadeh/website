@@ -1,15 +1,19 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { getPayload } from "payload";
 import type { Metadata } from "next";
-import config from "@/payload.config";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { getCurrentUser } from "@/lib/current-user";
+import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
+import { PageContainer } from "@/components/layout/PageContainer";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { getSiteSettings } from "@/lib/site-settings";
 import { formatPriceNumber } from "@/lib/pricing";
+import { formatDate } from "@/lib/dates";
+import { getPayloadClient } from "@/lib/payload";
+import { requireUser } from "@/lib/auth-guard";
 import type { Order } from "@/payload-types";
+import { STATUS_LABELS, statusTone } from "@/lib/orders";
 import { t } from "@/lib/t";
 
 export const dynamic = "force-dynamic";
@@ -23,44 +27,10 @@ export async function generateMetadata(): Promise<Metadata> {
     };
 }
 
-function formatDate(dateString: string | null | undefined): string {
-    if (!dateString) return "";
-    try {
-        return new Date(dateString).toLocaleDateString("fa-IR", { year: "numeric", month: "short", day: "numeric" });
-    } catch {
-        return dateString;
-    }
-}
-
-const STATUS_LABELS: Record<Order["status"], string> = {
-    review: t("orders.status.review"),
-    approved: t("orders.status.approved"),
-    preparing: t("orders.status.preparing"),
-    delivered: t("orders.status.delivered"),
-    cancelled: t("orders.status.cancelled"),
-};
-
-function statusTone(status: Order["status"]): { bg: string; text: string; border: string } {
-    // {colors.success} #007d48 for approved/preparing/delivered
-    // {colors.sale} #d30005 for cancelled
-    // {colors.mute} #707072 for review (default pending)
-    if (status === "cancelled") {
-        return { bg: "bg-[#d30005]/10", text: "text-[#d30005]", border: "border-[#d30005]/20" };
-    }
-    if (status === "delivered" || status === "approved" || status === "preparing") {
-        return { bg: "bg-[#007d48]/10", text: "text-[#007d48]", border: "border-[#007d48]/20" };
-    }
-    return { bg: "bg-[#f5f5f5]", text: "text-[#707072]", border: "border-[#cacacb]" };
-}
-
 export default async function OrdersPage() {
-    const user = await getCurrentUser();
-    if (!user) {
-        redirect("/login?next=/orders");
-    }
+    const user = await requireUser("/orders");
 
-    const payloadConfig = await config;
-    const payload = await getPayload({ config: payloadConfig });
+    const payload = await getPayloadClient();
 
     const res = await payload.find({
         collection: "orders",
@@ -75,46 +45,29 @@ export default async function OrdersPage() {
     const totalOrders = res.totalDocs ?? orders.length;
 
     return (
-        <div className="mx-auto max-w-[1440px] px-4 py-8 md:px-8">
-            <nav
-                className="mb-6 flex items-center gap-1.5 text-sm text-[#707072] dark:text-[#9e9ea0]"
-                aria-label="Breadcrumb"
-            >
-                <Link href="/" className="hover:text-[#111111] dark:hover:text-white">
-                    {t("common.home")}
-                </Link>
-                <span aria-hidden>{t("common.breadcrumbSeparator")}</span>
-                <Link href="/account" className="hover:text-[#111111] dark:hover:text-white">
-                    {t("account.title")}
-                </Link>
-                <span aria-hidden>{t("common.breadcrumbSeparator")}</span>
-                <span className="font-medium text-[#111111] dark:text-white">{t("orders.title")}</span>
-            </nav>
+        <PageContainer>
+            <Breadcrumbs
+                crumbs={[
+                    { href: "/", label: t("common.home") },
+                    { href: "/account", label: t("account.title") },
+                    { label: t("orders.title") },
+                ]}
+                separatorKey="common.breadcrumbSeparator"
+            />
 
-            <h1 className="text-[32px] font-medium leading-[1.2] text-[#111111] dark:text-white">
-                {t("orders.title")}
-            </h1>
-            <p className="mt-1 text-[14px] font-medium text-[#707072] dark:text-[#9e9ea0]">
-                {t("common.countWithLabel", {
-                    count: totalOrders.toLocaleString("fa-IR"),
-                    label: t("common.productsCount"),
-                })}
-            </p>
+            <PageHeader
+                title={t("orders.title")}
+                count={totalOrders}
+                countLabel={t("common.productsCount")}
+            />
 
             {orders.length === 0 ? (
-                <div className="mt-8 rounded-[30px] bg-[#f5f5f5] dark:bg-[#1a1a1a] p-12 text-center">
-                    {/* Empty state — {colors.soft-cloud} #f5f5f5, {rounded.lg} 30px */}
-                    <p className="text-[16px] font-medium leading-[1.5] text-[#111111] dark:text-white">
-                        {t("orders.empty")}
-                    </p>
-                    <p className="mt-1 text-[14px] font-medium leading-[1.5] text-[#707072]">{t("orders.empty")}</p>
-                    <Link
-                        href="/products"
-                        className="mt-4 inline-flex rounded-full bg-[#111111] px-6 py-2 text-[14px] font-medium text-white hover:bg-[#111111]/90"
-                    >
-                        {t("orders.browseProducts")}
-                    </Link>
-                </div>
+                <EmptyState
+                    title={t("orders.empty")}
+                    hint={t("orders.empty")}
+                    actionLabel={t("orders.browseProducts")}
+                    actionHref="/products"
+                />
             ) : (
                 <>
                     {/* Mobile — cards */}
@@ -144,7 +97,7 @@ export default async function OrdersPage() {
                                             </p>
                                             <p className="text-[12px] font-medium text-[#707072]">
                                                 {t("orders.dateWithItems", {
-                                                    date: formatDate(order.createdAt),
+                                                    date: formatDate(order.createdAt, { locale: "fa-IR", preset: "short" }),
                                                     count: String(order.items?.length ?? 0),
                                                     label: t(
                                                         (order.items?.length ?? 0) === 1
@@ -201,7 +154,7 @@ export default async function OrdersPage() {
                                                 </Link>
                                             </TableCell>
                                             <TableCell className="text-[14px] text-[#707072]">
-                                                {formatDate(order.createdAt)}
+                                                {formatDate(order.createdAt, { locale: "fa-IR", preset: "short" })}
                                             </TableCell>
                                             <TableCell>
                                                 <Badge
@@ -237,6 +190,6 @@ export default async function OrdersPage() {
                     </div>
                 </>
             )}
-        </div>
+        </PageContainer>
     );
 }

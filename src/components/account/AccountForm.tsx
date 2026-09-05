@@ -3,6 +3,8 @@
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { formatIranPhone } from "@/lib/phone";
+import { apiFetch } from "@/lib/api";
 
 type Props = {
 	userId: number;
@@ -11,12 +13,6 @@ type Props = {
 	initialPhone: string;
 	initialAddress: string;
 };
-
-function formatPhone(value: string): string {
-	// Pretty-print 09123456789 -> 0912 345 6789. Returns input unchanged if not 11 digits.
-	if (!/^09\d{9}$/.test(value)) return value;
-	return `${value.slice(0, 4)} ${value.slice(4, 7)} ${value.slice(7)}`;
-}
 
 export function AccountForm({ userId, initialFirstName, initialLastName, initialPhone, initialAddress }: Props) {
 	const router = useRouter();
@@ -50,15 +46,13 @@ export function AccountForm({ userId, initialFirstName, initialLastName, initial
 		}
 		startTransition(async () => {
 			try {
-				const res = await fetch(`/api/users/${userId}`, {
+				const res = await apiFetch(`/api/users/${userId}`, {
 					method: "PATCH",
-					headers: { "Content-Type": "application/json" },
-					credentials: "include",
-					body: JSON.stringify({
+					body: {
 						firstName: firstName.trim(),
 						lastName: lastName.trim(),
 						address: address.trim(),
-					}),
+					},
 				});
 				if (!res.ok) {
 					const txt = await res.text().catch(() => "");
@@ -120,7 +114,7 @@ export function AccountForm({ userId, initialFirstName, initialLastName, initial
 					type="text"
 					readOnly
 					aria-readonly
-					value={formatPhone(initialPhone)}
+					value={formatIranPhone(initialPhone)}
 					className="h-11 w-full cursor-not-allowed rounded-[18px] border border-[#cacacb] bg-[#f5f5f5] px-4 text-[14px] leading-[1.5] text-[#707072] focus:outline-none"
 				/>
 				<p className="text-[12px] font-medium text-[#707072]">

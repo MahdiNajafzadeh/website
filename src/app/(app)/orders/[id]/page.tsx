@@ -1,34 +1,23 @@
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
-import { getPayload } from "payload";
+import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import config from "@/payload.config";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { getCurrentUser } from "@/lib/current-user";
+import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
+import { PageContainer } from "@/components/layout/PageContainer";
 import { getSiteSettings } from "@/lib/site-settings";
 import { formatPriceNumber } from "@/lib/pricing";
+import { formatDate } from "@/lib/dates";
+import { getPayloadClient } from "@/lib/payload";
+import { requireUser } from "@/lib/auth-guard";
+import { statusTone, STATUS_HISTORY } from "@/lib/orders";
+import { userDisplayName } from "@/lib/users";
 import type { Order, User } from "@/payload-types";
 import { t } from "@/lib/t";
 
 export const dynamic = "force-dynamic";
 
 type RouteParams = { id: string };
-
-function formatDate(dateString: string | null | undefined): string {
-    if (!dateString) return "";
-    try {
-        return new Date(dateString).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-        });
-    } catch {
-        return dateString;
-    }
-}
 
 const STATUS_LABELS: Record<Order["status"], string> = {
     review: "Review",
@@ -38,33 +27,12 @@ const STATUS_LABELS: Record<Order["status"], string> = {
     cancelled: "Cancelled",
 };
 
-// Status history — represents the lifecycle path. Each entry is shown in order.
-const STATUS_HISTORY: Order["status"][] = ["review", "approved", "preparing", "delivered"];
-
-function statusTone(status: Order["status"]): { bg: string; text: string; border: string } {
-    if (status === "cancelled") {
-        return { bg: "bg-[#d30005]/10", text: "text-[#d30005]", border: "border-[#d30005]/20" };
-    }
-    if (status === "delivered" || status === "approved" || status === "preparing") {
-        return { bg: "bg-[#007d48]/10", text: "text-[#007d48]", border: "border-[#007d48]/20" };
-    }
-    return { bg: "bg-[#f5f5f5]", text: "text-[#707072]", border: "border-[#cacacb]" };
-}
-
 function customerLabel(c: Order["customer"]): string {
-    if (!c) return "—";
-    if (typeof c === "number") return `#${c}`;
-    const u = c as User;
-    if (u.firstName || u.lastName) return `${u.firstName ?? ""} ${u.lastName ?? ""}`.trim();
-    return `#${u.id}`;
+    return userDisplayName(c);
 }
 
 function noteAuthor(author: number | User | null | undefined): string {
-    if (!author) return "Staff";
-    if (typeof author === "number") return `Staff #${author}`;
-    const u = author as User;
-    if (u.firstName || u.lastName) return `${u.firstName ?? ""} ${u.lastName ?? ""}`.trim();
-    return `Staff #${u.id}`;
+    return "Staff " + userDisplayName(author);
 }
 
 export async function generateMetadata({ params }: { params: Promise<RouteParams> }): Promise<Metadata> {
@@ -79,8 +47,7 @@ export async function generateMetadata({ params }: { params: Promise<RouteParams
 
 async function fetchOrder(id: number, userId: number): Promise<Order | null> {
     try {
-        const payloadConfig = await config;
-        const payload = await getPayload({ config: payloadConfig });
+        const payload = await getPayloadClient();
         const order = (await payload.findByID({
             collection: "orders",
             id,
@@ -99,10 +66,7 @@ async function fetchOrder(id: number, userId: number): Promise<Order | null> {
 }
 
 export default async function OrderDetailPage({ params }: { params: Promise<RouteParams> }) {
-    const user = await getCurrentUser();
-    if (!user) {
-        redirect("/login?next=/orders");
-    }
+    const user = await requireUser("/orders");
 
     const { id } = await params;
     const numericId = parseInt(id, 10);
@@ -116,23 +80,17 @@ export default async function OrderDetailPage({ params }: { params: Promise<Rout
     const isCancelled = order.status === "cancelled";
 
     return (
-        <div className="mx-auto max-w-[1440px] px-4 py-8 md:px-8">
+        <PageContainer>
             {/* Breadcrumb — {typography.caption-md} 14px/500, {colors.mute} #707072 */}
-            <nav className="mb-6 flex items-center gap-1.5 text-sm text-[#707072]" aria-label="Breadcrumb">
-                <Link href="/" className="hover:text-[#111111]">
-                    {t("common.home")}
-                </Link>
-                <span aria-hidden>{t("common.breadcrumbSeparator")}</span>
-                <Link href="/account" className="hover:text-[#111111]">
-                    {t("account.title")}
-                </Link>
-                <span aria-hidden>{t("common.breadcrumbSeparator")}</span>
-                <Link href="/orders" className="hover:text-[#111111]">
-                    {t("orders.title")}
-                </Link>
-                <span aria-hidden>{t("common.breadcrumbSeparator")}</span>
-                <span className="font-medium text-[#111111]">{t("orders.orderHash", { id: String(order.id) })}</span>
-            </nav>
+            <Breadcrumbs
+                crumbs={[
+                    { href: "/", label: t("common.home") },
+                    { href: "/account", label: t("account.title") },
+                    { href: "/orders", label: t("orders.title") },
+                    { label: t("orders.orderHash", { id: String(order.id) }) },
+                ]}
+                separatorKey="common.breadcrumbSeparator"
+            />
 
             <div className="flex flex-wrap items-center justify-between gap-3">
                 {/* Title — {typography.heading-xl} 32px/500, {colors.ink} #111111 */}
@@ -144,7 +102,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<Rout
                     {STATUS_LABELS[order.status]}
                 </Badge>
             </div>
-            <p className="mt-1 text-[14px] font-medium text-[#707072]">{t("orders.placedWithDate", { date: formatDate(order.createdAt) })}</p>
+            <p className="mt-1 text-[14px] font-medium text-[#707072]">{t("orders.placedWithDate", { date: formatDate(order.createdAt, { locale: "en-US", preset: "datetime" }) })}</p>
 
             {order.hasZeroPrice ? (
                 <div className="mt-4 rounded-[18px] border border-[#d30005]/30 bg-[#d30005]/5 p-4 text-[14px] font-medium text-[#d30005]">
@@ -260,7 +218,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<Rout
                                             <p className="text-[12px] font-medium text-[#707072]">
                                                 {t("orders.dateWithItems", {
                                                     date: noteAuthor(n.createdBy),
-                                                    count: formatDate(n.createdAt ?? order.updatedAt),
+                                                    count: formatDate(n.createdAt ?? order.updatedAt, { locale: "en-US", preset: "datetime" }),
                                                     label: "",
                                                 })}
                                             </p>
@@ -297,13 +255,13 @@ export default async function OrderDetailPage({ params }: { params: Promise<Rout
                                     <dt className="text-[12px] font-medium uppercase tracking-wide text-[#707072]">
                                         {t("orders.placedLabel")}
                                     </dt>
-                                    <dd className="mt-0.5 text-[#111111]">{formatDate(order.createdAt)}</dd>
+                                    <dd className="mt-0.5 text-[#111111]">{formatDate(order.createdAt, { locale: "en-US", preset: "datetime" })}</dd>
                                 </div>
                                 <div>
                                     <dt className="text-[12px] font-medium uppercase tracking-wide text-[#707072]">
                                         {t("orders.lastUpdate")}
                                     </dt>
-                                    <dd className="mt-0.5 text-[#111111]">{formatDate(order.updatedAt)}</dd>
+                                    <dd className="mt-0.5 text-[#111111]">{formatDate(order.updatedAt, { locale: "en-US", preset: "datetime" })}</dd>
                                 </div>
                             </dl>
                         </CardContent>
@@ -321,6 +279,6 @@ export default async function OrderDetailPage({ params }: { params: Promise<Rout
                     ) : null}
                 </aside>
             </div>
-        </div>
+        </PageContainer>
     );
 }

@@ -1,19 +1,16 @@
 import Link from "next/link";
-import { getPayload } from "payload";
 
-import config from "@/payload.config";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-	Pagination,
-	PaginationContent,
-	PaginationEllipsis,
-	PaginationItem,
-	PaginationLink,
-	PaginationNext,
-	PaginationPrevious,
-} from "@/components/ui/pagination";
+import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { InitialsAvatar } from "@/components/ui/InitialsAvatar";
+import { PageContainer } from "@/components/layout/PageContainer";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { PaginatedView } from "@/components/ui/PaginatedView";
 import type { Category } from "@/payload-types";
 import { t } from "@/lib/t";
+import { getPayloadClient } from "@/lib/payload";
+import { buildPageHref, parsePageParam } from "@/lib/url";
 
 export const dynamic = "force-dynamic";
 
@@ -22,31 +19,13 @@ type SearchParams = {
 	q?: string;
 };
 
-function buildPageHref(
-	base: SearchParams & { page?: number | string },
-	overrides: Partial<Record<string, string | undefined>>,
-) {
-	const params = new URLSearchParams();
-	const merged: Record<string, string | undefined> = {
-		q: base.q,
-		page: base.page ? String(base.page) : undefined,
-		...overrides,
-	};
-	for (const [k, v] of Object.entries(merged)) {
-		if (v && v !== "") params.set(k, v);
-	}
-	const qs = params.toString();
-	return qs ? `/categories?${qs}` : "/categories";
-}
-
 export default async function CategoriesPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
 	const sp = await searchParams;
 	const q = sp.q?.trim() ?? "";
-	const page = Math.max(1, parseInt(sp.page ?? "1", 10) || 1);
+	const page = parsePageParam(sp.page);
 	const limit = 12;
 
-	const payloadConfig = await config;
-	const payload = await getPayload({ config: payloadConfig });
+	const payload = await getPayloadClient();
 
 	const where: Record<string, unknown> | undefined = q ? { name: { like: q } } : undefined;
 
@@ -65,27 +44,13 @@ export default async function CategoriesPage({ searchParams }: { searchParams: P
 	const totalDocs = res.totalDocs ?? categories.length;
 
 	return (
-		<div className="mx-auto max-w-[1440px] px-4 py-8 md:px-8">
-			<nav
-				className="mb-6 flex items-center gap-1.5 text-sm text-[#707072] dark:text-[#9e9ea0]"
-				aria-label="Breadcrumb"
-			>
-				<Link href="/" className="hover:text-[#111111] dark:hover:text-white">
-					{t("common.home")}
-				</Link>
-				<span aria-hidden>{t("common.breadcrumbSeparatorSlash")}</span>
-				<span className="font-medium text-[#111111] dark:text-white">{t("categories.title")}</span>
-			</nav>
+		<PageContainer>
+			<Breadcrumbs
+				crumbs={[{ href: "/", label: t("common.home") }, { label: t("categories.title") }]}
+				separatorKey="common.breadcrumbSeparatorSlash"
+			/>
 
-			<h1 className="text-[32px] font-medium leading-[1.2] text-[#111111] dark:text-white">
-				{t("categories.title")}
-			</h1>
-			<p className="mt-1 text-[14px] font-medium text-[#707072] dark:text-[#9e9ea0]">
-				{t("common.countWithLabel", {
-					count: totalDocs.toLocaleString("fa-IR"),
-					label: t("common.categories"),
-				})}
-			</p>
+			<PageHeader title={t("categories.title")} count={totalDocs} countLabel={t("common.categories")} />
 
 			<form action="/categories" method="get" className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
 				<div className="flex flex-1 items-center gap-2">
@@ -113,29 +78,19 @@ export default async function CategoriesPage({ searchParams }: { searchParams: P
 			</form>
 
 			{categories.length === 0 ? (
-				<div className="mt-8 rounded-[30px] bg-[#f5f5f5] p-12 text-center dark:bg-[#1a1a1a]">
-					<p className="text-[16px] font-medium text-[#111111] dark:text-white">
-						{t("categories.noCategories")}
-					</p>
-					<p className="mt-1 text-[14px] font-medium text-[#707072] dark:text-[#9e9ea0]">
-						{t("common.noProductsHint")}
-					</p>
-					<Link
-						href="/products"
-						className="mt-4 inline-flex rounded-full bg-[#111111] px-6 py-2 text-[14px] font-medium text-white dark:bg-white dark:text-[#111111]"
-					>
-						{t("common.viewAll")}
-					</Link>
-				</div>
+				<EmptyState
+					title={t("categories.noCategories")}
+					hint={t("common.noProductsHint")}
+					actionLabel={t("common.viewAll")}
+					actionHref="/products"
+				/>
 			) : (
 				<div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
 					{categories.map((cat) => (
 						<Link key={cat.id} href={`/products?category=${cat.slug}`} className="group">
 							<Card className="overflow-hidden rounded-[30px] border border-[#e5e5e5] p-0 hover:border-[#cacacb] dark:border-[#39393b] dark:bg-[#1a1a1a] transition-colors">
 								<div className="flex aspect-[4/3] flex-col items-center justify-center gap-3 bg-[#f5f5f5] p-6 dark:bg-[#111111]">
-									<div className="flex size-16 items-center justify-center rounded-full bg-white text-[20px] font-medium text-[#111111] ring-1 ring-[#e5e5e5]">
-										{cat.name.charAt(0).toUpperCase()}
-									</div>
+									<InitialsAvatar name={cat.name} size="lg" />
 									<span className="line-clamp-2 text-center text-[16px] font-medium leading-[1.5] text-[#111111] dark:text-white">
 										{cat.name}
 									</span>
@@ -156,72 +111,14 @@ export default async function CategoriesPage({ searchParams }: { searchParams: P
 				</div>
 			)}
 
-			{totalPages > 1 && (
-				<div className="mt-8">
-					<Pagination>
-						<PaginationContent>
-							{page > 1 && (
-								<PaginationItem>
-									<PaginationPrevious
-										href={buildPageHref({ q, page: String(page) }, { page: String(page - 1) })}
-									/>
-								</PaginationItem>
-							)}
-							{Array.from({ length: totalPages }, (_, i) => i + 1)
-								.filter((p) => {
-									if (totalPages <= 7) return true;
-									if (p === 1 || p === totalPages) return true;
-									if (Math.abs(p - page) <= 1) return true;
-									if (page <= 3 && p <= 4) return true;
-									if (page >= totalPages - 2 && p >= totalPages - 3) return true;
-									return false;
-								})
-								.reduce<(number | "ellipsis")[]>((acc, p, idx, arr) => {
-									const prev = arr[idx - 1];
-									if (
-										prev !== undefined &&
-										typeof p === "number" &&
-										typeof prev === "number" &&
-										p - prev > 1
-									)
-										acc.push("ellipsis");
-									acc.push(p);
-									return acc;
-								}, [])
-								.map((p, idx) =>
-									p === "ellipsis" ? (
-										<PaginationItem key={`e-${idx}`}>
-											<PaginationEllipsis />
-										</PaginationItem>
-									) : (
-										<PaginationItem key={p}>
-											<PaginationLink
-												href={buildPageHref({ q, page: String(page) }, { page: String(p) })}
-												isActive={p === page}
-											>
-												{p}
-											</PaginationLink>
-										</PaginationItem>
-									),
-								)}
-							{page < totalPages && (
-								<PaginationItem>
-									<PaginationNext
-										href={buildPageHref({ q, page: String(page) }, { page: String(page + 1) })}
-									/>
-								</PaginationItem>
-							)}
-						</PaginationContent>
-					</Pagination>
-					<p className="mt-3 text-center text-[12px] font-medium text-[#707072] dark:text-[#9e9ea0]">
-						{t("categories.pagination", {
-							page: page.toLocaleString("fa-IR"),
-							totalPages: totalPages.toLocaleString("fa-IR"),
-							count: totalDocs.toLocaleString("fa-IR"),
-						})}
-					</p>
-				</div>
-			)}
-		</div>
+			<PaginatedView
+				page={page}
+				totalPages={totalPages}
+				buildHref={(p) =>
+					buildPageHref("/categories", { q, page: String(page) }, { page: String(p) })
+				}
+				paginationLabel={{ templateKey: "categories.pagination", count: totalDocs }}
+			/>
+		</PageContainer>
 	);
 }

@@ -1,18 +1,10 @@
-import { getPayload } from "payload";
 export const dynamic = "force-dynamic";
-import config from "@/payload.config";
 import type { Post } from "@/payload-types";
+import { getBaseUrl } from "@/lib/env";
+import { plainTextFromLexical } from "@/lib/posts";
+import { getPayloadClient } from "@/lib/payload";
 
 export const revalidate = 300;
-
-function getBaseUrl(): string {
-	const raw =
-		process.env.NEXT_PUBLIC_SITE_URL ||
-		process.env.NEXT_PUBLIC_SERVER_URL ||
-		process.env.SITE_URL ||
-		"https://example.com";
-	return raw.replace(/\/$/, "");
-}
 
 function escapeXml(str: string): string {
 	return str
@@ -23,24 +15,9 @@ function escapeXml(str: string): string {
 		.replace(/'/g, "&apos;");
 }
 
-function plainTextFromLexical(content: Post["content"]): string {
-	if (!content || typeof content !== "object" || !("root" in content)) return "";
-	const root = (content as { root: { children: Array<{ children?: Array<{ text?: string }> }> } }).root;
-	if (!root?.children) return "";
-	let out = "";
-	for (const node of root.children) {
-		const children = (node as { children?: Array<{ text?: string }> }).children ?? [];
-		for (const child of children) {
-			if (typeof child.text === "string") out += child.text + " ";
-		}
-	}
-	return out.replace(/\s+/g, " ").trim();
-}
-
 export async function GET() {
 	const baseUrl = getBaseUrl();
-	const payloadConfig = await config;
-	const payload = await getPayload({ config: payloadConfig });
+	const payload = await getPayloadClient();
 
 	const res = await payload.find({
 		collection: "posts",

@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { useState } from "react";
+import { AuthFormShell } from "@/components/auth/AuthFormShell";
+import { apiFetch, parsePayloadError } from "@/lib/api";
 import { t } from "@/lib/t";
 
 function RegisterForm() {
@@ -32,23 +34,19 @@ function RegisterForm() {
         }
         setLoading(true);
         try {
-            const createRes = await fetch("/api/users", {
+            const createRes = await apiFetch("/api/users", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-                body: JSON.stringify({
+                body: {
                     firstName: firstName.trim(),
                     lastName: lastName.trim(),
                     phone: trimmedPhone,
                     username: trimmedPhone,
                     password,
                     address: address.trim() || undefined,
-                }),
+                },
             });
             if (!createRes.ok) {
-                const data = await createRes.json().catch(() => ({}));
-                const msg =
-                    (data?.errors?.[0]?.message as string) || (data?.message as string) || t("auth.registrationFailed");
+                const msg = await parsePayloadError(createRes, t("auth.registrationFailed"));
                 throw new Error(msg);
             }
             router.push(nextParam);
@@ -200,14 +198,8 @@ function RegisterForm() {
 
 export default function RegisterPage() {
     return (
-        <Suspense
-            fallback={
-                <div className="min-h-[70vh] flex items-center justify-center bg-white dark:bg-[#111111] px-4 py-10">
-                    <p className="text-sm text-[#707072] dark:text-[#9e9ea0]">{t("auth.loading")}</p>
-                </div>
-            }
-        >
+        <AuthFormShell verticalPadding="py-10">
             <RegisterForm />
-        </Suspense>
+        </AuthFormShell>
     );
 }

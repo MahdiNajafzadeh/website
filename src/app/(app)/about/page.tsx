@@ -1,9 +1,8 @@
 import Link from "next/link";
-import { getPayload } from "payload";
 import type { Metadata } from "next";
-import config from "@/payload.config";
 import { RichText } from "@payloadcms/richtext-lexical/react";
 import { getSiteSettings } from "@/lib/site-settings";
+import { getPayloadClient } from "@/lib/payload";
 import { t } from "@/lib/t";
 
 export const dynamic = "force-dynamic";
@@ -18,8 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 async function fetchAbout(): Promise<PageAbout | null> {
     try {
-        const payloadConfig = await config;
-        const payload = await getPayload({ config: payloadConfig });
+        const payload = await getPayloadClient();
         const data = (await payload.findGlobal({ slug: "page-about", depth: 0 })) as unknown as PageAbout | null;
         return data ?? null;
     } catch {

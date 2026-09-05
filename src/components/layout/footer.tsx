@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import type { Media, SiteSetting } from "@/payload-types";
 import { NAV_LINKS } from "@/components/layout/header";
+import { ContactChannelList } from "@/components/contact/ContactChannelList";
 
 type FooterProps = {
     siteName: string;
@@ -11,19 +12,7 @@ type FooterProps = {
     socialLinks?: SiteSetting["socialLinks"];
 };
 
-function sortByPrimary<T extends { isPrimary?: boolean | null }>(arr: T[] | null | undefined): T[] {
-    if (!arr || arr.length === 0) return [];
-    return [...arr].sort((a, b) => {
-        if (a.isPrimary && !b.isPrimary) return -1;
-        if (!a.isPrimary && b.isPrimary) return 1;
-        return 0;
-    });
-}
-
 export function Footer({ siteName, phones, emails, addresses, socialLinks }: FooterProps) {
-    const sortedPhones = sortByPrimary(phones);
-    const sortedEmails = sortByPrimary(emails);
-    const sortedAddresses = sortByPrimary(addresses);
     const socials = socialLinks ?? [];
 
     return (
@@ -31,73 +20,34 @@ export function Footer({ siteName, phones, emails, addresses, socialLinks }: Foo
             <div className="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 lg:px-8">
                 <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
                     {/* Phones column */}
-                    <div className="space-y-4">
-                        <h3 className="text-[14px] font-medium leading-[1.5] text-[#111111] dark:text-white">تلفن</h3>
-                        {sortedPhones.length > 0 ? (
-                            <ul className="space-y-3">
-                                {sortedPhones.map((phone) => (
-                                    <li key={phone.id ?? phone.number}>
-                                        <p className="text-[12px] font-medium uppercase tracking-wide text-[#707072] dark:text-[#9e9ea0]">
-                                            {phone.label || "تلفن"}
-                                        </p>
-                                        <a
-                                            href={`tel:${phone.number}`}
-                                            className="text-[14px] font-medium leading-[1.5] text-[#111111] hover:underline dark:text-white"
-                                        >
-                                            {phone.number}
-                                        </a>
-                                    </li>
-                                ))}
-                            </ul>
-                        ) : (
-                            <p className="text-[14px] leading-[1.5]">شماره‌ای ثبت نشده</p>
-                        )}
-                    </div>
+                    <ContactChannelList
+                        channels={phones}
+                        kind="phone"
+                        heading="تلفن"
+                        noChannelLabel="شماره‌ای ثبت نشده"
+                        defaultLabel="تلفن"
+                        variant="footer"
+                    />
 
                     {/* Emails column */}
-                    <div className="space-y-4">
-                        <h3 className="text-[14px] font-medium leading-[1.5] text-[#111111] dark:text-white">ایمیل</h3>
-                        {sortedEmails.length > 0 ? (
-                            <ul className="space-y-3">
-                                {sortedEmails.map((mail) => (
-                                    <li key={mail.id ?? mail.email}>
-                                        <p className="text-[12px] font-medium uppercase tracking-wide text-[#707072] dark:text-[#9e9ea0]">
-                                            {mail.label || "ایمیل"}
-                                        </p>
-                                        <a
-                                            href={`mailto:${mail.email}`}
-                                            className="text-[14px] font-medium leading-[1.5] text-[#111111] hover:underline dark:text-white"
-                                        >
-                                            {mail.email}
-                                        </a>
-                                    </li>
-                                ))}
-                            </ul>
-                        ) : (
-                            <p className="text-[14px] leading-[1.5]">ایمیلی ثبت نشده</p>
-                        )}
-                    </div>
+                    <ContactChannelList
+                        channels={emails}
+                        kind="email"
+                        heading="ایمیل"
+                        noChannelLabel="ایمیلی ثبت نشده"
+                        defaultLabel="ایمیل"
+                        variant="footer"
+                    />
 
                     {/* Addresses column */}
-                    <div className="space-y-4">
-                        <h3 className="text-[14px] font-medium leading-[1.5] text-[#111111] dark:text-white">آدرس</h3>
-                        {sortedAddresses.length > 0 ? (
-                            <ul className="space-y-3">
-                                {sortedAddresses.map((addr) => (
-                                    <li key={addr.id ?? addr.address}>
-                                        <p className="text-[12px] font-medium uppercase tracking-wide text-[#707072] dark:text-[#9e9ea0]">
-                                            {addr.label || "آدرس"}
-                                        </p>
-                                        <p className="text-[14px] leading-[1.5] text-[#111111] dark:text-white">
-                                            {addr.address}
-                                        </p>
-                                    </li>
-                                ))}
-                            </ul>
-                        ) : (
-                            <p className="text-[14px] leading-[1.5]">آدرسی ثبت نشده</p>
-                        )}
-                    </div>
+                    <ContactChannelList
+                        channels={addresses}
+                        kind="address"
+                        heading="آدرس"
+                        noChannelLabel="آدرسی ثبت نشده"
+                        defaultLabel="آدرس"
+                        variant="footer"
+                    />
 
                     {/* Access column */}
                     <div className="space-y-4">

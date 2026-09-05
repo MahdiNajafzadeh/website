@@ -1,70 +1,22 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getPayload } from "payload";
 import type { Metadata } from "next";
-import config from "@/payload.config";
-import type { Media, Post, SiteSetting } from "@/payload-types";
+import type { Media, Post } from "@/payload-types";
 import { RichText } from "@payloadcms/richtext-lexical/react";
+import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
+import { PageContainer } from "@/components/layout/PageContainer";
 import { t } from "@/lib/t";
+import { getBaseUrl } from "@/lib/env";
+import { getMediaUrl } from "@/lib/media";
+import { formatDate } from "@/lib/dates";
+import { getSiteName } from "@/lib/site-settings";
+import { plainTextFromLexical } from "@/lib/posts";
+import { getPayloadClient } from "@/lib/payload";
 
 export const revalidate = 300;
 
-function getBaseUrl(): string {
-	const raw =
-		process.env.NEXT_PUBLIC_SITE_URL ||
-		process.env.NEXT_PUBLIC_SERVER_URL ||
-		process.env.SITE_URL ||
-		"https://example.com";
-	return raw.replace(/\/$/, "");
-}
-
-function getMediaUrl(media: number | Media | null | undefined): string | null {
-	if (!media || typeof media === "number") return null;
-	return (media as Media).url ?? null;
-}
-
-function formatDate(dateString: string | null | undefined): string {
-	if (!dateString) return "";
-	try {
-		return new Date(dateString).toLocaleDateString("en-US", {
-			year: "numeric",
-			month: "long",
-			day: "numeric",
-		});
-	} catch {
-		return dateString;
-	}
-}
-
-async function getSiteName(): Promise<string> {
-	try {
-		const payloadConfig = await config;
-		const payload = await getPayload({ config: payloadConfig });
-		const data = (await payload.findGlobal({ slug: "site-settings", depth: 1 })) as unknown as SiteSetting;
-		return data?.siteName?.en || data?.siteName?.fa || "Store";
-	} catch {
-		return "Store";
-	}
-}
-
-function plainTextFromLexical(content: Post["content"]): string {
-	if (!content || typeof content !== "object" || !("root" in content)) return "";
-	const root = (content as { root: { children: Array<{ children?: Array<{ text?: string }> }> } }).root;
-	if (!root?.children) return "";
-	let out = "";
-	for (const node of root.children) {
-		const children = (node as { children?: Array<{ text?: string }> }).children ?? [];
-		for (const child of children) {
-			if (typeof child.text === "string") out += child.text + " ";
-		}
-		out += " ";
-	}
-	return out.replace(/\s+/g, " ").trim();
-}
-
 async function fetchPost(slug: string): Promise<Post | null> {
-	const payloadConfig = await config;
-	const payload = await getPayload({ config: payloadConfig });
+	const payload = await getPayloadClient();
 	const res = await payload.find({
 		collection: "posts",
 		where: {
@@ -131,24 +83,20 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
 	const coverUrl = getMediaUrl(post.coverImage as Media | number | null | undefined);
 	const coverAlt =
 		(post.coverImage && typeof post.coverImage !== "number" ? (post.coverImage as Media).alt : null) ?? post.name;
-	const date = formatDate(post.publishedAt ?? post.createdAt);
+	const date = formatDate(post.publishedAt ?? post.createdAt, { locale: "en-US", preset: "long" });
 	const baseUrl = getBaseUrl();
 	const canonical = `${baseUrl}/blog/${post.slug}`;
 
 	return (
-		<div className="mx-auto max-w-[1440px] px-4 py-8 md:px-8">
-			{/* Breadcrumb — Home › Blog › {post.name} — {typography.caption-md} 14px/500 */}
-			<nav className="mb-6 flex items-center gap-1.5 text-sm text-[#707072]" aria-label="Breadcrumb">
-				<Link href="/" className="hover:text-[#111111]">
-					{t("common.home")}
-				</Link>
-				<span aria-hidden>{t("common.breadcrumbSeparator")}</span>
-				<Link href="/blog" className="hover:text-[#111111]">
-					{t("blog.title")}
-				</Link>
-				<span aria-hidden>{t("common.breadcrumbSeparator")}</span>
-				<span className="font-medium text-[#111111] line-clamp-1">{post.name}</span>
-			</nav>
+		<PageContainer>
+			<Breadcrumbs
+				crumbs={[
+					{ href: "/", label: t("common.home") },
+					{ href: "/blog", label: t("blog.title") },
+					{ label: post.name },
+				]}
+				separatorKey="common.breadcrumbSeparator"
+			/>
 
 			{/* canonical link for SSR verification without JS — also covered by generateMetadata alternates */}
 			<link rel="canonical" href={canonical} />
@@ -177,6 +125,6 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
 					{post.content ? <RichText data={post.content} /> : <p className="text-[#707072]">{t("blog.noContent")}</p>}
 				</div>
 			</article>
-		</div>
+		</PageContainer>
 	);
 }

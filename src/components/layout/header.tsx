@@ -5,6 +5,7 @@ import { ShoppingBag } from "lucide-react";
 import { CartBadge } from "@/components/layout/CartBadge";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { LogoutButton } from "@/components/layout/LogoutButton";
+import { InitialsAvatar } from "@/components/ui/InitialsAvatar";
 import { t } from "@/lib/t";
 import type { User } from "@/payload-types";
 
@@ -23,8 +24,6 @@ type HeaderProps = {
 };
 
 export function Header({ siteName, logoUrl, currentUser }: HeaderProps) {
-    const initials = currentUser ? `${(currentUser.firstName?.[0] ?? "") + (currentUser.lastName?.[0] ?? "")}` : "";
-
     return (
         <header className="sticky top-0 z-50 border-b border-[#e5e5e5] bg-[#ffffff] text-[#111111] dark:border-[#39393b] dark:bg-[#111111] dark:text-white">
             <div className="mx-auto flex h-14 max-w-[1440px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
@@ -32,9 +31,7 @@ export function Header({ siteName, logoUrl, currentUser }: HeaderProps) {
                     {logoUrl ? (
                         <Image src={logoUrl} alt={siteName} className="h-8 w-8 object-contain" width={32} height={32} />
                     ) : (
-                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#111111] text-[12px] font-medium text-white dark:bg-white dark:text-[#111111]">
-                            {siteName.charAt(0).toUpperCase()}
-                        </span>
+                        <InitialsAvatar name={siteName} size="sm" />
                     )}
                     <span className="text-[16px] font-medium leading-[1.75] tracking-[0] text-[#111111] dark:text-white">
                         {siteName}
@@ -73,7 +70,10 @@ export function Header({ siteName, logoUrl, currentUser }: HeaderProps) {
                                 className="flex h-9 w-9 items-center justify-center rounded-full bg-[#111111] text-[12px] font-medium text-white transition-opacity hover:opacity-90 dark:bg-white dark:text-[#111111]"
                                 data-od-id="header-avatar"
                             >
-                                {initials.toUpperCase()}
+                                <InitialsAvatar
+                                    name={`${currentUser.firstName ?? ""}${currentUser.lastName ?? ""}`}
+                                    size="md"
+                                />
                             </Link>
                             <LogoutButton />
                         </>

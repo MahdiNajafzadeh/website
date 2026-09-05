@@ -4,6 +4,7 @@ import { useCartStore } from "@/lib/cart-store";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { ShoppingBag } from "lucide-react";
+import { getStockState } from "@/lib/inventory";
 
 type Props = {
 	product: {
@@ -19,8 +20,7 @@ type Props = {
 export function AddToCartButton({ product, disabled }: Props) {
 	const addItem = useCartStore((s) => s.addItem);
 	const price = product.price ?? 0;
-	const inventory = product.inventory ?? 0;
-	const isOutOfStock = inventory <= 0;
+	const { isOutOfStock } = getStockState(product.inventory);
 
 	const handleAdd = () => {
 		if (isOutOfStock || disabled) return;

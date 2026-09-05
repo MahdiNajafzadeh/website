@@ -1,20 +1,15 @@
 import Link from "next/link";
-import { getPayload } from "payload";
-import config from "@/payload.config";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-	Pagination,
-	PaginationContent,
-	PaginationItem,
-	PaginationLink,
-	PaginationNext,
-	PaginationPrevious,
-	PaginationEllipsis,
-} from "@/components/ui/pagination";
-import type { Brand, Category, Media, Product } from "@/payload-types";
+import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { PageContainer } from "@/components/layout/PageContainer";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { PaginatedView } from "@/components/ui/PaginatedView";
+import { ProductCard } from "@/components/product/ProductCard";
+import type { Brand, Category, Product } from "@/payload-types";
 import { t } from "@/lib/t";
+import { buildPageHref, parsePageParam } from "@/lib/url";
+import { getPayloadClient } from "@/lib/payload";
 
 export const dynamic = "force-dynamic";
 
@@ -25,40 +20,15 @@ type SearchParams = {
 	page?: string;
 };
 
-function getMediaUrl(media: number | Media | null | undefined): string | null {
-	if (!media || typeof media === "number") return null;
-	return (media as Media).url ?? null;
-}
-
-function buildPageHref(
-	base: SearchParams & { page?: number | string },
-	overrides: Partial<Record<string, string | undefined>>,
-) {
-	const params = new URLSearchParams();
-	const merged: Record<string, string | undefined> = {
-		q: base.q,
-		brand: base.brand,
-		category: base.category,
-		page: base.page ? String(base.page) : undefined,
-		...overrides,
-	};
-	for (const [k, v] of Object.entries(merged)) {
-		if (v && v !== "") params.set(k, v);
-	}
-	const qs = params.toString();
-	return qs ? `/products?${qs}` : "/products";
-}
-
 export default async function ProductsPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
 	const sp = await searchParams;
 	const q = sp.q?.trim() ?? "";
 	const brandSlug = sp.brand?.trim() ?? "";
 	const categorySlug = sp.category?.trim() ?? "";
-	const page = Math.max(1, parseInt(sp.page ?? "1", 10) || 1);
+	const page = parsePageParam(sp.page);
 	const limit = 12;
 
-	const payloadConfig = await config;
-	const payload = await getPayload({ config: payloadConfig });
+	const payload = await getPayloadClient();
 
 	let brandId: number | null = null;
 	let brandNotFound = false;
@@ -114,35 +84,26 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 	const categories = categoriesRes.docs as Category[];
 	const totalPages = productsRes.totalPages ?? 1;
 	const activeFiltersCount = [q, brandSlug, categorySlug].filter(Boolean).length;
+	const subtitle = `${t("common.countWithLabel", {
+		count: productsRes.totalDocs.toLocaleString("fa-IR"),
+		label: t("common.productsCount"),
+	})}${
+		activeFiltersCount > 0
+			? t("products.filterSuffix", {
+					count: activeFiltersCount.toLocaleString("fa-IR"),
+					label: t("common.browse"),
+				})
+			: ""
+	}`;
 
 	return (
-		<div className="mx-auto max-w-[1440px] px-4 py-8 md:px-8">
-			<nav
-				className="mb-6 flex items-center gap-1.5 text-sm text-[#707072] dark:text-[#9e9ea0]"
-				aria-label="Breadcrumb"
-			>
-				<Link href="/" className="hover:text-[#111111] dark:hover:text-white">
-					{t("common.home")}
-				</Link>
-				<span aria-hidden>{t("common.breadcrumbSeparatorSlash")}</span>
-				<span className="font-medium text-[#111111] dark:text-white">{t("products.title")}</span>
-			</nav>
+		<PageContainer>
+			<Breadcrumbs
+				crumbs={[{ href: "/", label: t("common.home") }, { label: t("products.title") }]}
+				separatorKey="common.breadcrumbSeparatorSlash"
+			/>
 
-			<h1 className="mb-2 text-[32px] font-medium leading-[1.2] text-[#111111] dark:text-white">
-				{t("products.title")}
-			</h1>
-			<p className="mb-6 text-[14px] font-medium text-[#707072] dark:text-[#9e9ea0]">
-				{t("common.countWithLabel", {
-					count: productsRes.totalDocs.toLocaleString("fa-IR"),
-					label: t("common.productsCount"),
-				})}
-				{activeFiltersCount > 0
-					? t("products.filterSuffix", {
-							count: activeFiltersCount.toLocaleString("fa-IR"),
-							label: t("common.browse"),
-						})
-					: ""}
-			</p>
+			<PageHeader title={t("products.title")} subtitle={subtitle} />
 
 			<form action="/products" method="get" className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center">
 				{brandSlug && <input type="hidden" name="brand" value={brandSlug} />}
@@ -177,6 +138,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 				</span>
 				<Link
 					href={buildPageHref(
+						"/products",
 						{ q, brand: brandSlug, category: categorySlug },
 						{ brand: undefined, page: "1" },
 					)}
@@ -194,6 +156,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 						<Link
 							key={b.id}
 							href={buildPageHref(
+								"/products",
 								{ q, brand: brandSlug, category: categorySlug },
 								{ brand: b.slug ?? "", page: "1" },
 							)}
@@ -215,6 +178,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 				</span>
 				<Link
 					href={buildPageHref(
+						"/products",
 						{ q, brand: brandSlug, category: categorySlug },
 						{ category: undefined, page: "1" },
 					)}
@@ -232,6 +196,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 						<Link
 							key={c.id}
 							href={buildPageHref(
+								"/products",
 								{ q, brand: brandSlug, category: categorySlug },
 								{ category: c.slug ?? "", page: "1" },
 							)}
@@ -248,184 +213,32 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 			</div>
 
 			{products.length === 0 ? (
-				<div className="rounded-[30px] bg-[#f5f5f5] p-12 text-center dark:bg-[#1a1a1a]">
-					<p className="text-[16px] font-medium text-[#111111] dark:text-white">{t("common.noProducts")}</p>
-					<p className="mt-1 text-[14px] font-medium text-[#707072] dark:text-[#9e9ea0]">
-						{t("common.noProductsHint")}
-					</p>
-					<Link
-						href="/products"
-						className="mt-4 inline-flex rounded-full bg-[#111111] px-6 py-2 text-[14px] font-medium text-white dark:bg-white dark:text-[#111111]"
-					>
-						{t("common.viewAll")}
-					</Link>
-				</div>
+				<EmptyState
+					title={t("common.noProducts")}
+					hint={t("common.noProductsHint")}
+					actionLabel={t("common.viewAll")}
+					actionHref="/products"
+				/>
 			) : (
 				<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-					{products.map((product) => {
-						const brand = product.brand as Brand | number | null | undefined;
-						const category = product.category as Category | number | null | undefined;
-						const brandName = brand && typeof brand !== "number" ? brand.name : null;
-						const categoryName = category && typeof category !== "number" ? category.name : null;
-						const showcase = getMediaUrl(product.showcaseImage as Media | number | null | undefined);
-						const firstImage =
-							product.images?.[0] && typeof product.images[0].image !== "number"
-								? getMediaUrl(product.images[0].image as Media)
-								: null;
-						const imageUrl = showcase ?? firstImage;
-						const price = product.price ?? 0;
-						const inventory = product.inventory ?? 0;
-						const isOutOfStock = inventory <= 0;
-						const isLowStock = inventory > 0 && inventory <= 5;
-						return (
-							<Link key={product.id} href={`/products/${product.slug}`} className="group">
-								<Card className="gap-0 overflow-hidden rounded-[30px] border border-[#e5e5e5] bg-white p-0 dark:border-[#39393b] dark:bg-[#1a1a1a]">
-									<div className="aspect-square overflow-hidden bg-[#f5f5f5] dark:bg-[#111111]">
-										{imageUrl ? (
-											// eslint-disable-next-line @next/next/no-img-element
-											<img
-												src={imageUrl}
-												alt={product.name}
-												className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-												loading="lazy"
-											/>
-										) : (
-											<div className="flex h-full w-full items-center justify-center text-sm text-[#707072] dark:text-[#9e9ea0]">
-												{t("common.noImage")}
-											</div>
-										)}
-									</div>
-									<CardContent className="flex flex-col gap-1.5 p-4">
-										<div className="flex flex-wrap items-center gap-1.5">
-											{isOutOfStock && (
-												<Badge
-													variant="outline"
-													className="rounded-full border-[#cacacb] bg-white text-xs text-[#707072] dark:border-[#39393b] dark:bg-transparent dark:text-[#9e9ea0]"
-												>
-													{t("common.outOfStock")}
-												</Badge>
-											)}
-											{isLowStock && !isOutOfStock && (
-												<Badge className="rounded-full bg-[#f5f5f5] text-xs text-[#111111] hover:bg-[#f5f5f5] dark:bg-[#39393b] dark:text-white">
-													{t("common.lowStock")}
-												</Badge>
-											)}
-											{categoryName && (
-												<Badge
-													variant="secondary"
-													className="rounded-full bg-[#f5f5f5] text-xs text-[#111111] dark:bg-[#39393b] dark:text-white"
-												>
-													{categoryName}
-												</Badge>
-											)}
-										</div>
-										<h3 className="line-clamp-2 text-[16px] font-medium leading-[1.5] text-[#111111] dark:text-white">
-											{product.name}
-										</h3>
-										{brandName && (
-											<p className="text-[14px] font-medium text-[#707072] dark:text-[#9e9ea0]">
-												{brandName}
-											</p>
-										)}
-										<p
-											className={
-												price === 0
-													? "text-[14px] font-medium text-[#707072] dark:text-[#9e9ea0]"
-													: "text-[16px] font-medium text-[#111111] dark:text-white"
-											}
-										>
-											{price === 0
-												? t("common.contactForPrice")
-												: `${price.toLocaleString("fa-IR")} ${t("common.toman")}`}
-											{price > 0 && isOutOfStock && (
-												<span className="ml-2 text-xs text-[#707072] dark:text-[#9e9ea0]">
-													{t("common.dashWithLabel", { label: t("common.outOfStock") })}
-												</span>
-											)}
-										</p>
-									</CardContent>
-								</Card>
-							</Link>
-						);
-					})}
+					{products.map((product) => (
+						<ProductCard key={product.id} product={product as never} showBrand />
+					))}
 				</div>
 			)}
 
-			{totalPages > 1 && (
-				<div className="mt-8">
-					<Pagination>
-						<PaginationContent>
-							{page > 1 && (
-								<PaginationItem>
-									<PaginationPrevious
-										href={buildPageHref(
-											{ q, brand: brandSlug, category: categorySlug, page: String(page) },
-											{ page: String(page - 1) },
-										)}
-									/>
-								</PaginationItem>
-							)}
-							{Array.from({ length: totalPages }, (_, i) => i + 1)
-								.filter((p) => {
-									if (totalPages <= 7) return true;
-									if (p === 1 || p === totalPages) return true;
-									if (Math.abs(p - page) <= 1) return true;
-									if (page <= 3 && p <= 4) return true;
-									if (page >= totalPages - 2 && p >= totalPages - 3) return true;
-									return false;
-								})
-								.reduce<(number | "ellipsis")[]>((acc, p, idx, arr) => {
-									const prev = arr[idx - 1];
-									if (
-										prev !== undefined &&
-										typeof p === "number" &&
-										typeof prev === "number" &&
-										p - prev > 1
-									)
-										acc.push("ellipsis");
-									acc.push(p);
-									return acc;
-								}, [])
-								.map((p, idx) =>
-									p === "ellipsis" ? (
-										<PaginationItem key={`e-${idx}`}>
-											<PaginationEllipsis />
-										</PaginationItem>
-									) : (
-										<PaginationItem key={p}>
-											<PaginationLink
-												href={buildPageHref(
-													{ q, brand: brandSlug, category: categorySlug, page: String(page) },
-													{ page: String(p) },
-												)}
-												isActive={p === page}
-											>
-												{p}
-											</PaginationLink>
-										</PaginationItem>
-									),
-								)}
-							{page < totalPages && (
-								<PaginationItem>
-									<PaginationNext
-										href={buildPageHref(
-											{ q, brand: brandSlug, category: categorySlug, page: String(page) },
-											{ page: String(page + 1) },
-										)}
-									/>
-								</PaginationItem>
-							)}
-						</PaginationContent>
-					</Pagination>
-					<p className="mt-3 text-center text-[12px] font-medium text-[#707072] dark:text-[#9e9ea0]">
-						{t("products.pagination", {
-							page: page.toLocaleString("fa-IR"),
-							totalPages: totalPages.toLocaleString("fa-IR"),
-							count: productsRes.totalDocs.toLocaleString("fa-IR"),
-						})}
-					</p>
-				</div>
-			)}
-		</div>
+			<PaginatedView
+				page={page}
+				totalPages={totalPages}
+				buildHref={(p) =>
+					buildPageHref(
+						"/products",
+						{ q, brand: brandSlug, category: categorySlug, page: String(page) },
+						{ page: String(p) },
+					)
+				}
+				paginationLabel={{ templateKey: "products.pagination", count: productsRes.totalDocs }}
+			/>
+		</PageContainer>
 	);
 }

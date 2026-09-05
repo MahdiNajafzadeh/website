@@ -1,5 +1,7 @@
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
+import { persist } from "zustand/middleware";
+
+import { ssrSafeLocalStorage } from "@/lib/storage";
 
 export type CartItem = {
 	id: string;
@@ -18,8 +20,6 @@ type CartState = {
 	removeItem: (id: string) => void;
 	undoRemove: () => void;
 	clearCart: () => void;
-	/** @deprecated alias for clearCart — used on checkout success */
-	clearOnCheckout: () => void;
 	getTotal: () => number;
 	getCount: () => number;
 };
@@ -90,8 +90,6 @@ export const useCartStore = create<CartState>()(
 
 			clearCart: () => set({ items: [], lastRemoved: null }),
 
-			clearOnCheckout: () => set({ items: [], lastRemoved: null }),
-
 			getTotal: () => {
 				const { items } = get();
 				return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -104,13 +102,7 @@ export const useCartStore = create<CartState>()(
 		}),
 		{
 			name: "cart-storage",
-			storage: createJSONStorage(() => {
-				if (typeof window !== "undefined" && typeof window.localStorage !== "undefined") {
-					return window.localStorage;
-				}
-				// Return undefined on server / unsupported env — persist will no-op
-				return undefined as unknown as Storage;
-			}),
+			storage: ssrSafeLocalStorage,
 			partialize: (state) => ({ items: state.items, lastRemoved: state.lastRemoved }),
 		},
 	),

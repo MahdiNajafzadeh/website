@@ -1,12 +1,13 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { getPayload } from "payload";
 import type { Metadata } from "next";
-import config from "@/payload.config";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
+import { PageContainer } from "@/components/layout/PageContainer";
 import { AccountForm } from "@/components/account/AccountForm";
-import { getCurrentUser } from "@/lib/current-user";
+import { requireUser } from "@/lib/auth-guard";
+import { getPayloadClient } from "@/lib/payload";
+import { formatIranPhone } from "@/lib/phone";
 import { t } from "@/lib/t";
 
 export const dynamic = "force-dynamic";
@@ -18,16 +19,9 @@ export async function generateMetadata(): Promise<Metadata> {
     };
 }
 
-function formatPhone(value: string): string {
-    if (!/^09\d{9}$/.test(value)) return value;
-    return `${value.slice(0, 4)} ${value.slice(4, 7)} ${value.slice(7)}`;
-}
-
 export default async function AccountPage() {
-    const user = await getCurrentUser();
-    if (!user) redirect("/login?next=/account");
-    const payloadConfig = await config;
-    const payload = await getPayload({ config: payloadConfig });
+    const user = await requireUser("/account");
+    const payload = await getPayloadClient();
 
     let orderCount = 0;
     try {
@@ -43,21 +37,15 @@ export default async function AccountPage() {
 
     const customerType = user.customerType ?? "regular";
     const isPartner = customerType === "partner";
-    const phoneFormatted = user.phone ? formatPhone(user.phone) : "—";
+    const phoneFormatted = user.phone ? formatIranPhone(user.phone) : "—";
 
     return (
-        <div className="mx-auto max-w-[1440px] px-4 py-8 md:px-8">
+        <PageContainer>
             {/* Breadcrumb — {typography.caption-md} 14px/500, {colors.mute} #707072 */}
-            <nav
-                className="mb-6 flex items-center gap-1.5 text-sm text-[#707072] dark:text-[#9e9ea0]"
-                aria-label="Breadcrumb"
-            >
-                <Link href="/" className="hover:text-[#111111] dark:hover:text-white">
-                    {t("common.home")}
-                </Link>
-                <span aria-hidden>{t("common.breadcrumbSeparator")}</span>
-                <span className="font-medium text-[#111111] dark:text-white">{t("account.title")}</span>
-            </nav>
+            <Breadcrumbs
+                crumbs={[{ href: "/", label: t("common.home") }, { label: t("account.title") }]}
+                separatorKey="common.breadcrumbSeparator"
+            />
 
             {/* Title — {typography.heading-xl} 32px/500, {colors.ink} #111111 */}
             <div className="flex flex-wrap items-center justify-between gap-3">
@@ -140,6 +128,6 @@ export default async function AccountPage() {
                     </Card>
                 </aside>
             </div>
-        </div>
+        </PageContainer>
     );
 }

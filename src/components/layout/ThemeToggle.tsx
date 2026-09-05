@@ -2,15 +2,16 @@
 
 import * as React from "react";
 
+import { safeGetLocalStorage, safeSetLocalStorage } from "@/lib/storage";
+
 const THEME_KEY = "theme-pref";
 
 function getInitialTheme(): "light" | "dark" {
-	if (typeof window === "undefined") return "light";
-	try {
-		const saved = window.localStorage.getItem(THEME_KEY);
-		if (saved === "dark" || saved === "light") return saved;
-	} catch {}
-	return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+	return safeGetLocalStorage(THEME_KEY) === "dark"
+		? "dark"
+		: typeof window !== "undefined" && window.matchMedia?.("(prefers-color-scheme: dark)").matches
+			? "dark"
+			: "light";
 }
 
 export function ThemeToggle() {
@@ -26,9 +27,7 @@ export function ThemeToggle() {
 		const root = document.documentElement;
 		const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
 		root.setAttribute("data-theme", next);
-		try {
-			window.localStorage.setItem(THEME_KEY, next);
-		} catch {}
+		safeSetLocalStorage(THEME_KEY, next);
 		setTheme(next);
 	}, []);
 

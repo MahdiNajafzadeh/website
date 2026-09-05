@@ -8,7 +8,14 @@ import { ShoppingBag } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/lib/cart-store";
-import { getPrice, type CustomerType } from "@/lib/pricing";
+import {
+	formatToman,
+	getPrice,
+	priceCartItems,
+	cartGrandTotal,
+	type CustomerType,
+} from "@/lib/pricing";
+import { apiFetch } from "@/lib/api";
 
 type Props = {
 	initialAddress: string;
@@ -16,10 +23,6 @@ type Props = {
 	partnerDiscount?: number;
 	customerType?: CustomerType;
 };
-
-function formatToman(n: number): string {
-	return `${Math.round(n).toLocaleString("en-US")} تومان`;
-}
 
 export function CheckoutForm({ initialAddress, customerId, partnerDiscount = 0, customerType = "regular" }: Props) {
 	const router = useRouter();
@@ -58,12 +61,8 @@ export function CheckoutForm({ initialAddress, customerId, partnerDiscount = 0, 
 		);
 	}
 
-	const priced = items.map((item) => {
-		const discounted = getPrice({ price: item.price }, customerType, partnerDiscount);
-		const hasDiscount = discounted !== item.price && customerType === "partner" && partnerDiscount > 0;
-		return { ...item, discounted, hasDiscount };
-	});
-	const grandTotal = priced.reduce((sum, i) => sum + i.discounted * i.quantity, 0);
+	const priced = priceCartItems(items, customerType, partnerDiscount);
+	const grandTotal = cartGrandTotal(priced);
 
 	const onSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -74,11 +73,9 @@ export function CheckoutForm({ initialAddress, customerId, partnerDiscount = 0, 
 		}
 		startTransition(async () => {
 			try {
-				const res = await fetch("/api/orders", {
+				const res = await apiFetch("/api/orders", {
 					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					credentials: "include",
-					body: JSON.stringify({
+					body: {
 						customer: customerId,
 						shippingAddress: address,
 						items: items.map((item) => ({
@@ -88,18 +85,16 @@ export function CheckoutForm({ initialAddress, customerId, partnerDiscount = 0, 
 							quantity: item.quantity,
 						})),
 						status: "review",
-					}),
+					},
 				});
 				if (!res.ok) {
 					const txt = await res.text();
 					throw new Error(txt || `Order failed (${res.status})`);
 				}
 				// save address to profile too
-				await fetch("/api/users/me", {
+				await apiFetch("/api/users/me", {
 					method: "PATCH",
-					headers: { "Content-Type": "application/json" },
-					credentials: "include",
-					body: JSON.stringify({ address }),
+					body: { address },
 				}).catch(() => undefined);
 				clearCart();
 				setSuccess(true);
@@ -145,14 +140,14 @@ export function CheckoutForm({ initialAddress, customerId, partnerDiscount = 0, 
 								{item.name} × {item.quantity}
 							</span>
 							<span className="text-[#111111] font-medium">
-								{formatToman(item.discounted * item.quantity)}
+								{formatToman(item.discounted * item.quantity, "en-US")}
 							</span>
 						</div>
 					))}
 				</div>
 				<div className="flex items-center justify-between">
 					<span className="text-[16px] font-medium text-[#111111]">Total</span>
-					<span className="text-[16px] font-medium text-[#111111]">{formatToman(grandTotal)}</span>
+					<span className="text-[16px] font-medium text-[#111111]">{formatToman(grandTotal, "en-US")}</span>
 				</div>
 				{customerType === "partner" && partnerDiscount > 0 && (
 					<p className="text-[12px] font-medium text-[#007d48]">

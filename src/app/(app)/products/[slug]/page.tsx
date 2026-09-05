@@ -1,30 +1,24 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getPayload } from "payload";
-import config from "@/payload.config";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { AddToCartButton } from "@/components/product/AddToCartButton";
 import { ProductActions } from "@/components/product/ProductActions";
+import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
+import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { Package, AlertTriangle } from "lucide-react";
 import type { Brand, Category, Media, Product } from "@/payload-types";
 import { t } from "@/lib/t";
+import { getMediaUrl } from "@/lib/media";
+import { getPayloadClient } from "@/lib/payload";
+import { formatToman } from "@/lib/pricing";
+import { getStockState } from "@/lib/inventory";
 
 export const dynamic = "force-dynamic";
 
-function getMediaUrl(media: number | Media | null | undefined): string | null {
-	if (!media || typeof media === "number") return null;
-	return (media as Media).url ?? null;
-}
-
-function formatPrice(price: number): string {
-	return `${price.toLocaleString("fa-IR")} ${t("common.toman")}`;
-}
-
 export default async function ProductDetailPage({ params }: { params: Promise<{ slug: string }> }) {
 	const { slug } = await params;
-	const payloadConfig = await config;
-	const payload = await getPayload({ config: payloadConfig });
+	const payload = await getPayloadClient();
 
 	const res = await payload.find({
 		collection: "products",
@@ -53,8 +47,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
 	const price = product.price ?? 0;
 	const inventory = product.inventory ?? 0;
-	const isOutOfStock = inventory <= 0;
-	const isLowStock = inventory > 0 && inventory <= 5;
+	const { isOutOfStock, isLowStock } = getStockState(product.inventory);
 	const heroImage = allImages[0] ?? null;
 
 	// For AddToCartButton image fallback
@@ -62,34 +55,20 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
 	return (
 		<div className="mx-auto max-w-[1440px] px-4 py-6 md:px-8">
-			<nav
-				className="mb-6 flex items-center gap-1.5 text-sm text-[#707072] dark:text-[#9e9ea0]"
-				aria-label="Breadcrumb"
-			>
-				<Link href="/" className="hover:text-[#111111] dark:hover:text-white">
-					{t("common.home")}
-				</Link>
-				<span aria-hidden>{t("common.breadcrumbSeparatorSlash")}</span>
-				<Link href="/products" className="hover:text-[#111111] dark:hover:text-white">
-					{t("common.products")}
-				</Link>
-				<span aria-hidden>{t("common.breadcrumbSeparatorSlash")}</span>
-				<span className="font-medium text-[#111111] dark:text-white line-clamp-1">{product.name}</span>
-			</nav>
+			<Breadcrumbs
+				crumbs={[
+					{ href: "/", label: t("common.home") },
+					{ href: "/products", label: t("common.products") },
+					{ label: product.name },
+				]}
+				separatorKey="common.breadcrumbSeparatorSlash"
+			/>
 
 			<div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
 				{/* Gallery — beui gallery pattern — stage {colors.soft-cloud} #f5f5f5 */}
 				<div className="flex flex-col gap-3">
 					<div className="overflow-hidden rounded-[30px] bg-[#f5f5f5] dark:bg-[#1a1a1a] aspect-square flex items-center justify-center">
-						{heroImage ? (
-							// eslint-disable-next-line @next/next/no-img-element
-							<img src={heroImage} alt={product.name} className="h-full w-full object-cover" />
-						) : (
-							<div className="flex flex-col items-center gap-2 py-12 text-sm text-[#707072] dark:text-[#9e9ea0]">
-								<Package className="size-8 text-[#9e9ea0]" />
-								{t("common.noImage")}
-							</div>
-						)}
+						<ImageWithFallback variant="hero" src={heroImage} alt={product.name} />
 					</div>
 
 					{showcaseUrl && showcaseUrl !== heroImage && (
@@ -180,7 +159,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 							</span>
 						) : (
 							<span className="text-[24px] font-medium text-[#111111] dark:text-white">
-								{formatPrice(price)}
+								{formatToman(price)}
 							</span>
 						)}
 					</div>

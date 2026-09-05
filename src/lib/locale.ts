@@ -221,4 +221,5 @@ export default {
 	"common.requiredMark": "*",
 	phone: "تلفن",
 	address: "آدرس",
+	"site.nameFallback": "فروشگاه",
 } as const;

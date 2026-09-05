@@ -1,13 +1,18 @@
 import Link from "next/link";
-import type { Category, Media, Product } from "@/payload-types";
+import type { Category, Product } from "@/payload-types";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { t } from "@/lib/t";
+import { formatToman } from "@/lib/pricing";
+import { getStockState } from "@/lib/inventory";
+import { getProductImageUrl } from "@/lib/media";
 
 export interface ProductCardProps {
-	product: Pick<Product, "id" | "name" | "slug" | "price" | "inventory" | "category" | "images"> & {
+	product: Pick<Product, "id" | "name" | "slug" | "price" | "inventory" | "category" | "images" | "showcaseImage"> & {
 		brand?: Product["brand"];
 	};
+	showBrand?: boolean;
+	showLowStock?: boolean;
 }
 
 function getCategoryName(category: Product["category"]): string | null {
@@ -15,22 +20,17 @@ function getCategoryName(category: Product["category"]): string | null {
 	return (category as Category).name ?? null;
 }
 
-function getImageUrl(images: Product["images"]): string | null {
-	if (!images || images.length === 0) return null;
-	const first = images[0];
-	const media = first?.image;
-	if (!media || typeof media === "number") return null;
-	return (media as Media).url ?? null;
-}
-
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, showBrand = false, showLowStock = true }: ProductCardProps) {
 	const categoryName = getCategoryName(product.category);
-	const imageUrl = getImageUrl(product.images);
+	const imageUrl = getProductImageUrl(product);
 	const price = product.price ?? 0;
 	const inventory = product.inventory ?? 0;
 	const isContact = price === 0;
-	const isOutOfStock = inventory <= 0;
-	const isLowStock = inventory > 0 && inventory <= 5;
+	const { isOutOfStock, isLowStock } = getStockState(inventory);
+	const brandName =
+		product.brand && typeof product.brand !== "number"
+			? (product.brand as { name?: string }).name ?? null
+			: null;
 
 	return (
 		<Link href={`/products/${product.slug}`} className="group" data-od-id="product-card">
@@ -62,7 +62,7 @@ export function ProductCard({ product }: ProductCardProps) {
 								{t("common.outOfStock")}
 							</Badge>
 						)}
-						{isLowStock && !isOutOfStock && (
+						{showLowStock && isLowStock && !isOutOfStock && (
 							<Badge className="rounded-full bg-[#f5f5f5] px-2.5 py-0.5 text-xs font-medium text-[#111111] hover:bg-[#f5f5f5] dark:bg-[#39393b] dark:text-white">
 								{t("common.lowStock")}
 							</Badge>
@@ -79,12 +79,13 @@ export function ProductCard({ product }: ProductCardProps) {
 					<h3 className="line-clamp-2 text-[16px] font-medium leading-[1.5] text-[#111111] dark:text-white">
 						{product.name}
 					</h3>
+					{showBrand && brandName ? (
+						<p className="text-[14px] font-medium text-[#707072] dark:text-[#9e9ea0]">{brandName}</p>
+					) : null}
 					<p
 						className={`text-[14px] font-medium leading-[1.5] ${isContact ? "text-[#707072] dark:text-[#9e9ea0]" : "text-[#111111] dark:text-white"}`}
 					>
-						{isContact
-							? t("common.contactForPrice")
-							: `${price.toLocaleString("fa-IR")} ${t("common.toman")}`}
+						{isContact ? t("common.contactForPrice") : formatToman(price)}
 					</p>
 				</CardContent>
 			</Card>

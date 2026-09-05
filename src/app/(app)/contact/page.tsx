@@ -1,8 +1,13 @@
-import Link from "next/link";
 import type { Metadata } from "next";
 import { Card, CardContent } from "@/components/ui/card";
+import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
+import { PageContainer } from "@/components/layout/PageContainer";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { InitialsAvatar } from "@/components/ui/InitialsAvatar";
+import { ContactChannelList } from "@/components/contact/ContactChannelList";
 import { getSiteSettings } from "@/lib/site-settings";
-import type { Media } from "@/payload-types";
+import { getMediaUrl } from "@/lib/media";
 import { t } from "@/lib/t";
 import Image from "next/image";
 
@@ -12,11 +17,6 @@ export async function generateMetadata(): Promise<Metadata> {
     const settings = await getSiteSettings();
     const siteName = settings.name || "store";
     return { title: `${t("contact.title")} | ${siteName}`, description: `${t("contact.title")} — ${siteName}` };
-}
-
-function getMediaUrl(media: unknown): string | null {
-    if (!media || typeof media !== "object") return null;
-    return (media as Media).url ?? null;
 }
 
 export default async function ContactPage() {
@@ -34,131 +34,44 @@ export default async function ContactPage() {
     const emails = settings.emails || [];
     const socialLinks = settings.socialLinks || [];
     return (
-        <div className="mx-auto max-w-[1440px] px-4 py-8 md:px-8">
-            <nav
-                className="mb-6 flex items-center gap-1.5 text-sm text-[#707072] dark:text-[#9e9ea0]"
-                aria-label="Breadcrumb"
-            >
-                <Link href="/" className="hover:text-[#111111] dark:hover:text-white">
-                    {t("common.home")}
-                </Link>
-                <span aria-hidden>{t("common.breadcrumbSeparator")}</span>
-                <span className="font-medium text-[#111111] dark:text-white">{t("contact.title")}</span>
-            </nav>
+        <PageContainer>
+            <Breadcrumbs
+                crumbs={[{ href: "/", label: t("common.home") }, { label: t("contact.title") }]}
+                separatorKey="common.breadcrumbSeparator"
+            />
 
-            <h1 className="text-[32px] font-medium leading-[1.2] text-[#111111] dark:text-white">
-                {t("contact.title")}
-            </h1>
-            <p className="mt-1 text-[14px] font-medium text-[#707072] dark:text-[#9e9ea0]">
-                {t("contact.titleWithSite", { title: t("contact.title"), siteName })}
-            </p>
+            <PageHeader
+                title={t("contact.title")}
+                subtitle={t("contact.titleWithSite", { title: t("contact.title"), siteName })}
+            />
 
             {!hasAnyChannel ? (
-                <div className="mt-8 rounded-[30px] bg-[#f5f5f5] p-12 text-center dark:bg-[#1a1a1a]">
-                    <p className="text-[16px] font-medium text-[#111111] dark:text-white">{t("contact.noPhone")}</p>
-                    <p className="mt-1 text-[14px] font-medium text-[#707072] dark:text-[#9e9ea0]">
-                        {t("contact.noSocial")}
-                    </p>
-                </div>
+                <EmptyState title={t("contact.noPhone")} hint={t("contact.noSocial")} />
             ) : (
                 <div className="mt-8 grid gap-6 md:grid-cols-2">
-                    <Card className="rounded-[18px] border border-[#cacacb] bg-white dark:border-[#39393b] dark:bg-[#1a1a1a] p-0 gap-0">
-                        <CardContent className="p-6">
-                            {phones.length === 0 ? (
-                                <p className="mt-3 text-[14px] font-medium text-[#707072] dark:text-[#9e9ea0]">
-                                    {t("contact.noPhone")}
-                                </p>
-                            ) : (
-                                <ul className="mt-4 space-y-3">
-                                    {phones.map((p, idx) => (
-                                        <li key={p.id ?? idx} className="flex items-start justify-between gap-3">
-                                            <div className="min-w-0">
-                                                <p className="text-[12px] font-medium uppercase tracking-wide text-[#707072] dark:text-[#9e9ea0]">
-                                                    {t("contact.labelWithSuffix", {
-                                                        label: p.label || t("contact.phones"),
-                                                        suffix: p.isPrimary ? t("contact.primarySuffix") : "",
-                                                    })}
-                                                </p>
-                                                {p.number ? (
-                                                    <a
-                                                        href={`tel:${p.number.replace(/\s+/g, "")}`}
-                                                        className="mt-0.5 inline-block text-[14px] font-medium text-[#111111] hover:underline dark:text-white"
-                                                    >
-                                                        {p.number}
-                                                    </a>
-                                                ) : (
-                                                    <span className="mt-0.5 inline-block text-[14px] font-medium text-[#707072]">
-                                                        {t("common.dash")}
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
-                        </CardContent>
-                    </Card>
+                    <ContactChannelList
+                        channels={phones}
+                        kind="phone"
+                        noChannelLabel={t("contact.noPhone")}
+                        defaultLabel={t("contact.phones")}
+                        variant="card"
+                    />
 
-                    <Card className="rounded-[18px] border border-[#cacacb] bg-white dark:border-[#39393b] dark:bg-[#1a1a1a] p-0 gap-0">
-                        <CardContent className="p-6">
-                            {emails.length === 0 ? (
-                                <p className="mt-3 text-[14px] font-medium text-[#707072] dark:text-[#9e9ea0]">
-                                    {t("contact.noEmail")}
-                                </p>
-                            ) : (
-                                <ul className="mt-4 space-y-3">
-                                    {emails.map((e, idx) => (
-                                        <li key={e.id ?? idx}>
-                                            <p className="text-[12px] font-medium uppercase tracking-wide text-[#707072] dark:text-[#9e9ea0]">
-                                                {t("contact.labelWithSuffix", {
-                                                    label: e.label || t("contact.emails"),
-                                                    suffix: e.isPrimary ? t("contact.primarySuffix") : "",
-                                                })}
-                                            </p>
-                                            {e.email ? (
-                                                <a
-                                                    href={`mailto:${e.email}`}
-                                                    className="mt-0.5 inline-block break-all text-[14px] font-medium text-[#111111] hover:underline dark:text-white"
-                                                >
-                                                    {e.email}
-                                                </a>
-                                            ) : (
-                                                <span className="mt-0.5 inline-block text-[14px] font-medium text-[#707072]">
-                                                    {t("common.dash")}
-                                                </span>
-                                            )}
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
-                        </CardContent>
-                    </Card>
+                    <ContactChannelList
+                        channels={emails}
+                        kind="email"
+                        noChannelLabel={t("contact.noEmail")}
+                        defaultLabel={t("contact.emails")}
+                        variant="card"
+                    />
 
-                    <Card className="rounded-[18px] border border-[#cacacb] bg-white dark:border-[#39393b] dark:bg-[#1a1a1a] p-0 gap-0">
-                        <CardContent className="p-6">
-                            {addresses.length === 0 ? (
-                                <p className="mt-3 text-[14px] font-medium text-[#707072] dark:text-[#9e9ea0]">
-                                    {t("contact.noAddress")}
-                                </p>
-                            ) : (
-                                <ul className="mt-4 space-y-3">
-                                    {addresses.map((a, idx) => (
-                                        <li key={a.id ?? idx}>
-                                            <p className="text-[12px] font-medium uppercase tracking-wide text-[#707072] dark:text-[#9e9ea0]">
-                                                {t("contact.labelWithSuffix", {
-                                                    label: a.label || t("contact.addresses"),
-                                                    suffix: a.isPrimary ? t("contact.primarySuffix") : "",
-                                                })}
-                                            </p>
-                                            <p className="mt-0.5 whitespace-pre-line text-[14px] leading-[1.5] text-[#111111] dark:text-white">
-                                                {a.address ?? t("common.dash")}
-                                            </p>
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
-                        </CardContent>
-                    </Card>
+                    <ContactChannelList
+                        channels={addresses}
+                        kind="address"
+                        noChannelLabel={t("contact.noAddress")}
+                        defaultLabel={t("contact.addresses")}
+                        variant="card"
+                    />
 
                     <Card className="rounded-[18px] border border-[#cacacb] bg-white dark:border-[#39393b] dark:bg-[#1a1a1a] p-0 gap-0">
                         <CardContent className="p-6">
@@ -191,9 +104,7 @@ export default async function ContactPage() {
                                                             height={20}
                                                         />
                                                     ) : (
-                                                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-[12px] font-medium text-[#111111]">
-                                                            {s.name.charAt(0).toUpperCase()}
-                                                        </span>
+                                                        <InitialsAvatar name={s.name} size="xs" />
                                                     )}
                                                     <span className="text-[14px] font-medium">{s.name}</span>
                                                 </a>
@@ -210,6 +121,6 @@ export default async function ContactPage() {
             <p className="mt-8 rounded-[18px] border border-[#e5e5e5] dark:border-[#39393b] bg-[#f5f5f5] dark:bg-[#1a1a1a] px-4 py-3 text-[14px] font-medium leading-[1.5] text-[#707072] dark:text-[#9e9ea0]">
                 {t("contact.titleWithSite", { title: siteName, siteName: t("contact.social") })}
             </p>
-        </div>
+        </PageContainer>
     );
 }
