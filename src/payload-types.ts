@@ -140,7 +140,7 @@ export interface User {
   id: number;
   firstName: string;
   lastName: string;
-  address: string;
+  address?: string | null;
   role: 'admin' | 'employee' | 'customer';
   customerType: 'regular' | 'partner';
   updatedAt: string;

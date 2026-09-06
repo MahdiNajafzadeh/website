@@ -14,6 +14,7 @@ export const NAV_LINKS = [
     { href: "/products", label: "محصولات" },
     { href: "/categories", label: "دسته‌ها" },
     { href: "/brands", label: "برندها" },
+    { href: "/blog", label: "بلاگ" },
     { href: "/contact", label: "تماس" },
 ] as const;
 

@@ -4,8 +4,16 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { AuthFormShell } from "@/components/auth/AuthFormShell";
-import { apiFetch, parsePayloadError } from "@/lib/api";
 import { t } from "@/lib/t";
+
+async function parsePayloadError(res: Response, fallback: string): Promise<string> {
+  try {
+    const data = await res.json();
+    return (data?.errors?.[0]?.message as string) || (data?.message as string) || fallback;
+  } catch {
+    return fallback;
+  }
+}
 
 function LoginForm() {
     const router = useRouter();
@@ -22,9 +30,11 @@ function LoginForm() {
         setError(null);
         setLoading(true);
         try {
-            const res = await apiFetch("/api/users/login", {
+            const res = await fetch("/api/users/login", {
                 method: "POST",
-                body: { username: phone.trim(), password },
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username: phone.trim(), password }),
             });
             if (!res.ok) {
                 const msg = await parsePayloadError(res, t("auth.errorLogin"));

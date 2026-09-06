@@ -15,7 +15,6 @@ import {
 	cartGrandTotal,
 	type CustomerType,
 } from "@/lib/pricing";
-import { apiFetch } from "@/lib/api";
 
 type Props = {
 	initialAddress: string;
@@ -73,9 +72,11 @@ export function CheckoutForm({ initialAddress, customerId, partnerDiscount = 0, 
 		}
 		startTransition(async () => {
 			try {
-				const res = await apiFetch("/api/orders", {
+				const res = await fetch("/api/orders", {
 					method: "POST",
-					body: {
+					credentials: "include",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({
 						customer: customerId,
 						shippingAddress: address,
 						items: items.map((item) => ({
@@ -85,16 +86,18 @@ export function CheckoutForm({ initialAddress, customerId, partnerDiscount = 0, 
 							quantity: item.quantity,
 						})),
 						status: "review",
-					},
+					}),
 				});
 				if (!res.ok) {
 					const txt = await res.text();
 					throw new Error(txt || `Order failed (${res.status})`);
 				}
 				// save address to profile too
-				await apiFetch("/api/users/me", {
+				await fetch("/api/users/me", {
 					method: "PATCH",
-					body: { address },
+					credentials: "include",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ address }),
 				}).catch(() => undefined);
 				clearCart();
 				setSuccess(true);

@@ -17,6 +17,7 @@ rules:
     - If UI/visual styling is in scope, MUST state that `DESIGN.md` tokens (front matter + prose) govern all colors, typography, spacing, radii, and component specs, and that they will be referenced via token paths (e.g. `{colors.ink}`, `{component.button-primary}`) instead of ad-hoc values.
     - MUST state `bun` as the runner/manager (e.g., `bunx --bun shadcn@latest add @beui/<slug>`, `bun run dev`).
     - If Payload CMS is in scope, MUST note that the payload skill at `.agents/skills/payload/SKILL.md` will be loaded before specs/design.
+    - DO NOT change `src/app/(payload)`, this is a auto generated directory.
 
   specs:
     - Front-end behavior MUST be specified as routes/components under `src/app/(app)`; scenarios MUST reference `(app)` paths.

@@ -4,8 +4,16 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { AuthFormShell } from "@/components/auth/AuthFormShell";
-import { apiFetch, parsePayloadError } from "@/lib/api";
 import { t } from "@/lib/t";
+
+async function parsePayloadError(res: Response, fallback: string): Promise<string> {
+  try {
+    const data = await res.json();
+    return (data?.errors?.[0]?.message as string) || (data?.message as string) || fallback;
+  } catch {
+    return fallback;
+  }
+}
 
 function RegisterForm() {
     const router = useRouter();
@@ -34,16 +42,18 @@ function RegisterForm() {
         }
         setLoading(true);
         try {
-            const createRes = await apiFetch("/api/users", {
+            const createRes = await fetch("/api/users", {
                 method: "POST",
-                body: {
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
                     firstName: firstName.trim(),
                     lastName: lastName.trim(),
                     phone: trimmedPhone,
                     username: trimmedPhone,
                     password,
                     address: address.trim() || undefined,
-                },
+                }),
             });
             if (!createRes.ok) {
                 const msg = await parsePayloadError(createRes, t("auth.registrationFailed"));

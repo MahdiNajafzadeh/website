@@ -4,7 +4,7 @@ import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { formatIranPhone } from "@/lib/phone";
-import { apiFetch } from "@/lib/api";
+import { t } from "@/lib/t";
 
 type Props = {
 	userId: number;
@@ -31,7 +31,7 @@ export function AccountForm({ userId, initialFirstName, initialLastName, initial
 	if (!mounted) {
 		return (
 			<div className="rounded-[18px] border border-[#cacacb] bg-white p-6 text-[14px] font-medium text-[#707072]">
-				Loading…
+				{t("account.form.loading")}
 			</div>
 		);
 	}
@@ -41,27 +41,29 @@ export function AccountForm({ userId, initialFirstName, initialLastName, initial
 		setError(null);
 		setSuccess(false);
 		if (!firstName.trim() || !lastName.trim()) {
-			setError("First name and last name are required.");
+			setError(t("account.form.errorRequiredName"));
 			return;
 		}
 		startTransition(async () => {
 			try {
-				const res = await apiFetch(`/api/users/${userId}`, {
+				const res = await fetch(`/api/users/${userId}`, {
 					method: "PATCH",
-					body: {
+					credentials: "include",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({
 						firstName: firstName.trim(),
 						lastName: lastName.trim(),
 						address: address.trim(),
-					},
+					}),
 				});
 				if (!res.ok) {
 					const txt = await res.text().catch(() => "");
-					throw new Error(txt || `Update failed (${res.status})`);
+					throw new Error(txt || t("account.form.updateFailedWithStatus", { status: String(res.status) }));
 				}
 				setSuccess(true);
 				startTransition(() => router.refresh());
 			} catch (err) {
-				const msg = err instanceof Error ? err.message : "Update failed";
+				const msg = err instanceof Error ? err.message : t("account.form.updateFailed");
 				setError(msg);
 			}
 		});
@@ -75,7 +77,7 @@ export function AccountForm({ userId, initialFirstName, initialLastName, initial
 						htmlFor="firstName"
 						className="text-[12px] font-medium uppercase tracking-wide text-[#707072]"
 					>
-						First name
+						{t("account.form.firstName")}
 					</label>
 					<input
 						id="firstName"
@@ -91,7 +93,7 @@ export function AccountForm({ userId, initialFirstName, initialLastName, initial
 						htmlFor="lastName"
 						className="text-[12px] font-medium uppercase tracking-wide text-[#707072]"
 					>
-						Last name
+						{t("account.form.lastName")}
 					</label>
 					<input
 						id="lastName"
@@ -107,7 +109,7 @@ export function AccountForm({ userId, initialFirstName, initialLastName, initial
 			{/* Phone — read-only — {colors.mute} #707072 */}
 			<div className="space-y-1.5">
 				<label htmlFor="phone" className="text-[12px] font-medium uppercase tracking-wide text-[#707072]">
-					Phone
+					{t("account.form.phone")}
 				</label>
 				<input
 					id="phone"
@@ -118,20 +120,20 @@ export function AccountForm({ userId, initialFirstName, initialLastName, initial
 					className="h-11 w-full cursor-not-allowed rounded-[18px] border border-[#cacacb] bg-[#f5f5f5] px-4 text-[14px] leading-[1.5] text-[#707072] focus:outline-none"
 				/>
 				<p className="text-[12px] font-medium text-[#707072]">
-					Phone is linked to your account and cannot be changed.
+					{t("account.form.phoneHint")}
 				</p>
 			</div>
 
 			<div className="space-y-1.5">
 				<label htmlFor="address" className="text-[12px] font-medium uppercase tracking-wide text-[#707072]">
-					Shipping address
+					{t("account.form.shippingAddress")}
 				</label>
 				<textarea
 					id="address"
 					rows={4}
 					value={address}
 					onChange={(e) => setAddress(e.target.value)}
-					placeholder="Enter your full shipping address"
+					placeholder={t("account.form.shippingAddressPlaceholder")}
 					className="w-full rounded-[18px] border border-[#cacacb] bg-white p-3 text-[14px] leading-[1.5] text-[#111111] focus:border-[#111111] focus:outline-none"
 				/>
 			</div>
@@ -149,7 +151,7 @@ export function AccountForm({ userId, initialFirstName, initialLastName, initial
 					role="status"
 					className="rounded-[18px] border border-[#007d48]/30 bg-[#007d48]/5 p-3 text-[14px] font-medium text-[#007d48]"
 				>
-					Profile updated.
+					{t("account.form.profileUpdated")}
 				</p>
 			) : null}
 
@@ -158,7 +160,7 @@ export function AccountForm({ userId, initialFirstName, initialLastName, initial
 				disabled={isPending}
 				className="h-12 w-full rounded-full bg-[#111111] text-[16px] font-medium leading-[1.5] text-white hover:opacity-90 sm:w-auto sm:px-8"
 			>
-				{isPending ? "Saving…" : "Save changes"}
+				{isPending ? t("account.form.saving") : t("account.form.saveChanges")}
 			</Button>
 		</form>
 	);

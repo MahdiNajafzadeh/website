@@ -8,14 +8,16 @@ import { AccountForm } from "@/components/account/AccountForm";
 import { requireUser } from "@/lib/auth-guard";
 import { getPayloadClient } from "@/lib/payload";
 import { formatIranPhone } from "@/lib/phone";
+import { getSiteName } from "@/lib/site-settings";
 import { t } from "@/lib/t";
 
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
+    const siteName = await getSiteName();
     return {
-        title: "Account",
-        description: "Manage your profile, address, and orders.",
+        title: `${t("account.title")} | ${siteName}`,
+        description: t("account.metaDescription"),
     };
 }
 

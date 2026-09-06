@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { t } from "@/lib/t";
-import { apiFetch } from "@/lib/api";
 
 export function LogoutButton() {
 	const router = useRouter();
@@ -16,12 +15,13 @@ export function LogoutButton() {
 		try {
 			// Payload REST logout — clears payload-token cookie. Credentials include ensures cookie is sent.
 			// Primary verb is POST per Payload 3.88 (verified via Users.ts phoneLogin cookie handling).
-			const res = await apiFetch("/api/users/logout", {
+			const res = await fetch("/api/users/logout", {
 				method: "POST",
+				credentials: "include",
 			});
 			// Fallback: try DELETE if POST returns 405 (some Payload configs expose DELETE)
 			if (!res.ok && res.status === 405) {
-				await apiFetch("/api/users/logout", { method: "DELETE" }).catch(() => null);
+				await fetch("/api/users/logout", { method: "DELETE", credentials: "include" }).catch(() => null);
 			}
 		} catch {
 			// ignore network error — still navigate
